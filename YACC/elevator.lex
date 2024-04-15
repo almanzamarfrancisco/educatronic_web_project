@@ -4,23 +4,22 @@
 
 %%
 
+UP      { return UP; }
+DOWN    { return DOWN; }
+OPEN    { return OPEN; }
+CLOSE   { return CLOSE; }
+START   { return START; }
+END     { return END; }
+FOR     { return FOR; }
+IF      { return IF; }
+THEN    { return THEN; }
+ELSE    { return ELSE; }
+"="     { return '='; }
+[0-9]+  { yylval.num = atoi(yytext); return NUMBER; }
+[a-zA-Z][a-zA-Z0-9]* { yylval.identifier = strdup(yytext); return IDENTIFIER; }
+[ \t\n] ; // Ignore whitespace and newline
 
-up      { return UP; }
-down    { return DOWN; }
-stop    { return STOP; }
-open    { return OPEN; }
-close   { return CLOSE; }
-start   { return START; }
-for     { return FOR; }
-if      { return IF; }
-end     { return END; }
-times   { return TIMES; }
-equals  { return EQUALS; }
-then    { return THEN; }
-else    { return ELSE; }
-[1-7]   { yylval.num = atoi(yytext); return NUMBER; }
-\n      { return NEWLINE; }
-[ \t]   ; // Ignore whitespace
+.       { yyerror("Invalid input"); }
 
 %%
 
