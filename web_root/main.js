@@ -58,7 +58,9 @@ const TextArea = function (props){
     setText(props.text);
   }, [props.text]);
 
-  return html`<textarea class="fakeimg" style="height:200px;">${props.text}</textarea>`
+  return html`<textarea class="fakeimg" style="height:200px;">
+                ${props.text}
+              </textarea>`
 }
 
 function TabNavigation({ defaultActiveTab, tabs }) {
@@ -73,6 +75,7 @@ function TabNavigation({ defaultActiveTab, tabs }) {
       <div>
         ${h(ArchiveContent, { title: tabs[activeTab].title, saved: tabs[activeTab].saved, code: tabs[activeTab].code })}
         ${tabs[activeTab].content}
+        <hr>
         ${h(SendButton, { code: tabs[activeTab].code })}
       </div>
     </div>
@@ -112,8 +115,8 @@ function SendButton({ code }) {
       })
     }).then(r => r.json())
     .catch(err => {
-      console.log(err);
-      enable(false);
+      console.log(err)
+      // enable(false);
     });
   }
   return html `
@@ -125,7 +128,7 @@ const App = function (props) {
   const [config, setConfig] = useState({});
 
   const getconfig = () =>
-    fetch('/api/code/get')
+    fetch('/api/code/get_default')
       .then(r => r.json())
       .then(r => setConfig(r))
       .catch(err => console.log(err));
