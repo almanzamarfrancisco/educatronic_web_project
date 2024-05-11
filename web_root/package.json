@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "preact-sockette": "^1.0.0"
+  }
+}

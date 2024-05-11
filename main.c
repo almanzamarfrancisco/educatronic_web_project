@@ -10,7 +10,7 @@
 
 #include "mongoose.h"
 
-static const char *s_http_addr = "http://localhost:8000";  // HTTP port
+static const char *s_http_addr = "http://192.168.1.74:8000";  // HTTP port
 static const char *s_root_dir = "web_root";
 #define DEFAULT_CODE "START OPEN CLOSE UP 1 UP 2 OPEN CLOSE END"
 static struct config {

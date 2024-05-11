@@ -1,1 +1,3 @@
 example
+web_root/node_modules
+web_root/package-lock.json
