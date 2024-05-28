@@ -1,12 +1,5 @@
 // Copyright (c) 2022 Cesanta Software Limited
 // All rights reserved
-//
-// UI example
-// It implements the following endpoints:
-//    /api/config/get - respond with current config
-//    /api/config/set - POST a config change
-//    any other URI serves static files from s_root_dir
-// Data and results are JSON strings
 
 #include "mongoose.h"
 

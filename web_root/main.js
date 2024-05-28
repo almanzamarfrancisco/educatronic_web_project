@@ -1,6 +1,6 @@
 'use strict';
-import { h, html, render, useEffect, useState } from './preact.min.js';
-
+// import { h, html, render, useEffect, useState } from './preact.min.js';
+import { h, html, render, useEffect, useState } from './node_modules/preact/dist/';
 const MainComponent = function (props) {
   const [code, setDefaultCode] = useState(props.config.code || '');
 
@@ -74,8 +74,12 @@ function TabNavigation({ defaultActiveTab, tabs }) {
       )}
       <div>
         ${h(ArchiveContent, { title: tabs[activeTab].title, saved: tabs[activeTab].saved, code: tabs[activeTab].code })}
-        ${tabs[activeTab].content}
-        <hr>
+        <div style="margin: 5%">
+          ${tabs[activeTab].content}
+        </div>
+        <div style="margin: 5%">
+          ${h(videoPlayer, {})}
+        </div>
         ${h(SendButton, { code: tabs[activeTab].code })}
       </div>
     </div>
@@ -122,6 +126,10 @@ function SendButton({ code }) {
   return html `
     <input type="button" value="Ejecutar Código" onClick="${update}"/>
   `
+}
+
+function videoPlayer(){
+  return `<h1>Vientos!!</h1>`
 }
 
 const App = function (props) {
