@@ -10,9 +10,6 @@
 
 static const char *s_http_addr = "http://192.168.1.74:8000";  // HTTP port
 static const char *s_root_dir = "web_root";
-static struct config {
-  char *code;
-} s_config;
 
 typedef struct PROGRAM_FILE{
     char *fileId;
@@ -28,11 +25,11 @@ const char * program_file_properties[] = {
 // Validates de JSON properties
 int validate_json(struct mg_str json) {
     char key_to_validate[20] = "";
-    char *value_found;
+    int value_found;
     for(int i = 0;i<PROGRAM_FILE_ELEMENTS;i++){
         strcat(key_to_validate, "$.");
         strcat(key_to_validate, program_file_properties[i]);
-        if ((value_found = mg_json_get_str(json, key_to_validate)) == NULL) {
+        if ((value_found = mg_json_get(json, key_to_validate, NULL)) <= 0) {
             return 1;
         }
         strcpy(key_to_validate, "");
@@ -46,21 +43,25 @@ int update_files(struct mg_str json, program_file *f) {
         printf("Invalid JSON\n");
         return 1;
     }
-    printf("Must continue with the execution\n");
+    // free(f->code); // TODO: Free the memory
+    // TODO: make this assignation dinamic
+    f->fileId = strdup(mg_json_get_str(json, "$.fileId"));
+    f->name = strdup(mg_json_get_str(json, "$.name"));
+    f->code = strdup(mg_json_get_str(json, "$.code"));
     return 0;
 }
 
 /* static */ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
         program_file my_file;
+        my_file.code = DEFAULT_CODE;
+        my_file.name = "Unnamed";
+        my_file.fileId = "None";
     if (ev == MG_EV_OPEN && c->is_listening) {
-        s_config.code = strdup(DEFAULT_CODE);
-        my_file.code = "Default";
-        my_file.name = "Default";
-        my_file.fileId = "Default";
+        printf("[I] Connection listening correctly\n");
     } else if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
         if (mg_http_match_uri(hm, "/api/code/get_default")) {
-            mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("code"), MG_ESC(s_config.code));
+            mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("code"), MG_ESC(my_file.code));
         } else if (mg_http_match_uri(hm, "/api/code/exec")) {
             struct mg_str json = hm->body;
             if(update_files(json, &my_file))
