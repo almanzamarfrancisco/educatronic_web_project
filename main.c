@@ -3,8 +3,10 @@
 //
 #include "mongoose.h"
 
+#define CONTENT_TYPE_HEADER "Content-Type: application/json\r\n"
 #define DEFAULT_CODE "START OPEN CLOSE UP 1 UP 2 OPEN CLOSE END"
 #define EVER 1
+#define PROGRAM_FILE_ELEMENTS 3
 
 static const char *s_http_addr = "http://192.168.1.74:8000";  // HTTP port
 static const char *s_root_dir = "web_root";
@@ -12,27 +14,59 @@ static struct config {
   char *code;
 } s_config;
 
-// Try to update a single configuration value
-static void update_config(struct mg_str json, const char *path, char **value) {
-  char *jval;
-  if ((jval = mg_json_get_str(json, path)) != NULL) {
-    free(*value);
-    *value = strdup(jval);
-    printf("Updated %s to %s\n", path, *value);
-  }
+typedef struct PROGRAM_FILE{
+    char *fileId;
+    char *name;
+    char *code;
+} program_file;
+const char * program_file_properties[] = {
+    "fileId",
+    "name",
+    "code",
+};
+
+// Validates de JSON properties
+int validate_json(struct mg_str json) {
+    char key_to_validate[20] = "";
+    char *value_found;
+    for(int i = 0;i<PROGRAM_FILE_ELEMENTS;i++){
+        strcat(key_to_validate, "$.");
+        strcat(key_to_validate, program_file_properties[i]);
+        if ((value_found = mg_json_get_str(json, key_to_validate)) == NULL) {
+            return 1;
+        }
+        strcpy(key_to_validate, "");
+    }
+    return 0;
+}
+
+// Try to update a single file
+int update_files(struct mg_str json, program_file *f) {
+    if(validate_json(json)){
+        printf("Invalid JSON\n");
+        return 1;
+    }
+    printf("Must continue with the execution\n");
+    return 0;
 }
 
 /* static */ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
+        program_file my_file;
     if (ev == MG_EV_OPEN && c->is_listening) {
         s_config.code = strdup(DEFAULT_CODE);
+        my_file.code = "Default";
+        my_file.name = "Default";
+        my_file.fileId = "Default";
     } else if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
         if (mg_http_match_uri(hm, "/api/code/get_default")) {
-            mg_http_reply(c, 200, "Content-Type: application/json\r\n", "{%m:%m}\n", MG_ESC("code"), MG_ESC(s_config.code));
+            mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("code"), MG_ESC(s_config.code));
         } else if (mg_http_match_uri(hm, "/api/code/exec")) {
             struct mg_str json = hm->body;
-            update_config(json, "$.code", &s_config.code);
-            mg_http_reply(c, 200, "Content-Type: application/json\r\n", "{%m:%m}\n", MG_ESC("status"), MG_ESC("ok"));
+            if(update_files(json, &my_file))
+                mg_http_reply(c, 400, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("status"), MG_ESC("Error, Ivalid JSON"));
+            else
+                mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("status"), MG_ESC("ok"));
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
