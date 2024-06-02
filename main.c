@@ -66,8 +66,13 @@ int update_files(struct mg_str json, program_file *f) {
             struct mg_str json = hm->body;
             if(update_files(json, &my_file))
                 mg_http_reply(c, 400, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("status"), MG_ESC("Error, Ivalid JSON"));
-            else
+            else{
+                printf("[I] File updated: \n");
+                printf("\t Code: %s\n", my_file.code);
+                printf("\t Name: %s\n", my_file.name);
+                printf("\t FileId: %s\n", my_file.fileId);
                 mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("status"), MG_ESC("ok"));
+            }
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
