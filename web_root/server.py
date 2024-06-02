@@ -7,6 +7,6 @@ class CORSRequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'x-requested-with, content-type')
         super().end_headers()
 
-httpd = HTTPServer(('0.0.0.0', 8080), CORSRequestHandler)
-print("Serving on port 8080")
+httpd = HTTPServer(('0.0.0.0', 8081), CORSRequestHandler)
+print("Serving on port 8081")
 httpd.serve_forever()
