@@ -4,6 +4,7 @@
 #include "mongoose.h"
 
 #define CONTENT_TYPE_HEADER "Content-Type: application/json\r\n"
+#define CORS_HEADERS "Access-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE\r\nAccess-Control-Allow-Headers: Content-Type"
 #define DEFAULT_CODE "START OPEN CLOSE UP 1 UP 2 OPEN CLOSE END"
 #define EVER 1
 #define PROGRAM_FILE_ELEMENTS 3
@@ -21,7 +22,15 @@ const char * program_file_properties[] = {
     "name",
     "code",
 };
-
+// Execute video
+void live_video(){
+    char cmd[512]; // Adjust the size as needed
+    // TODO make the log file for the video
+        // char live_video_log_file[] = "./logs/live_video.log";
+        // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 > %s 2>&1 &", s_root_dir, live_video_log_file);
+    sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &", s_root_dir);
+    system(cmd);
+}
 // Validates de JSON properties
 int validate_json(struct mg_str json) {
     char key_to_validate[20] = "";
@@ -52,10 +61,10 @@ int update_files(struct mg_str json, program_file *f) {
 }
 
 /* static */ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
-        program_file my_file;
-        my_file.code = DEFAULT_CODE;
-        my_file.name = "Unnamed";
-        my_file.fileId = "None";
+    program_file my_file;
+    my_file.code = DEFAULT_CODE;
+    my_file.name = "Unnamed";
+    my_file.fileId = "None";
     if (ev == MG_EV_OPEN && c->is_listening) {
         printf("[I] Connection listening correctly\n");
     } else if (ev == MG_EV_HTTP_MSG) {
@@ -75,6 +84,7 @@ int update_files(struct mg_str json, program_file *f) {
             }
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
+            // mg_printf(c, "%s", CORS_HEADERS); //TODO: Set CORS headers
             mg_http_serve_dir(c, ev_data, &opts);
         }
     }
@@ -85,6 +95,7 @@ int main(void) {
     struct mg_connection *connection;
     mg_log_set(MG_LL_INFO);                       // Set to 3 to enable debug
     mg_mgr_init(&mgr);                            // Initialise event manager
+    live_video();
     connection = mg_http_listen(&mgr, s_http_addr, event_handler, NULL);  // Create HTTP listener
     if (connection == NULL) {
         printf("Error to initialize the server\n");
