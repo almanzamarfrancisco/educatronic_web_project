@@ -2,5 +2,5 @@ server
 web_root/node_modules
 web_root/package-lock.json
 hls
-web_root/hls
+web_root/hls/*
 web_root/logs/*
