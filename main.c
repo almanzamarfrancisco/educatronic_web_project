@@ -13,8 +13,8 @@
 #define EVER 1
 #define PROGRAM_FILE_ELEMENTS 3
 // Define GPIO pin numbers
-#define LED_PIN 0  // GPIO 17
-#define MOTOR_PIN 2  // GPIO 27
+#define LED_PIN 2  // GPIO 27
+#define MOTOR_PIN 0  // GPIO 17
 
 static const char *s_http_addr = "http://192.168.1.74:8000";  // HTTP port
 static const char *s_root_dir = "web_root";
