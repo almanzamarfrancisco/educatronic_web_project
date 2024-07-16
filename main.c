@@ -1,6 +1,6 @@
 // Copyright (c) 2022 Cesanta Software Limited
 // All rights reserved
-//
+
 #include "mongoose.h"
 #include <wiringPi.h>
 #include <stdlib.h>
@@ -140,17 +140,14 @@ int update_files(struct mg_str json, program_file *f) {
             strncpy(uri, hm->uri.ptr, hm->uri.len);
             char *file_name = strstr(uri, HLS_URI) + strlen(HLS_URI);
             char file_path[] = VIDEO_FILES_DIRECTORY;
-            // printf("==> File name: %s\n", file_name);
             strcat(file_path, file_name);
-            // printf("==> File path: %s\n", file_path);
+            // Get the file and send 404 if it doesn't exist
             FILE *file = fopen(file_path, "rb");
             if (file != NULL) {
-                // Determine the file size
-                fseek(file, 0, SEEK_END);
+                fseek(file, 0, SEEK_END); // Determine the file size
                 long fsize = ftell(file);
                 fseek(file, 0, SEEK_SET);
-                // Allocate memory for the file content
-                char *content = (char *)malloc(fsize + 1);
+                char *content = (char *)malloc(fsize + 1); // Allocate memory for the file content
                 fread(content, 1, fsize, file);
                 fclose(file);
                 content[fsize] = 0;
@@ -165,11 +162,7 @@ int update_files(struct mg_str json, program_file *f) {
                 // Construct the Content-Type header
                 char content_type_header[128];
                 snprintf(content_type_header, sizeof(content_type_header), "Content-Type: %s\r\n", content_type);
-                // Serve the file content with the correct Content-Type header
-                // Check if the content is binary and use the appropriate format specifier
-                if (strstr(file_path, ".ts") != NULL) {
-                    printf("\n\n\n\t ==> Serving binary file: %s %d\n\n\n\n", file_path, (int)fsize);
-                    // Construct and send the HTTP response headers
+                if (strstr(file_path, ".ts") != NULL) { // Check if the content is binary and use the appropriate format specifier
                     char headers[256];
                     int headers_length = snprintf(headers, sizeof(headers),
                                                 "HTTP/1.1 200 OK\r\n"
@@ -177,15 +170,10 @@ int update_files(struct mg_str json, program_file *f) {
                                                 "Content-Length: %d\r\n"
                                                 "\r\n",
                                                 content_type, (int)fsize);
-
-                    mg_send(c, headers, headers_length);
-
-                    // Send the file content
-                    mg_send(c, content, fsize);
+                    mg_send(c, headers, headers_length); // Add headers to mg_mgr_poll
+                    mg_send(c, content, fsize); // Add the file content to mg_mgr_poll
                     mg_send(c, "\r\n", 2);
-                    // mg_http_reply(c, 200, content_type_header, "%.*s", (int)fsize, content);
                 } else {
-                    // For text-based content like .m3u8, you can still use %s
                     mg_http_reply(c, 200, content_type_header, "%s", content);
                 }
             } else {
@@ -211,8 +199,8 @@ int main(void) {
     }
     printf("HTTP server initialized on %s\n", s_http_addr);
     init_gpio();                                  // Initialize GPIO
-    live_video();                              // Starts live video
-    for (;EVER;) mg_mgr_poll(&mgr, 50);         // Infinite event loop
+    live_video();                                 // Starts live video
+    for (;EVER;) mg_mgr_poll(&mgr, 50);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
 }
