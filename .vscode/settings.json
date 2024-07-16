@@ -2,5 +2,6 @@
     "files.associations": {
         "mongoose.h": "c",
         "elevator.tab.h": "c"
-    }
+    },
+    "editor.formatOnSave": true
 }

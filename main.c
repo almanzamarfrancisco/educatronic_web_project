@@ -8,8 +8,9 @@
 #include <time.h>
 
 #define CONTENT_TYPE_HEADER "Content-Type: application/json\r\n"
-#define CORS_HEADERS "Access-Control-Allow-Origin: *\r\nAccess-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE\r\nAccess-Control-Allow-Headers: Content-Type"
 #define DEFAULT_CODE "START OPEN CLOSE UP 1 UP 2 OPEN CLOSE END"
+#define HLS_URI "/hls/"
+#define VIDEO_FILES_DIRECTORY "./web_root/hls/"
 #define EVER 1
 #define PROGRAM_FILE_ELEMENTS 3
 // Define GPIO pin numbers
@@ -66,8 +67,10 @@ void live_video(){
     // TODO make the log file for the video
         // char live_video_log_file[] = "./logs/live_video.log";
         // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 > %s 2>&1 &", s_root_dir, live_video_log_file);
-    sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &", s_root_dir);
+    // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
+    sprintf(cmd, "rpicam-vid --verbose 0 -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
     // system("python web_root/server.py &");
+    system("rm -rf ./web_root/hls/*");
     system(cmd);
 }
 // Validates de JSON properties
@@ -131,9 +134,53 @@ int update_files(struct mg_str json, program_file *f) {
                 printf("\t FileId: %s\n", my_file.fileId);
                 mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("status"), MG_ESC("ok"));
             }
+        } else if (mg_match(hm->uri, mg_str("/hls/*"), NULL)) {
+            // Extract the file path from the URI
+            char *uri = (char*)malloc((sizeof(char)) * (hm->uri.len + 1));
+            strncpy(uri, hm->uri.ptr, hm->uri.len);
+            char *file_name = strstr(uri, HLS_URI) + strlen(HLS_URI);
+            char file_path[] = VIDEO_FILES_DIRECTORY;
+            // printf("==> File name: %s\n", file_name);
+            strcat(file_path, file_name);
+            // printf("==> File path: %s\n", file_path);
+            FILE *file = fopen(file_path, "rb");
+            if (file != NULL) {
+                // Determine the file size
+                fseek(file, 0, SEEK_END);
+                long fsize = ftell(file);
+                fseek(file, 0, SEEK_SET);
+                // Allocate memory for the file content
+                char *string = (char *)malloc(fsize + 1);
+                fread(string, 1, fsize, file);
+                fclose(file);
+                string[fsize] = 0;
+                // Serve the file content
+               // Determine the content type and caching policy based on the file extension
+                const char *content_type = "application/octet-stream"; // Default content type
+                char cache_control_header[128] = "Cache-Control: no-cache"; // Default cache policy
+
+                if (strstr(file_name, ".m3u8") != NULL) {
+                    content_type = "application/vnd.apple.mpegurl";
+                    // Shorter cache time for playlist files, e.g., 5 seconds
+                    snprintf(cache_control_header, sizeof(cache_control_header), "Cache-Control: max-age=5");
+                } else if (strstr(file_name, ".ts") != NULL) {
+                    content_type = "video/MP2T";
+                    // Longer cache time for segment files, e.g., 3600 seconds (1 hour)
+                    snprintf(cache_control_header, sizeof(cache_control_header), "Cache-Control: max-age=60");
+                }
+
+                // Construct the Content-Type header
+                char content_type_header[128];
+                snprintf(content_type_header, sizeof(content_type_header), "Content-Type: %s\r\n", content_type);
+
+                // Serve the file content with the correct Content-Type and Cache-Control headers
+                mg_http_reply(c, 200, content_type_header, cache_control_header, "%s", string);
+            } else {
+                mg_http_reply(c, 404, "", "File not found :(");
+            }
+            free(uri);
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
-            // mg_printf(c, "%s", CORS_HEADERS); //TODO: Set CORS headers
             mg_http_serve_dir(c, ev_data, &opts);
         }
     }
