@@ -17,7 +17,7 @@
 #define LED_PIN 2  // GPIO 27
 #define MOTOR_PIN 0  // GPIO 17
 
-static const char *s_http_addr = "http://192.168.1.74:8000";  // HTTP port
+static const char *s_http_addr = "http://192.168.1.71:8000";  // HTTP port
 static const char *s_root_dir = "web_root";
 
 typedef struct PROGRAM_FILE{
@@ -150,31 +150,44 @@ int update_files(struct mg_str json, program_file *f) {
                 long fsize = ftell(file);
                 fseek(file, 0, SEEK_SET);
                 // Allocate memory for the file content
-                char *string = (char *)malloc(fsize + 1);
-                fread(string, 1, fsize, file);
+                char *content = (char *)malloc(fsize + 1);
+                fread(content, 1, fsize, file);
                 fclose(file);
-                string[fsize] = 0;
+                content[fsize] = 0;
                 // Serve the file content
-               // Determine the content type and caching policy based on the file extension
+                // Determine the content type based on the file extension
                 const char *content_type = "application/octet-stream"; // Default content type
-                char cache_control_header[128] = "Cache-Control: no-cache"; // Default cache policy
-
-                if (strstr(file_name, ".m3u8") != NULL) {
+                if (strstr(file_path, ".m3u8") != NULL) {
                     content_type = "application/vnd.apple.mpegurl";
-                    // Shorter cache time for playlist files, e.g., 5 seconds
-                    snprintf(cache_control_header, sizeof(cache_control_header), "Cache-Control: max-age=5");
-                } else if (strstr(file_name, ".ts") != NULL) {
+                } else if (strstr(file_path, ".ts") != NULL) {
                     content_type = "video/MP2T";
-                    // Longer cache time for segment files, e.g., 3600 seconds (1 hour)
-                    snprintf(cache_control_header, sizeof(cache_control_header), "Cache-Control: max-age=60");
                 }
-
                 // Construct the Content-Type header
                 char content_type_header[128];
                 snprintf(content_type_header, sizeof(content_type_header), "Content-Type: %s\r\n", content_type);
+                // Serve the file content with the correct Content-Type header
+                // Check if the content is binary and use the appropriate format specifier
+                if (strstr(file_path, ".ts") != NULL) {
+                    printf("\n\n\n\t ==> Serving binary file: %s %d\n\n\n\n", file_path, (int)fsize);
+                    // Construct and send the HTTP response headers
+                    char headers[256];
+                    int headers_length = snprintf(headers, sizeof(headers),
+                                                "HTTP/1.1 200 OK\r\n"
+                                                "Content-Type: %s\r\n"
+                                                "Content-Length: %d\r\n"
+                                                "\r\n",
+                                                content_type, (int)fsize);
 
-                // Serve the file content with the correct Content-Type and Cache-Control headers
-                mg_http_reply(c, 200, content_type_header, cache_control_header, "%s", string);
+                    mg_send(c, headers, headers_length);
+
+                    // Send the file content
+                    mg_send(c, content, fsize);
+                    mg_send(c, "\r\n", 2);
+                    // mg_http_reply(c, 200, content_type_header, "%.*s", (int)fsize, content);
+                } else {
+                    // For text-based content like .m3u8, you can still use %s
+                    mg_http_reply(c, 200, content_type_header, "%s", content);
+                }
             } else {
                 mg_http_reply(c, 404, "", "File not found :(");
             }
@@ -191,15 +204,15 @@ int main(void) {
     struct mg_connection *connection;
     mg_log_set(MG_LL_INFO);                       // Set to 3 to enable debug
     mg_mgr_init(&mgr);                            // Initialise event manager
-    init_gpio();                                  // Initialize GPIO
-    live_video();
     connection = mg_http_listen(&mgr, s_http_addr, event_handler, NULL);  // Create HTTP listener
     if (connection == NULL) {
         printf("Error to initialize the server\n");
         return 1;
     }
     printf("HTTP server initialized on %s\n", s_http_addr);
-    for (;EVER;) mg_mgr_poll(&mgr, 1000);         // Infinite event loop
+    init_gpio();                                  // Initialize GPIO
+    live_video();                              // Starts live video
+    for (;EVER;) mg_mgr_poll(&mgr, 50);         // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
 }
