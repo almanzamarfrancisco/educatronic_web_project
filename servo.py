@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import sys  # Import sys to access command-line arguments
 
 def setup_servo(pin):
     """Initializes a servo on the specified GPIO pin."""
@@ -20,25 +21,26 @@ def cleanup():
     print("GPIO cleanup completed.")
 
 def main():
+    if len(sys.argv) != 2:
+        print("Usage: python servo.py <angle>")
+        sys.exit(1)
+    
     servo_pin = 35
+    angle = float(sys.argv[1])
+    
+    if not 0 <= angle <= 180:
+        print("Angle must be between 0 and 180.")
+        sys.exit(1)
+    
     try:
         servo = setup_servo(servo_pin)
         servo.start(0)  # Start PWM with 0% duty cycle (pulse off)
-        print("Servo control program. Press Ctrl+C to exit.")
-        while True:
-            angle = float(input("Enter angle between 0 & 180: "))
-            if 0 <= angle <= 180:
-                move_servo(servo, angle)
-            else:
-                print("Angle must be between 0 and 180.")
-    except KeyboardInterrupt:
-        print("\nProgram exited by user.")
-    except ValueError:
-        print("Invalid input. Please enter a valid number for the angle.")
+        move_servo(servo, angle)
+    except Exception as e:
+        print(f"An error occurred: {e}")
     finally:
         servo.stop()
         cleanup()
-        print("Goodbye!")
 
 if __name__ == "__main__":
     main()
