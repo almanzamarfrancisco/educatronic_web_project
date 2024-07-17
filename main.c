@@ -101,7 +101,7 @@ void live_video(){
         // char live_video_log_file[] = "./logs/live_video.log";
         // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 > %s 2>&1 &", s_root_dir, live_video_log_file);
     // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
-    sprintf(cmd, "rpicam-vid --verbose 0 --level 4.2 --width 640 -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
+    sprintf(cmd, "rpicam-vid --vflip --verbose 0 --level 4.2 --width 640 -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
     // system("python web_root/server.py &");
     system("rm -rf ./web_root/hls/*");
     system(cmd);
