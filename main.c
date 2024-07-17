@@ -405,7 +405,7 @@ int main(void) {
     if (sqlite3_init_database() != 0){            // Initialize the database
         return 0;
     }
-    // live_video();                                 // Starts live video
+    live_video();                                 // Starts live video
     for (;EVER;) mg_mgr_poll(&mgr, 500);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
