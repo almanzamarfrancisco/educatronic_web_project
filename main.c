@@ -83,23 +83,17 @@ void motor_off() {
     digitalWrite(MOTOR_PIN, LOW);
 }
 // Move camera to view robot
-/* void turn_camera_to(char *robot_name){ // TODO: turn the servo motor to the angle of the robot
+void turn_camera_to(char *robot_name){ // TODO: turn the servo motor to the angle of the robot
     __u_char *cmd[512];
-    u_int16_t angle;
-    robot basic = BASIC, elevator = ELEVATOR;
-    printf("\t=> Selected robot: %s\n", robot_name);
-    switch(true){
-    case strcmp(robot_name, basic->name) == 0:
-            printf("%s - %d \n", basic.name, basic.angle);
-            angle = strchr(angle, '\0');
-        break;
-        default:
-        prinf('Invalid robot name');
-        return;
+    printf("\t=> Turning camera to robot: %s\n", robot_name);
+    for(size_t i = 0; i < robots_count; i++){
+        if(strcmp(robots[i].name, robot_name) == 0){
+            sprintf(cmd, "python servo.py %d", robots[i].angle);
+            break;
+        }
     }
-    sprintf(cmd, "python servo.py %d", angle);
     system(cmd);
-} */
+}
 // Execute video
 void live_video(){
     char cmd[512]; // Adjust the size as needed
@@ -113,7 +107,7 @@ void live_video(){
     system(cmd);
 }
 // Validates de JSON properties
-int validate_json(struct mg_str json) {
+int validate_code_json(struct mg_str json) {
     char key_to_validate[20] = "";
     int value_found;
     for(int i = 0;i<PROGRAM_FILE_ELEMENTS;i++){
@@ -137,7 +131,7 @@ int execute_commands(char *code){
 }
 // Try to update a single file
 int update_files(struct mg_str json, program_file *f) {
-    if(validate_json(json)){
+    if(validate_code_json(json)){
         printf("Invalid JSON\n");
         return 1;
     }
@@ -323,7 +317,6 @@ int update_database(){
             char *programs_json = programs_to_json();
             char *robots_json = robots_to_json();
             json_response = mg_mprintf("{%m:[%s], %m:[%s]}", MG_ESC("robots"), robots_json, MG_ESC("programs"), programs_json);
-            printf("\t \n\n=> JSON response: \n%s\n\n", json_response);
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS,
                       content_length);
@@ -340,6 +333,10 @@ int update_database(){
                 // printf("\t FileId: %s\n", programs[0].fileId);
                 mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\r\n", MG_ESC("status"), MG_ESC("ok"));
             // }
+        } else if(mg_http_match_uri(hm, "/api/camera/turn/")){
+            struct mg_str json = hm->body;
+            // printf("\t Turning camera to robot %s\n", mg_json_get_str(json, "$.robot_name"));
+            turn_camera_to(mg_json_get_str(json, "$.robot_name"));
         } else if (mg_match(hm->uri, mg_str("/hls/*"), NULL)) {
             // Extract the file path from the URI
             char *uri = (char*)malloc((sizeof(char)) * (hm->uri.len + 1));

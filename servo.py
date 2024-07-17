@@ -18,18 +18,18 @@ def move_servo(servo, angle):
 def cleanup():
     """Cleans up GPIO resources."""
     GPIO.cleanup()
-    print("GPIO cleanup completed.")
+    # print("GPIO cleanup completed.")
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python servo.py <angle>")
+        # print("Usage: python servo.py <angle>")
         sys.exit(1)
     
     servo_pin = 35
     angle = float(sys.argv[1])
     
     if not 0 <= angle <= 180:
-        print("Angle must be between 0 and 180.")
+        # print("Angle must be between 0 and 180.")
         sys.exit(1)
     
     try:
