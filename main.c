@@ -48,8 +48,8 @@ size_t robots_count = 0;
 size_t programs_count = 0;
 
 const char * program_file_properties[] = {
-    "fileId",
-    "name",
+    "programId",
+    "robotId",
     "code",
 };
 // Function to initialize GPIO
@@ -84,7 +84,7 @@ void motor_off() {
 }
 // Move camera to view robot
 void turn_camera_to(char *robot_name){ // TODO: turn the servo motor to the angle of the robot
-    __u_char *cmd[512];
+    char cmd[512];
     printf("\t=> Turning camera to robot: %s\n", robot_name);
     for(size_t i = 0; i < robots_count; i++){
         if(strcmp(robots[i].name, robot_name) == 0){
@@ -106,8 +106,31 @@ void live_video(){
     system("rm -rf ./web_root/hls/*");
     system(cmd);
 }
+// Saves code in the database
+int saveProgram(char *code, int fileId){
+    sqlite3 *db;
+    char *err_msg = 0;
+    int rc;
+    rc = sqlite3_open("db.sqlite3", &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return 1;
+    }
+    char *sql = (char*)malloc(sizeof(char)*1024);
+    memset(sql, 0, sizeof(char)*1024);
+    sprintf(sql, "UPDATE ProgramFiles SET content = '%s' WHERE programfile_id = %d;", code, fileId);
+    rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", err_msg);
+        sqlite3_free(err_msg);
+        sqlite3_close(db);
+        return 1;
+    }
+    return 0;
+}
 // Validates de JSON properties
-int validate_code_json(struct mg_str json) {
+int validate_code_json(struct mg_str json) { // TODO: Add the compiler here
     char key_to_validate[20] = "";
     int value_found;
     for(int i = 0;i<PROGRAM_FILE_ELEMENTS;i++){
@@ -130,17 +153,18 @@ int execute_commands(char *code){
     return 0;
 }
 // Try to update a single file
-int update_files(struct mg_str json, program_file *f) {
+int update_file(struct mg_str json, int execute) {
+    int fileId = atoi(mg_json_get_str(json, "$.programId"));
+    char *code = mg_json_get_str(json, "$.code");
     if(validate_code_json(json)){
         printf("Invalid JSON\n");
         return 1;
     }
-    // free(f->code); // TODO: Free the memory
-    // TODO: make this assignation dinamic
-    f->fileId = atoi(mg_json_get_str(json, "$.fileId"));
-    f->name = strdup(mg_json_get_str(json, "$.name"));
-    f->code = strdup(mg_json_get_str(json, "$.code"));
-    execute_commands(f->code);
+    if(saveProgram(code, fileId) != 0){
+        printf("Error saving the program\n");
+        return 1;
+    }
+    if (execute) execute_commands(code);
     return 0;
 }
 static int robots_callback(void *NotUsed, int argc, char **argv, char **azColName){
@@ -199,6 +223,7 @@ void load_programs_from_db(sqlite3 *db) {
             printf("\t\t=> Program: %d - %s\n", programs[i].fileId, programs[i].name);
     }
 }
+// TODO: Look into how treat the database in the best way
 int sqlite3_init_database(){
     sqlite3 *db;
     char *err_msg = 0;
@@ -311,9 +336,9 @@ int update_database(){
         printf("[I] Connection listening correctly\n");
     } else if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+        char *json_response = (char*)malloc(sizeof(char)*1024);
         if (mg_http_match_uri(hm, "/api/code/get_default")) {
             if (update_database() != 0){ printf("Database error: "); return; }
-            char *json_response = (char*)malloc(sizeof(char)*1024);
             char *programs_json = programs_to_json();
             char *robots_json = robots_to_json();
             json_response = mg_mprintf("{%m:[%s], %m:[%s]}", MG_ESC("robots"), robots_json, MG_ESC("programs"), programs_json);
@@ -321,18 +346,49 @@ int update_database(){
             mg_printf(c, CORS_HEADERS,
                       content_length);
             mg_printf(c, "%s\n", json_response);
-        } else if (mg_http_match_uri(hm, "/api/code/exec")) {
-            printf("\t\n\n[I] Executing code\n");
-            // struct mg_str json = hm->body;
-            // if(update_files(json, &my_file))
-            //     mg_http_reply(c, 400, CONTENT_TYPE_HEADER, "{%m:%m}\n", MG_ESC("status"), MG_ESC("Error, Ivalid JSON"));
-            // else{
-                // printf("[I] File updated: \n");
-                // printf("\t Code: %s\n", programs[0].code);
-                // printf("\t Name: %s\n", programs[0].name);
-                // printf("\t FileId: %s\n", programs[0].fileId);
-                mg_http_reply(c, 200, CONTENT_TYPE_HEADER, "{%m:%m}\r\n", MG_ESC("status"), MG_ESC("ok"));
-            // }
+        } else if (mg_http_match_uri(hm, "/api/code/execute")) {
+            printf("\n\n\t[I] Executing code... \n");
+            struct mg_str json = hm->body;
+            printf("\n\t\tJSON received robotId: %s", mg_json_get_str(json, "$.robotId"));
+            printf("\n\t\tJSON received programId: %s\n", mg_json_get_str(json, "$.programId"));
+            printf("\n\t\tJSON received code: %s\n", mg_json_get_str(json, "$.code"));
+            if(update_file(json, 1) != 0){
+                printf("Error updating the file\n");
+                json_response = mg_mprintf("{%m:%m}", MG_ESC("status"), MG_ESC("Error to update the file"));
+                int content_length = strlen(json_response);
+                mg_printf(c, CORS_HEADERS,
+                        content_length);
+                mg_printf(c, "%s\n", json_response);
+                mg_http_reply(c, 505, CORS_HEADERS, "%s", json_response);
+                return;
+            }
+            // JSON Response
+            json_response = mg_mprintf("{%m:%m}", MG_ESC("status"), MG_ESC("ok"));
+            int content_length = strlen(json_response);
+            mg_printf(c, CORS_HEADERS,
+                      content_length);
+            mg_printf(c, "%s\n", json_response);
+            mg_http_reply(c, 200, CORS_HEADERS, "%s", json_response);
+        } else if (mg_http_match_uri(hm, "/api/code/save")) {
+            printf("\n\n\t[I] Saving the code... \n");
+            struct mg_str json = hm->body;
+            if(update_file(json, 0) != 0){
+                printf("Error updating the file\n");
+                json_response = mg_mprintf("{%m:%m}", MG_ESC("status"), MG_ESC("Error to update the file"));
+                int content_length = strlen(json_response);
+                mg_printf(c, CORS_HEADERS,
+                        content_length);
+                mg_printf(c, "%s\n", json_response);
+                mg_http_reply(c, 505, CORS_HEADERS, "%s", json_response);
+                return;
+            }
+            // JSON Response
+            json_response = mg_mprintf("{%m:%m}", MG_ESC("status"), MG_ESC("ok"));
+            int content_length = strlen(json_response);
+            mg_printf(c, CORS_HEADERS,
+                      content_length);
+            mg_printf(c, "%s\n", json_response);
+            mg_http_reply(c, 200, CORS_HEADERS, "%s", json_response);
         } else if(mg_http_match_uri(hm, "/api/camera/turn/")){
             struct mg_str json = hm->body;
             // printf("\t Turning camera to robot %s\n", mg_json_get_str(json, "$.robot_name"));
@@ -405,7 +461,7 @@ int main(void) {
     if (sqlite3_init_database() != 0){            // Initialize the database
         return 0;
     }
-    live_video();                                 // Starts live video
+    // live_video();                                 // Starts live video
     for (;EVER;) mg_mgr_poll(&mgr, 500);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
