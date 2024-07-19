@@ -27,7 +27,7 @@
 #define LED_PIN 2  // GPIO 27
 #define MOTOR_PIN 0  // GPIO 17
 
-static const char *s_http_addr = "http://192.168.1.71:8000";  // HTTP port
+static const char *s_http_addr = "http://localhost:8000";  // HTTP port
 static const char *s_root_dir = "web_root";
 
 typedef struct PROGRAM_FILE {
@@ -461,7 +461,7 @@ int main(void) {
     if (sqlite3_init_database() != 0){            // Initialize the database
         return 0;
     }
-    // live_video();                                 // Starts live video
+    live_video();                                 // Starts live video
     for (;EVER;) mg_mgr_poll(&mgr, 500);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
