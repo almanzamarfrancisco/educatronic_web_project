@@ -145,7 +145,6 @@ int validate_code_json(struct mg_str json) { // TODO: Add the compiler here
 }
 // Execute code commands
 int execute_commands(char *code){
-    printf("[I] Executing...");
     if (strstr(code, "LED ON") != NULL) led_on();
     else if (strstr(code, "LED OFF") != NULL) led_off();
     else if (strstr(code, "MOTOR ON") != NULL) motor_on();
@@ -349,9 +348,6 @@ int update_database(){
         } else if (mg_http_match_uri(hm, "/api/code/execute")) {
             printf("\n\n\t[I] Executing code... \n");
             struct mg_str json = hm->body;
-            printf("\n\t\tJSON received robotId: %s", mg_json_get_str(json, "$.robotId"));
-            printf("\n\t\tJSON received programId: %s\n", mg_json_get_str(json, "$.programId"));
-            printf("\n\t\tJSON received code: %s\n", mg_json_get_str(json, "$.code"));
             if(update_file(json, 1) != 0){
                 printf("Error updating the file\n");
                 json_response = mg_mprintf("{%m:%m}", MG_ESC("status"), MG_ESC("Error to update the file"));
