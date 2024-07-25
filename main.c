@@ -9,6 +9,7 @@
 #include <sqlite3.h>
 #include <ctype.h>
 #include <string.h>
+#include <pthread.h>
 
 #define CONTENT_TYPE_HEADER "Content-Type: application/json\r\n"
 #define DEFAULT_CODE "START OPEN CLOSE UP 1 UP 2 OPEN CLOSE END"
@@ -27,7 +28,8 @@
 #define LED_PIN 2  // GPIO 27
 #define MOTOR_PIN 0  // GPIO 17
 
-static const char *s_http_addr = "http://localhost:8000";  // HTTP port
+static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
+// static const char *s_http_addr = "http://192.168.1.71:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
 
 typedef struct PROGRAM_FILE {
@@ -94,17 +96,18 @@ void turn_camera_to(char *robot_name){ // TODO: turn the servo motor to the angl
     }
     system(cmd);
 }
-// Execute video
-void live_video(){
+// Execute video encoding command
+void *encode_video(){
     char cmd[512]; // Adjust the size as needed
     // TODO make the log file for the video
         // char live_video_log_file[] = "./logs/live_video.log";
         // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 > %s 2>&1 &", s_root_dir, live_video_log_file);
     // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
-    sprintf(cmd, "rpicam-vid --vflip --verbose 0 --level 4.2 --width 640 -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
+    sprintf(cmd, "rpicam-vid -n --vflip --verbose 0 --level 4.2 --width 640 -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 10 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
     // system("python web_root/server.py &");
     system("rm -rf ./web_root/hls/*");
     system(cmd);
+    return NULL;
 }
 // Saves code in the database
 int saveProgram(char *code, int fileId){
@@ -269,8 +272,9 @@ void trim_non_alphanumeric(char *str) {
     }
     str[j] = '\0';
 }
-char * programs_to_json(){
+char * programs_to_json(){ // TODO: Make this and robots one function
     char * result = (char*)malloc(sizeof(char)*2048);
+    memset(result, 0, sizeof(char)*2048);
     for(size_t i = 0; i < programs_count; i++){
         char *program_json = (char*)malloc(sizeof(char)*1024);
         char name[50]; char code[2048];
@@ -296,8 +300,9 @@ char * programs_to_json(){
     trim_non_alphanumeric(result);
     return result;
 }
-char * robots_to_json(){
+char * robots_to_json(){ // TODO: Make this and programs one function
     char * result = (char*)malloc(sizeof(char)*2048);
+    memset(result, 0, sizeof(char)*2048);
     for(size_t i = 0; i < robots_count; i++){
         char *robot_json = (char*)malloc(sizeof(char)*1024);
         memset(robot_json, 0, sizeof(char)*1024);
@@ -445,6 +450,7 @@ int update_database(){
 int main(void) {
     struct mg_mgr mgr;                            // Event manager
     struct mg_connection *connection;
+    pthread_t enconde_video_thread_id;
     mg_log_set(MG_LL_INFO);                       // Set to 3 to enable debug
     mg_mgr_init(&mgr);                            // Initialise event manager
     connection = mg_http_listen(&mgr, s_http_addr, event_handler, NULL);  // Create HTTP listener
@@ -457,7 +463,14 @@ int main(void) {
     if (sqlite3_init_database() != 0){            // Initialize the database
         return 0;
     }
-    live_video();                                 // Starts live video
+    if(pthread_create(&enconde_video_thread_id, NULL, encode_video, NULL)) { // Starts live video
+        fprintf(stderr, "Error creating econde viedo thread\n");
+        return 1;
+    }
+    if(pthread_join(enconde_video_thread_id, NULL)) {
+        fprintf(stderr, "Error joining encode video thread\n");
+        return 2;
+    }
     for (;EVER;) mg_mgr_poll(&mgr, 500);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
