@@ -1,6 +1,6 @@
-server
-web_root/node_modules
-web_root/package-lock.json
-hls
-web_root/hls/*
-web_root/logs/*
+backend_mongoose/server
+backend_mongoose/web_root/node_modules
+backend_mongoose/web_root/package-lock.json
+backend_mongoose/hls
+backend_mongoose/web_root/hls/*
+backend_mongoose/web_root/logs/*
