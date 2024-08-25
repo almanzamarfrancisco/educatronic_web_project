@@ -1,9 +1,9 @@
 import { h } from 'preact';
-import elevatorImage from '../assets/images/elevator.svg';
-import basicImage from '../assets/images/basic.svg';
+import numberOneImage from '../assets/images/number-one.png';
+import numerTwoImage from '../assets/images/number-two.png';
 
 const AccordionSelection = ({ exercises, onSelectExercise }) => {
-    const robotImages = [basicImage, elevatorImage];
+    const robotImages = [numberOneImage, numerTwoImage];
     return (
         <div id="accordion-collapse" data-accordion="collapse">
             {exercises.map((exercise) => (

@@ -11,9 +11,9 @@ const InfoBox = ({ exercises, onSelectExercise }) => {
                     Exercises to practice
                 </h2>
             </div>
-            <p> => Here, you can find the exercises and make progress. </p>
-            <p className="mb-3"> => Hit the run button {/* or press the enter key */} and watch in the video the execution</p>
-            <p className="mb-3"> => You can have up to 5 programs in each exercise and you can save them only with the 'Save' button</p>
+            <p> =&gt; Here, you can find the exercises and make progress. </p>
+            <p className="mb-3"> =&gt; Hit the run button {/* or press the enter key */} and watch in the video the execution</p>
+            <p className="mb-3"> =&gt; You can have up to 5 programs in each exercise and you can save them only with the 'Save' button</p>
             <AccordionSelection exercises={exercises} onSelectExercise={onSelectExercise}/>
         </div>
     );

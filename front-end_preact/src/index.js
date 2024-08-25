@@ -57,7 +57,7 @@ const App = () => {
   };
   const saveCode = () => {
     const body_data = {
-      robotId: selectedRobot.id + "",
+      exerciseId: selectedExercise.id + "",
       programId: activeTab,
       code: getCode(),
     };
@@ -78,7 +78,7 @@ const App = () => {
   };
   const sendCode = () => {
     const body_data = {
-      robotId: selectedRobot.id + "",
+      exerciseId: selectedExercise.id + "",
       programId: activeTab,
       code: getCode(),
     };
@@ -134,18 +134,18 @@ const App = () => {
             fileId: program.fileId + "",
             name: program.name,
             code: program.code,
-            robotId: program.robot_id,
+            exerciseId: program.exercise_id,
           };
         });
         const fetched_exercises = data.exercises.map((exercise) => {
           return {
-            id: exercise.robot_id,
+            id: exercise.exercise_id,
             name: exercise.name,
             programs: fetched_programs.filter(
-              (program) => program.robotId === exercise.robot_id,
+              (program) => program.exerciseId === exercise.exercise_id,
             ),
             content: exercise.content || "Exercise content here...",
-            isOpen: exercise.robotId == 1 ? true : false, // used for the accordion
+            isOpen: exercise.exerciseId == 1 ? true : false, // used for the accordion
           };
         });
         setExercises(fetched_exercises);
@@ -208,12 +208,12 @@ const App = () => {
                 In this ocasion, we will be using an elevator; to code your programs you can use the following sintax:
               </p>
               <ul>
-                <li> => Start: S or s </li>
-                <li> => Up: U or u </li>
-                <li> => Down: D or d </li>
-                <li> => Open/Close: O or o [wating seconds] </li>
-                <li> => Wait: W or w [waiting seconds] </li>
-                <li> => End: E or e </li>
+                <li> =&gt; Start: S or s </li>
+                <li> =&gt; Up: U or u </li>
+                <li> =&gt; Down: D or d </li>
+                <li> =&gt; Open/Close: O or o [wating seconds] </li>
+                <li> =&gt; Wait: W or w [waiting seconds] </li>
+                <li> =&gt; End: E or e </li>
               </ul>
               <div class="mt-3 flex gap-1">
                 <a href="../facebook">
@@ -279,8 +279,8 @@ const App = () => {
               <h3 className="text-lg font-bold mb-2 mx-auto max-w-screen-lg">
                 Live video
               </h3>
-              {/*<VideoPlayer src={video_src} />*/}
-              <VideoPlayer src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" />
+              <VideoPlayer src={video_src} />
+              {/* <VideoPlayer src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" /> */}
             </div>
           )}
         </div>
