@@ -26,16 +26,6 @@ const App = () => {
   const [selectedExercise, setSelectedExercise] = useState(exercises[0] || null);
   const [activeTab, setActiveTab] = useState("0");
   const handleExerciseSelect = (exerciseClicked) => {
-    /*fetch(src + "/api/camera/turn/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        robot_name: exerciseClicked.name,
-      }),
-      mode: "no-cors",
-    });*/
     const isAlreadyOpen = exercises.find(
       (exercise) => exercise.id === exerciseClicked.id,
     )?.isOpen;
@@ -147,15 +137,15 @@ const App = () => {
             robotId: program.robot_id,
           };
         });
-        const fetched_exercises = data.robots.map((robot) => {
+        const fetched_exercises = data.exercises.map((exercise) => {
           return {
-            id: robot.robot_id,
-            name: robot.name,
+            id: exercise.robot_id,
+            name: exercise.name,
             programs: fetched_programs.filter(
-              (program) => program.robotId === robot.robot_id,
+              (program) => program.robotId === exercise.robot_id,
             ),
-            content: robot.content || "Robot content here...",
-            isOpen: robot.robotId == 1 ? true : false, // used for the accordion
+            content: exercise.content || "Exercise content here...",
+            isOpen: exercise.robotId == 1 ? true : false, // used for the accordion
           };
         });
         setExercises(fetched_exercises);
@@ -167,7 +157,7 @@ const App = () => {
   useEffect(() => {
     if (exercises) setSelectedExercise(exercises[0] || null);
   }, [exercises, selectedExercise]);
-  console.log(selectedExercise)
+  // console.log(selectedExercise)
   return (
     <div className="bg-slate-900 text-gray-100 flex flex-col">
       <header className="mx-auto max-w-screen-lg px-3 py-6">
