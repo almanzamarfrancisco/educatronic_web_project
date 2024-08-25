@@ -28,8 +28,8 @@
 #define LED_PIN 2  // GPIO 27
 #define MOTOR_PIN 0  // GPIO 17
 
-static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
-// static const char *s_http_addr = "http://192.168.1.71:8000";  // Ngrok HTTP port
+// static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
+static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
 static const char *s_root_dir = "web_root";
 
 typedef struct PROGRAM_FILE {
@@ -83,18 +83,6 @@ void motor_on() {
 void motor_off() {
     printf("[I] Seting the MOTOR off ...\n");
     digitalWrite(MOTOR_PIN, LOW);
-}
-// Move camera to view robot
-void turn_camera_to(char *robot_name){ // TODO: turn the servo motor to the angle of the robot
-    char cmd[512];
-    printf("\t=> Turning camera to robot: %s\n", robot_name);
-    for(size_t i = 0; i < robots_count; i++){
-        if(strcmp(robots[i].name, robot_name) == 0){
-            sprintf(cmd, "python servo.py %d", robots[i].angle);
-            break;
-        }
-    }
-    system(cmd);
 }
 // Execute video encoding command
 void *encode_video(){
@@ -345,7 +333,7 @@ int update_database(){
             if (update_database() != 0){ printf("Database error: "); return; }
             char *programs_json = programs_to_json();
             char *robots_json = robots_to_json();
-            json_response = mg_mprintf("{%m:[%s], %m:[%s]}", MG_ESC("robots"), robots_json, MG_ESC("programs"), programs_json);
+            json_response = mg_mprintf("{%m:[%s], %m:[%s]}", MG_ESC("exercises"), robots_json, MG_ESC("programs"), programs_json);
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS,
                       content_length);
@@ -390,10 +378,6 @@ int update_database(){
                       content_length);
             mg_printf(c, "%s\n", json_response);
             mg_http_reply(c, 200, CORS_HEADERS, "%s", json_response);
-        } else if(mg_http_match_uri(hm, "/api/camera/turn/")){
-            struct mg_str json = hm->body;
-            // printf("\t Turning camera to robot %s\n", mg_json_get_str(json, "$.robot_name"));
-            turn_camera_to(mg_json_get_str(json, "$.robot_name"));
         } else if (mg_match(hm->uri, mg_str("/hls/*"), NULL)) {
             // Extract the file path from the URI
             char *uri = (char*)malloc((sizeof(char)) * (hm->uri.len + 1));
@@ -450,7 +434,7 @@ int update_database(){
 int main(void) {
     struct mg_mgr mgr;                            // Event manager
     struct mg_connection *connection;
-    pthread_t enconde_video_thread_id;
+    // pthread_t enconde_video_thread_id;
     mg_log_set(MG_LL_INFO);                       // Set to 3 to enable debug
     mg_mgr_init(&mgr);                            // Initialise event manager
     connection = mg_http_listen(&mgr, s_http_addr, event_handler, NULL);  // Create HTTP listener
@@ -463,14 +447,14 @@ int main(void) {
     if (sqlite3_init_database() != 0){            // Initialize the database
         return 0;
     }
-    if(pthread_create(&enconde_video_thread_id, NULL, encode_video, NULL)) { // Starts live video
+    /*if(pthread_create(&enconde_video_thread_id, NULL, encode_video, NULL)) { // Starts live video
         fprintf(stderr, "Error creating econde viedo thread\n");
         return 1;
     }
     if(pthread_join(enconde_video_thread_id, NULL)) {
         fprintf(stderr, "Error joining encode video thread\n");
         return 2;
-    }
+    }*/
     for (;EVER;) mg_mgr_poll(&mgr, 500);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
