@@ -3,8 +3,8 @@
 #include "mongoose.h"
 #include <wiringPi.h>
 #include <stdlib.h>
-#include <time.h>
 #include <stdio.h>
+#include <time.h>
 #include <stdio.h>
 #include <sqlite3.h>
 #include <ctype.h>
@@ -85,17 +85,21 @@ void motor_off() {
     digitalWrite(MOTOR_PIN, LOW);
 }
 // Execute video encoding command
-void* encode_video() {
-    char cmd[512]; // Adjust the size as needed
-    // TODO make the log file for the video
-        // char live_video_log_file[] = "./logs/live_video.log";
-        // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 > %s 2>&1 &", s_root_dir, live_video_log_file);
-    // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
-    sprintf(cmd, "rpicam-vid -n --vflip --verbose 0 --level 4.2 --width 640 -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 10 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
-    // system("python web_root/server.py &");
-    system("rm -rf ./web_root/hls/*");
-    system(cmd);
-    return NULL;
+int isMotionRunning() {
+    // sudo libcamerify motion -c ./motion.conf
+    FILE* fp;
+    char path[1035];
+    int running = 0;
+    fp = popen("pidof motion", "r");
+    if (fp == NULL) {
+        printf("Failed to run command\n");
+        return -1;
+    }
+    if (fgets(path, sizeof(path), fp) != NULL) {
+        running = 1;
+    }
+    pclose(fp);
+    return running;
 }
 // Saves code in the database
 int saveProgram(char* code, int fileId) {
@@ -447,7 +451,6 @@ int update_database() {
 int main(void) {
     struct mg_mgr mgr;                            // Event manager
     struct mg_connection* connection;
-    // pthread_t enconde_video_thread_id;
     mg_log_set(MG_LL_INFO);                       // Set to 3 to enable debug
     mg_mgr_init(&mgr);                            // Initialise event manager
     connection = mg_http_listen(&mgr, s_http_addr, event_handler, NULL);  // Create HTTP listener
@@ -460,14 +463,10 @@ int main(void) {
     if (sqlite3_init_database() != 0) {            // Initialize the database
         return 0;
     }
-    /* if(pthread_create(&enconde_video_thread_id, NULL, encode_video, NULL)) { // Starts live video
-        fprintf(stderr, "Error creating econde viedo thread\n");
+    if (isMotionRunning() <= 0) {
+        printf("[E] Motion is not running.\n[I] Please run motion before of initializing the project\n");
         return 1;
     }
-    if(pthread_join(enconde_video_thread_id, NULL)) {
-        fprintf(stderr, "Error joining encode video thread\n");
-        return 2;
-    } */
     for (;EVER;) mg_mgr_poll(&mgr, 500);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager
     return 0;
