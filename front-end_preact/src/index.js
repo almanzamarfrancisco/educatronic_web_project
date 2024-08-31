@@ -1,6 +1,6 @@
 import { h, render } from "preact";
 import { useEffect, useState } from "preact/hooks";
-import VideoPlayer from "./components/VideoPlayer";
+// import VideoPlayer from "./components/VideoPlayer";
 import CodeEditor from "./components/CodeEditor";
 import "video.js/dist/video-js.css";
 import styles from "./style/index.css";
@@ -16,15 +16,16 @@ const App = () => {
   const toggleCollapsible = () => {
     setCollapsibleVisible(!isCollapsibleVisible);
   };
-  const src = "http://192.168.1.71:8000";
-  const video_src = src + "/hls/index.m3u8";
-  const default_src = src + "/api/code/get_default";
-  const run_code_src = src + "/api/code/execute";
-  const save_code_src = src + "/api/code/save";
-  const [programs, setPrograms] = useState([]);
-  const [exercises, setExercises] = useState([]);
-  const [selectedExercise, setSelectedExercise] = useState(exercises[0] || null);
-  const [activeTab, setActiveTab] = useState("0");
+  const src = "http://192.168.1.71:8000"
+  // const video_src = src + "/hls/index.m3u8"
+  const video_src = 'http://192.168.1.71:8081/0/stream/'
+  const default_src = src + "/api/code/get_default"
+  const run_code_src = src + "/api/code/execute"
+  const save_code_src = src + "/api/code/save"
+  const [programs, setPrograms] = useState([])
+  const [exercises, setExercises] = useState([])
+  const [selectedExercise, setSelectedExercise] = useState(exercises[0] || null)
+  const [activeTab, setActiveTab] = useState("0")
   const handleExerciseSelect = (exerciseClicked) => {
     const isAlreadyOpen = exercises.find(
       (exercise) => exercise.id === exerciseClicked.id,
@@ -279,7 +280,8 @@ const App = () => {
               <h3 className="text-lg font-bold mb-2 mx-auto max-w-screen-lg">
                 Live video
               </h3>
-              <VideoPlayer src={video_src} />
+              <img src={video_src} border="0" width="95%" class="rotate-180"/>
+              {/* <VideoPlayer src={video_src} /> */}
               {/* <VideoPlayer src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" /> */}
             </div>
           )}
