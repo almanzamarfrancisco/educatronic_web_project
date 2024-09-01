@@ -60,7 +60,7 @@ const App = () => {
     const body_data = {
       exerciseId: selectedExercise.id + "",
       programId: activeTab,
-      code: getCode(),
+      code: getCode().replaceAll("\n", "{new_line}"),
     };
     console.log("Sending code...", JSON.stringify(body_data));
     fetch(save_code_src, {
