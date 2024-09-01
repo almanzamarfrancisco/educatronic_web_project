@@ -85,17 +85,21 @@ void motor_off() {
     digitalWrite(MOTOR_PIN, LOW);
 }
 // Execute video encoding command
-void* encode_video() {
-    char cmd[512]; // Adjust the size as needed
-    // TODO make the log file for the video
-        // char live_video_log_file[] = "./logs/live_video.log";
-        // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 > %s 2>&1 &", s_root_dir, live_video_log_file);
-    // sprintf(cmd, "rpicam-vid -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 5 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
-    sprintf(cmd, "rpicam-vid -n --vflip --verbose 0 --level 4.2 --width 640 -t 0 --inline -o - | ffmpeg -thread_queue_size 512 -i - -c:v copy -hls_flags delete_segments -hls_list_size 10 -f hls ./%s/hls/index.m3u8 &> ./web_root/logs/camera_log.txt &", s_root_dir);
-    // system("python web_root/server.py &");
-    system("rm -rf ./web_root/hls/*");
-    system(cmd);
-    return NULL;
+int isMotionRunning() {
+    // sudo libcamerify motion -c ./motion.conf
+    FILE* fp;
+    char path[1035];
+    int running = 0;
+    fp = popen("pidof motion", "r");
+    if (fp == NULL) {
+        printf("Failed to run command\n");
+        return -1;
+    }
+    if (fgets(path, sizeof(path), fp) != NULL) {
+        running = 1;
+    }
+    pclose(fp);
+    return running;
 }
 // Saves code in the database
 int saveProgram(char* code, int fileId) {
@@ -179,7 +183,9 @@ static int programs_callback(void* NotUsed, int argc, char** argv, char** azColN
         fprintf(stderr, "Memory allocation failed\n");
         exit(1);
     }
-    for (size_t i = 0; i < programs_count; i++) { if (programs[i].fileId == atoi(argv[0])) return 0; }
+    for (size_t i = 0; i < programs_count; i++) {
+        if (programs[i].fileId == atoi(argv[0])) return 0;
+    }
     programs[programs_count].fileId = atoi(argv[0]);
     programs[programs_count].name = strdup(argv[1]);
     programs[programs_count].code = strdup(argv[2]);
@@ -189,6 +195,7 @@ static int programs_callback(void* NotUsed, int argc, char** argv, char** azColN
 }
 void load_exercises_from_db(sqlite3* db) {
     char* err_msg = 0;
+    exercises_count = 0;
     const char* exercise_table = "SELECT * FROM Exercises;";
     int rc = sqlite3_exec(db, exercise_table, exercises_callback, 0, &err_msg);
     if (rc != SQLITE_OK) {
@@ -204,6 +211,8 @@ void load_exercises_from_db(sqlite3* db) {
 }
 void load_programs_from_db(sqlite3* db) {
     char* err_msg = 0;
+    programs_count = 0;
+    printf("Loading programs %d...\n", programs_count);
     const char* program_file_table = "SELECT * FROM ProgramFiles;";
     int rc = sqlite3_exec(db, program_file_table, programs_callback, 0, &err_msg);
     if (rc != SQLITE_OK) {
@@ -234,8 +243,8 @@ int sqlite3_init_database() {
             "CREATE TABLE IF NOT EXISTS ProgramFiles(programfile_id INTEGER PRIMARY KEY AUTOINCREMENT, program_file_name TEXT, content TEXT, exercise_id INTEGER);",
             "INSERT INTO Exercises(exercise_name, content) VALUES ('First Exercise', '1. Make the Doors open  for 1 second\n 2. Up to floor 1');",
             "INSERT INTO Exercises(exercise_name, content) VALUES ('Second Exercise', '1. Make the Doors open  for 3 seconds\n 2. Up to floor 6');",
-            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('First try', 'O 2\nU 1', 1);",
-            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('Second try', 'O \nU 6', 2);",
+            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('First try', 'O 2{new_line}U 1', 1);",
+            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('Second try', 'O {new_line}U 6', 2);",
     };
     for (long unsigned int i = 0; i < sizeof(sql_init) / sizeof(sql_init[0]); i++) {
         rc = sqlite3_exec(db, sql_init[i], 0, 0, &err_msg);
@@ -367,7 +376,6 @@ int update_database() {
             mg_http_reply(c, 200, CORS_HEADERS, "%s", json_response);
         }
         else if (mg_http_match_uri(hm, "/api/code/save")) {
-            printf("\n\n\t[I] Saving the code... \n");
             struct mg_str json = hm->body;
             if (update_file(json, 0) != 0) {
                 printf("Error updating the file\n");
@@ -447,7 +455,6 @@ int update_database() {
 int main(void) {
     struct mg_mgr mgr;                            // Event manager
     struct mg_connection* connection;
-    pthread_t enconde_video_thread_id;
     mg_log_set(MG_LL_INFO);                       // Set to 3 to enable debug
     mg_mgr_init(&mgr);                            // Initialise event manager
     connection = mg_http_listen(&mgr, s_http_addr, event_handler, NULL);  // Create HTTP listener
@@ -460,13 +467,9 @@ int main(void) {
     if (sqlite3_init_database() != 0) {            // Initialize the database
         return 0;
     }
-    if (pthread_create(&enconde_video_thread_id, NULL, encode_video, NULL)) { // Starts live video
-        fprintf(stderr, "Error creating econde viedo thread\n");
+    if (isMotionRunning() <= 0) {
+        printf("[E] Motion is not running.\n[I] Please run motion before of initializing the project\n");
         return 1;
-    }
-    if (pthread_join(enconde_video_thread_id, NULL)) {
-        fprintf(stderr, "Error joining encode video thread\n");
-        return 2;
     }
     for (;EVER;) mg_mgr_poll(&mgr, 500);           // Infinite event loop
     mg_mgr_free(&mgr);                            // Clears the connection manager

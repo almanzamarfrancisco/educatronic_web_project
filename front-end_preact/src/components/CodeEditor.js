@@ -29,7 +29,9 @@ const CodeEditor = ({
                                 {program.name + ' '}
                             </button>
                             { activeTab === program.fileId && <button
-                                onClick={() => deleteProgram(program.fileId)}
+                                onClick={
+                                    () => deleteProgram(program.fileId)
+                                }
                                 className="border-red-500 text-red-500"
                             >X</button>}
                         </span>
@@ -42,7 +44,7 @@ const CodeEditor = ({
                 </button>
             </div>
             <textarea
-                value={getCode()}
+                value={getCode().replaceAll('{new_line}', '\n')}
                 onChange={handleCodeChange}
                 className="flex-grow h-100 p-2 bg-gray-900 text-white font-mono border-2 border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
                 placeholder={activeTab != null ?'Select an Exercise first!':'Start typing your code here...'}

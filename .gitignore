@@ -4,3 +4,4 @@ backend_mongoose/web_root/package-lock.json
 backend_mongoose/hls
 backend_mongoose/web_root/hls/*
 backend_mongoose/web_root/logs/*
+front-end_preact/package-lock.json
