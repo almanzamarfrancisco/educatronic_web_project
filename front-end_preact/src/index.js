@@ -1,6 +1,6 @@
 import { h, render } from "preact";
 import { useEffect, useState } from "preact/hooks";
-// import VideoPlayer from "./components/VideoPlayer";
+import VideoPlayer from "./components/VideoPlayer";
 import CodeEditor from "./components/CodeEditor";
 import "video.js/dist/video-js.css";
 import styles from "./style/index.css";
@@ -12,7 +12,7 @@ import youtubeIcon from "./assets/images/youtube-icon.png";
 import InfoBox from "./components/InfoBox";
 
 const App = () => {
-  const [isCollapsibleVisible, setCollapsibleVisible] = useState(false);
+  const [isCollapsibleVisible, setCollapsibleVisible] = useState(true);
   const toggleCollapsible = () => {
     setCollapsibleVisible(!isCollapsibleVisible);
   };
@@ -81,7 +81,7 @@ const App = () => {
     const body_data = {
       exerciseId: selectedExercise.id + "",
       programId: activeTab,
-      code: getCode(),
+      code: getCode().replaceAll("\n", "{new_line}"),
     };
     console.log("Sending code...", JSON.stringify(body_data));
     fetch(run_code_src, {
@@ -280,8 +280,8 @@ const App = () => {
               <h3 className="text-lg font-bold mb-2 mx-auto max-w-screen-lg">
                 Live video
               </h3>
-              <img src={video_src} border="0" width="95%" class="rotate-180"/>
-              {/* <VideoPlayer src={video_src} /> */}
+              {/* <img src={video_src} border="0" width="95%" class="rotate-180"/> */}
+              <VideoPlayer streamUrl={video_src} />
               {/* <VideoPlayer src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" /> */}
             </div>
           )}
