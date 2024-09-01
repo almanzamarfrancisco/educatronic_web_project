@@ -238,8 +238,8 @@ int sqlite3_init_database() {
             "CREATE TABLE IF NOT EXISTS ProgramFiles(programfile_id INTEGER PRIMARY KEY AUTOINCREMENT, program_file_name TEXT, content TEXT, exercise_id INTEGER);",
             "INSERT INTO Exercises(exercise_name, content) VALUES ('First Exercise', '1. Make the Doors open  for 1 second\n 2. Up to floor 1');",
             "INSERT INTO Exercises(exercise_name, content) VALUES ('Second Exercise', '1. Make the Doors open  for 3 seconds\n 2. Up to floor 6');",
-            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('First try', 'O 2\nU 1', 1);",
-            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('Second try', 'O \nU 6', 2);",
+            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('First try', 'O 2{new_line}U 1', 1);",
+            "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('Second try', 'O {new_line}U 6', 2);",
     };
     for (long unsigned int i = 0; i < sizeof(sql_init) / sizeof(sql_init[0]); i++) {
         rc = sqlite3_exec(db, sql_init[i], 0, 0, &err_msg);
