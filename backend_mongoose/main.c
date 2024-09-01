@@ -212,7 +212,7 @@ void load_exercises_from_db(sqlite3* db) {
 void load_programs_from_db(sqlite3* db) {
     char* err_msg = 0;
     programs_count = 0;
-    printf("Loading programs %d...\n", programs_count);
+    printf("Loading programs...\n");
     const char* program_file_table = "SELECT * FROM ProgramFiles;";
     int rc = sqlite3_exec(db, program_file_table, programs_callback, 0, &err_msg);
     if (rc != SQLITE_OK) {
