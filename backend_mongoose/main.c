@@ -183,7 +183,9 @@ static int programs_callback(void* NotUsed, int argc, char** argv, char** azColN
         fprintf(stderr, "Memory allocation failed\n");
         exit(1);
     }
-    for (size_t i = 0; i < programs_count; i++) { if (programs[i].fileId == atoi(argv[0])) return 0; }
+    for (size_t i = 0; i < programs_count; i++) {
+        if (programs[i].fileId == atoi(argv[0])) return 0;
+    }
     programs[programs_count].fileId = atoi(argv[0]);
     programs[programs_count].name = strdup(argv[1]);
     programs[programs_count].code = strdup(argv[2]);
@@ -193,6 +195,7 @@ static int programs_callback(void* NotUsed, int argc, char** argv, char** azColN
 }
 void load_exercises_from_db(sqlite3* db) {
     char* err_msg = 0;
+    exercises_count = 0;
     const char* exercise_table = "SELECT * FROM Exercises;";
     int rc = sqlite3_exec(db, exercise_table, exercises_callback, 0, &err_msg);
     if (rc != SQLITE_OK) {
@@ -208,6 +211,8 @@ void load_exercises_from_db(sqlite3* db) {
 }
 void load_programs_from_db(sqlite3* db) {
     char* err_msg = 0;
+    programs_count = 0;
+    printf("Loading programs %d...\n", programs_count);
     const char* program_file_table = "SELECT * FROM ProgramFiles;";
     int rc = sqlite3_exec(db, program_file_table, programs_callback, 0, &err_msg);
     if (rc != SQLITE_OK) {
@@ -371,7 +376,6 @@ int update_database() {
             mg_http_reply(c, 200, CORS_HEADERS, "%s", json_response);
         }
         else if (mg_http_match_uri(hm, "/api/code/save")) {
-            printf("\n\n\t[I] Saving the code... \n");
             struct mg_str json = hm->body;
             if (update_file(json, 0) != 0) {
                 printf("Error updating the file\n");
