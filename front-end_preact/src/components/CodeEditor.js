@@ -47,14 +47,14 @@ const CodeEditor = ({
                 value={getCode().replaceAll('{new_line}', '\n')}
                 onChange={handleCodeChange}
                 className="flex-grow h-100 p-2 bg-gray-900 text-white font-mono border-2 border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
-                placeholder={activeTab != null ?'Select an Exercise first!':'Start typing your code here...'}
+                placeholder={activeTab != null ?'Selecciona un ejercicio!':'Comienza a programar aquí...'}
             />
             <div className="w-100 flex justify-between" >
                 <button className="my-4 p-1 w-1/2 m-3 bg-blue-500 text-white rounded-md" onClick={saveCode}>
-                    Save
+                    Guardar
                 </button>
                 <button className="my-4 p-1 w-1/2 m-3 bg-blue-500 text-white rounded-md" onClick={sendCode}>
-                    Run
+                    Ejecutar
                 </button>
             </div>
         </div>

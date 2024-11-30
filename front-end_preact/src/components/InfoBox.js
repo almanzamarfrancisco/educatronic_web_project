@@ -8,12 +8,12 @@ const InfoBox = ({ exercises, onSelectExercise }) => {
             <div className="flex items-center">
                 <img class="h-12 w-12 m-2 flex flex-row" src={infoIcon} alt="Info" loading="lazy" style="width: 1.5rem;height: 1.5rem"/>
                 <h2 className="text-lg font-bold flex flex-row bg-gradient-to-br from-sky-500 to-cyan-400 bg-clip-text text-transparent">
-                    Exercises to practice
+                    Ejercicios para practicar
                 </h2>
             </div>
-            <p> =&gt; Here, you can find the exercises and make progress. </p>
-            <p className="mb-3"> =&gt; Hit the run button {/* or press the enter key */} and watch in the video the execution</p>
-            <p className="mb-3"> =&gt; You can have up to 5 programs in each exercise and you can save them only with the 'Save' button</p>
+            <p> =&gt; Aquí podrás encontrar los ejercicios y progresar. </p>
+            <p className="mb-3"> =&gt; Presiona el botón ejecutar {/* or press the enter key */} y mira en el video la ejecución</p>
+            <p className="mb-3"> =&gt; Puedes tener hasta 5 programas en cada ejercicio y puedes guardarlos solo con el botón 'Guardar'</p>
             <AccordionSelection exercises={exercises} onSelectExercise={onSelectExercise}/>
         </div>
     );

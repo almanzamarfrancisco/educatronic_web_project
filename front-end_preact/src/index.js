@@ -16,9 +16,9 @@ const App = () => {
   const toggleCollapsible = () => {
     setCollapsibleVisible(!isCollapsibleVisible);
   };
-  const src = "http://192.168.1.71:8000"
+  const src = ""
   // const video_src = src + "/hls/index.m3u8"
-  const video_src = 'http://192.168.1.71:8081/0/stream/'
+  const video_src = 'https://37c7a4898d68.ngrok.app'
   const default_src = src + "/api/code/get_default"
   const run_code_src = src + "/api/code/execute"
   const save_code_src = src + "/api/code/save"
@@ -171,17 +171,17 @@ const App = () => {
                 alt="logo"
                 loading="lazy"
               />
-              <h1>Educatronic</h1>
+              <h1>Educatrónica</h1>
             </div>
           </a>
         </div>
         <nav>
           <ul class="flex gap-x-3 font-medium text-gray-200">
             <li class="hover:text-white">
-              <a href="/">HOME</a>
+              <a href="/">Inicio</a>
             </li>
             <li class="hover:text-white">
-              <a href="/educational-robotics">Educational Robotics</a>
+              <a href="/educational-robotics">Robótica Educacional</a>
             </li>
             <li class="hover:text-white">
               <a href="https://github.com/almanzamarfrancisco/compiler">
@@ -189,7 +189,7 @@ const App = () => {
               </a>
             </li>
             <li class="hover:text-white">
-              <a href="/about-us">About us</a>
+              <a href="/about-us">A cerca de nosotros</a>
             </li>
           </ul>
         </nav>
@@ -198,23 +198,23 @@ const App = () => {
         <div class="mx-auto max-w-screen-lg px-3 py-6">
           <div class="flex flex-col items-center md:flex-row md:justify-between md:gap-x-24">
             <div>
-              <h1 class="text-3xl font-bold">Hi there!👋 </h1>
+              <h1 class="text-3xl font-bold">Hola!👋 </h1>
               <p class="mt-6 text-xl leading-9">
                 <span class="bg-gradient-to-br from-sky-500 to-cyan-400 bg-clip-text text-transparent">
-                  Welcome to Educatrónica!{" "}
+                  Bienvenido a Educatrónica!{" "}
                 </span>
-                Here you can code little programs to approach the exersices and learn
-                about electronics and programming. The best part! You will be
-                able to see the results of your code execution in streamed in live! ⊂(◉‿◉)つ. <br/>
-                In this ocasion, we will be using an elevator; to code your programs you can use the following sintax:
+                Aquí puedes programar pequeños programas para abordar los ejercicios y aprender
+                sobre electrónica y programación. ¡La mejor parte! Podrás
+                ver los resultados de la ejecución de tu código transmitidos en vivo! ⊂(◉‿◉)つ. <br/>
+                En esta ocasión, usaremos un ascensor; para programar tus programas puedes usar la siguiente sintaxis:
               </p>
               <ul>
-                <li> =&gt; Start: S or s </li>
-                <li> =&gt; Up: U or u </li>
-                <li> =&gt; Down: D or d </li>
-                <li> =&gt; Open/Close: O or o [wating seconds] </li>
-                <li> =&gt; Wait: W or w [waiting seconds] </li>
-                <li> =&gt; End: E or e </li>
+                <li> =&gt; Inicio: I ó i </li>
+                <li> =&gt; Subir: S ó s + [Número de pisos] </li>
+                <li> =&gt; Bajar: B ó b + [Número de pisos] </li>
+                <li> =&gt; Parar: P ó p + [Número de segundos] </li>
+                <li> =&gt; Abrir/Cerrar: A ó a </li>
+                <li> =&gt; Fin: F ó f </li>
               </ul>
               <div class="mt-3 flex gap-1">
                 <a href="../facebook">
@@ -271,14 +271,14 @@ const App = () => {
             onClick={toggleCollapsible}
             className="mt-4 mx-auto bg-blue-500 text-white px-4 py-2 rounded"
           >
-            {isCollapsibleVisible ? "Hide" : "Show"} live video
+            {isCollapsibleVisible ? "Ocultar" : "Mostrar"} video
           </button>
         </div>
         <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
           {isCollapsibleVisible && (
             <div className="mt-4 p-4 bg-gray-800 rounded w-full">
               <h3 className="text-lg font-bold mb-2 mx-auto max-w-screen-lg">
-                Live video
+                Video en vivo
               </h3>
               {/* <img src={video_src} border="0" width="95%" class="rotate-180"/> */}
               <VideoPlayer streamUrl={video_src} />
