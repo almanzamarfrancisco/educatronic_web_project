@@ -2,6 +2,7 @@ import { h, render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import VideoPlayer from "./components/VideoPlayer";
 import CodeEditor from "./components/CodeEditor";
+import BlocklyInterface from "./components/BlocklyInterface";
 import "video.js/dist/video-js.css";
 import styles from "./style/index.css";
 import avatarImage from "./assets/images/avatar.svg";
@@ -9,7 +10,6 @@ import designerImage from "./assets/images/designer.svg";
 import logoImage from "./assets/images/logo.svg";
 import facebookIcon from "./assets/images/facebook-icon.png";
 import youtubeIcon from "./assets/images/youtube-icon.png";
-import InfoBox from "./components/InfoBox";
 
 const App = () => {
   const [isCollapsibleVisible, setCollapsibleVisible] = useState(true);
@@ -234,6 +234,7 @@ const App = () => {
                   />
                 </a>
               </div>
+              <BlocklyInterface/>
             </div>
             <div class="shrink-0">
               <img
@@ -244,47 +245,6 @@ const App = () => {
               />
             </div>
           </div>
-        </div>
-        <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
-          <div className="w-full md:w-1/3 bg-gray-700 text-white mb-4 md:mb-0 rounded-md">
-            <InfoBox exercises={exercises} onSelectExercise={handleExerciseSelect} />
-          </div>
-          <div className="w-full md:w-2/3 flex-grow bg-gray-700 text-white p-4 rounded-md">
-            {selectedExercise && (
-              <CodeEditor
-                programs={programs}
-                activeTab={activeTab}
-                handleTabChange={handleTabChange}
-                getCurrentFile={getCurrentFile}
-                handleCodeChange={handleCodeChange}
-                getCode={getCode}
-                addNewProgram={addNewProgram}
-                deleteProgram={deleteProgram}
-                sendCode={sendCode}
-                saveCode={saveCode}
-              />
-            )}
-          </div>
-        </div>
-        <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
-          <button
-            onClick={toggleCollapsible}
-            className="mt-4 mx-auto bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            {isCollapsibleVisible ? "Ocultar" : "Mostrar"} video
-          </button>
-        </div>
-        <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
-          {isCollapsibleVisible && (
-            <div className="mt-4 p-4 bg-gray-800 rounded w-full">
-              <h3 className="text-lg font-bold mb-2 mx-auto max-w-screen-lg">
-                Video en vivo
-              </h3>
-              {/* <img src={video_src} border="0" width="95%" class="rotate-180"/> */}
-              <VideoPlayer streamUrl={video_src} />
-              {/* <VideoPlayer src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" /> */}
-            </div>
-          )}
         </div>
       </main>
     </div>
