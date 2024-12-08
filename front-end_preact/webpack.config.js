@@ -46,4 +46,10 @@ module.exports = {
     compress: true,
     port: 9000,
   },
+  resolve: {
+    alias: {
+      react: 'preact/compat',
+      'react-dom': 'preact/compat',
+    },
+  },
 };

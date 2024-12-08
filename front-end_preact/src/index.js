@@ -2,6 +2,7 @@ import { h, render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import VideoPlayer from "./components/VideoPlayer";
 import CodeEditor from "./components/CodeEditor";
+import CodeEditorMonaco from "./components/CodeEditorMonaco";
 import "video.js/dist/video-js.css";
 import styles from "./style/index.css";
 import avatarImage from "./assets/images/avatar.svg";
@@ -250,7 +251,7 @@ const App = () => {
             <InfoBox exercises={exercises} onSelectExercise={handleExerciseSelect} />
           </div>
           <div className="w-full md:w-2/3 flex-grow bg-gray-700 text-white p-4 rounded-md">
-            {selectedExercise && (
+            {/* {selectedExercise && (
               <CodeEditor
                 programs={programs}
                 activeTab={activeTab}
@@ -263,7 +264,8 @@ const App = () => {
                 sendCode={sendCode}
                 saveCode={saveCode}
               />
-            )}
+            )} */}
+            <CodeEditorMonaco/>
           </div>
         </div>
         <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
