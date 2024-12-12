@@ -160,133 +160,79 @@ const App = () => {
   }, [exercises, selectedExercise]);
   // console.log(selectedExercise)
   return (
-    <div className="bg-slate-900 text-gray-100 flex flex-col">
-      <header className="mx-auto max-w-screen-lg px-3 py-6">
-        <div className="flex flex-col gap-y-3 sm:flex-row sm:items-center sm:justify-between">
-          <a href="/">
-            <div class="flex items-center bg-gradient-to-br from-sky-500 to-cyan-400 bg-clip-text text-xl font-bold text-transparent">
-              <img
-                class="h-12 w-12 m-2"
-                src={logoImage}
-                alt="logo"
-                loading="lazy"
-              />
-              <h1>Educatrónica</h1>
-            </div>
-          </a>
+    <div>
+      {/* <!-- Header --> */}
+      <header class="shadow-md py-4 px-6">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+            <h1 class="text-xl font-bold">Educatrónica</h1>
+          </div>
+          <nav class="space-x-4 text-sm">
+            <a href="#" class="text-blue-500 border-b-2 border-blue-500">Página principal</a>
+            <a href="#" class="text-gray-500">Sobre Nosotros</a>
+          </nav>
         </div>
-        <nav>
-          <ul class="flex gap-x-3 font-medium text-gray-200">
-            <li class="hover:text-white">
-              <a href="/">Inicio</a>
-            </li>
-            <li class="hover:text-white">
-              <a href="/educational-robotics">Robótica Educacional</a>
-            </li>
-            <li class="hover:text-white">
-              <a href="https://github.com/almanzamarfrancisco/compiler">
-                GitHub
-              </a>
-            </li>
-            <li class="hover:text-white">
-              <a href="/about-us">A cerca de nosotros</a>
-            </li>
-          </ul>
-        </nav>
       </header>
-      <main className="flex-grow">
-        <div class="mx-auto max-w-screen-lg px-3 py-6">
-          <div class="flex flex-col items-center md:flex-row md:justify-between md:gap-x-24">
-            <div>
-              <h1 class="text-3xl font-bold">Hola!👋 </h1>
-              <p class="mt-6 text-xl leading-9">
-                <span class="bg-gradient-to-br from-sky-500 to-cyan-400 bg-clip-text text-transparent">
-                  Bienvenido a Educatrónica!{" "}
-                </span>
-                Aquí puedes programar pequeños programas para abordar los ejercicios y aprender
-                sobre electrónica y programación. ¡La mejor parte! Podrás
-                ver los resultados de la ejecución de tu código transmitidos en vivo! ⊂(◉‿◉)つ. <br/>
-                En esta ocasión, usaremos un ascensor; para programar tus programas puedes usar la siguiente sintaxis:
-              </p>
-              <ul>
-                <li> =&gt; Inicio: I ó i </li>
-                <li> =&gt; Subir: S ó s + [Número de pisos] </li>
-                <li> =&gt; Bajar: B ó b + [Número de pisos] </li>
-                <li> =&gt; Parar: P ó p + [Número de segundos] </li>
-                <li> =&gt; Abrir/Cerrar: A ó a </li>
-                <li> =&gt; Fin: F ó f </li>
-              </ul>
-              <div class="mt-3 flex gap-1">
-                <a href="../facebook">
-                  <img
-                    class="h-12 w-12 hover:translate-y-1"
-                    src={facebookIcon}
-                    alt="Facebook icon"
-                    loading="lazy"
-                  />
-                </a>
-                <a href="../youtube">
-                  <img
-                    class="h-12 w-12 hover:translate-y-1"
-                    src={youtubeIcon}
-                    alt="Youtube icon"
-                    loading="lazy"
-                  />
-                </a>
+
+      {/* <!-- Main Content --> */}
+      <main class="flex-1 flex flex-col lg:flex-row">
+          {/* <!-- Programming Section --> */}
+          <section class="flex-1 p-6 shadow-md">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold">Ejercicio 1</h2>
+              <div class="flex items-center space-x-2">
+                <label class="flex items-center space-x-2">
+                  <span>Modo de Bloques</span>
+                  <input type="checkbox" class="toggle-checkbox"/>
+                </label>
+                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black">
+                  <option>Lista de Ejercicios</option>
+                  <option>Ejercicio 1</option>
+                  <option>Ejercicio 2</option>
+                  <option>Ejercicio 3</option>
+                </select>
               </div>
             </div>
-            <div class="shrink-0">
-              <img
-                class="h-80 w-64"
-                src={designerImage}
-                alt="Avatar image"
-                loading="lazy"
-              />
+            {/* <!-- Tabs --> */}
+            <div class="border-b border-gray-300">
+              <ul class="flex space-x-4 text-sm">
+                <li><a href="#" class="pb-2 border-b-2 border-blue-500">PrimerArchivo</a></li>
+                <li><a href="#" class="pb-2 text-gray-500">SegundoArchivo</a></li>
+                <li><a href="#" class="pb-2 text-gray-500">VersiónDefinitiva</a></li>
+              </ul>
             </div>
-          </div>
-        </div>
-        <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
-          <div className="w-full md:w-1/3 bg-gray-700 text-white mb-4 md:mb-0 rounded-md">
-            <InfoBox exercises={exercises} onSelectExercise={handleExerciseSelect} />
-          </div>
-          <div className="w-full md:w-2/3 flex-grow bg-gray-700 text-white p-4 rounded-md">
-            {selectedExercise && (
-              <CodeEditor
-                programs={programs}
-                activeTab={activeTab}
-                handleTabChange={handleTabChange}
-                getCurrentFile={getCurrentFile}
-                handleCodeChange={handleCodeChange}
-                getCode={getCode}
-                addNewProgram={addNewProgram}
-                deleteProgram={deleteProgram}
-                sendCode={sendCode}
-                saveCode={saveCode}
-              />
-            )}
-          </div>
-        </div>
-        <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
-          <button
-            onClick={toggleCollapsible}
-            className="mt-4 mx-auto bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            {isCollapsibleVisible ? "Ocultar" : "Mostrar"} video
-          </button>
-        </div>
-        <div class="mx-auto max-w-screen-lg px-3 py-6 flex flex-col md:flex-row md:gap-x-4">
-          {isCollapsibleVisible && (
-            <div className="mt-4 p-4 bg-gray-800 rounded w-full">
-              <h3 className="text-lg font-bold mb-2 mx-auto max-w-screen-lg">
-                Video en vivo
-              </h3>
-              {/* <img src={video_src} border="0" width="95%" class="rotate-180"/> */}
-              <VideoPlayer streamUrl={video_src} />
-              {/* <VideoPlayer src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" /> */}
+            {/* <!-- Code Editor --> */}
+            <textarea
+              class="w-full h-60 border border-gray-300 mt-4 rounded-md p-2 font-mono text-sm text-black bg-gray-50"
+              spellcheck="false">
+              I
+              S 6
+              P 2
+              B 3
+              F 4
+            </textarea>
+            <div class="flex space-x-4 mt-4">
+              <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Guardar</button>
+              <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Ejecutar</button>
             </div>
-          )}
-        </div>
+          </section>
+          {/* <!-- Live Video Section --> */}
+          <section class="lg:w-1/3 p-6">
+            <div class="shadow-md p-4">
+              <div class="flex justify-between items-center">
+                <h2 class="text-lg font-semibold">Video en vivo</h2>
+                <button class="px-4 py-2 bg-purple-500 text-white rounded-md">Mostrar/Ocultar</button>
+              </div>
+              <VideoPlayer streamUrl={video_src}/>
+            </div>
+          </section>
       </main>
+
+      {/* <!-- Footer --> */}
+      <footer class="shadow-md py-4 text-center text-sm">
+        Pie de Página Copyright Educatrónica
+      </footer>
     </div>
   );
 };

@@ -12,7 +12,7 @@ const VideoPlayer = ({ streamUrl }) => {
   }, [streamUrl]);
 
   return (
-    <div style="width: 640px; height: 480px; overflow: hidden;">
+    <div className="mt-4 aspect-video bg-gray-200 flex items-center justify-center">
       <img 
         ref={videoRef}
         src={streamUrl} 
