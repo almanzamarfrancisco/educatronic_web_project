@@ -16,7 +16,6 @@ const App = () => {
     setCollapsibleVisible(!isCollapsibleVisible);
   };
   const src = ""
-  // const video_src = src + "/hls/index.m3u8"
   const video_src = 'https://37c7a4898d68.ngrok.app'
   const default_src = src + "/api/code/get_default"
   const run_code_src = src + "/api/code/execute"
@@ -161,19 +160,15 @@ const App = () => {
   return (
     <div>
       {/* <!-- Header --> */}
-      <header class="shadow-md py-4 px-6">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center space-x-4">
-            <div class="h-20">
-              <img src={designerImage} alt="Logo" class="w-full h-full" />
-            </div>
-            <h1 class="text-xl font-bold">Educatrónica</h1>
-          </div>
-          <nav class="space-x-4 text-sm">
-            <a href="#" class="text-blue-500 border-b-2 border-blue-500">Página principal</a>
-            <a href="#" class="text-gray-500">Sobre Nosotros</a>
-          </nav>
+      <header class="flex shadow-md py-4 px-6 justify-between items-center">
+        <div class="flex-2 items-center space-x-4">
+          <img src={designerImage} alt="Logo" class="w-20" />
+          <h1 class="text-xl font-bold">Educatrónica</h1>
         </div>
+        <nav class="flex-2 space-x-4 text-sm content-end">
+          <a href="#" class="text-blue-500 border-b-2 border-blue-500">Página principal</a>
+          <a href="#" class="text-gray-500">Sobre Nosotros</a>
+        </nav>
       </header>
 
       {/* <!-- Main Content --> */}
