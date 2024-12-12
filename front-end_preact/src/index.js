@@ -1,10 +1,9 @@
 import { h, render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import VideoPlayer from "./components/VideoPlayer";
-import CodeEditor from "./components/CodeEditor";
 import "video.js/dist/video-js.css";
+import CodeEditor from "./components/CodeEditor";
 import styles from "./style/index.css";
-import avatarImage from "./assets/images/avatar.svg";
 import designerImage from "./assets/images/designer.svg";
 import logoImage from "./assets/images/logo.svg";
 import facebookIcon from "./assets/images/facebook-icon.png";
@@ -165,7 +164,9 @@ const App = () => {
       <header class="shadow-md py-4 px-6">
         <div class="flex justify-between items-center">
           <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
+            <div class="h-20">
+              <img src={designerImage} alt="Logo" class="w-full h-full" />
+            </div>
             <h1 class="text-xl font-bold">Educatrónica</h1>
           </div>
           <nav class="space-x-4 text-sm">
@@ -176,7 +177,7 @@ const App = () => {
       </header>
 
       {/* <!-- Main Content --> */}
-      <main class="flex-1 flex flex-col lg:flex-row">
+      <main class="flex-1 flex flex-col lg:flex-row items-center">
           {/* <!-- Programming Section --> */}
           <section class="flex-1 p-6 shadow-md">
             <div class="flex items-center justify-between mb-4">
@@ -194,6 +195,9 @@ const App = () => {
                 </select>
               </div>
             </div>
+            <div class="flex space-x-4 mx-3 my-5">
+              lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+            </div>
             {/* <!-- Tabs --> */}
             <div class="border-b border-gray-300">
               <ul class="flex space-x-4 text-sm">
@@ -210,7 +214,7 @@ const App = () => {
               S 6
               P 2
               B 3
-              F 4
+              F 
             </textarea>
             <div class="flex space-x-4 mt-4">
               <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Guardar</button>
