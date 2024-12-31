@@ -8,7 +8,7 @@ import designerImage from "./assets/images/designer.svg";
 import logoImage from "./assets/images/logo.svg";
 import facebookIcon from "./assets/images/facebook-icon.png";
 import youtubeIcon from "./assets/images/youtube-icon.png";
-import InfoBox from "./components/InfoBox";
+import NavBar from "./components/NavBar";
 
 const App = () => {
   const [isCollapsibleVisible, setCollapsibleVisible] = useState(true);
@@ -158,25 +158,37 @@ const App = () => {
   }, [exercises, selectedExercise]);
   // console.log(selectedExercise)
   return (
-    <div>
+    <div class="h-screen">
       {/* <!-- Header --> */}
-      <header class="flex shadow-md py-4 px-6 justify-between items-center">
-        <div class="flex-2 items-center space-x-4">
-          <img src={designerImage} alt="Logo" class="w-20" />
-          <h1 class="text-xl font-bold">Educatrónica</h1>
+      <header class="shadow-md py-4 px-6">
+        <div class="flex space-x-4 justify-between items-center">
+          <div class="flex-1 items-center space-x-4">
+            <div class="flex items-center space-x-2">
+              <img src={designerImage} alt="Logo" class="w-20" />
+              <h1 class="text-xl font-bold flex-1">Educatrónica</h1>
+              <div class="flex-1">
+                <div class="flex items-center flex-col sm:flex-row justify-end">
+                  <img src={facebookIcon} class="h-12 w-12 flex-none"
+                          alt="Youtube icon"
+                          loading="lazy"/>
+                  <img src={youtubeIcon} class="h-12 w-12 flex-none"
+                        alt="Youtube icon"
+                      loading="lazy"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* <NavBar /> */}
         </div>
-        <nav class="flex-2 space-x-4 text-sm content-end">
-          <a href="#" class="text-blue-500 border-b-2 border-blue-500">Página principal</a>
-          <a href="#" class="text-gray-500">Sobre Nosotros</a>
-        </nav>
       </header>
 
       {/* <!-- Main Content --> */}
       <main class="flex-1 flex flex-col lg:flex-row items-center">
           {/* <!-- Programming Section --> */}
           <section class="flex-1 p-6 shadow-md">
+            {/* <!-- InfoBox --> */}
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-semibold">Ejercicio 1</h2>
+              <h2 class="text-lg font-semibold mx-3">Ejercicio 1</h2>
               <div class="flex items-center space-x-2">
                 <label class="flex items-center space-x-2">
                   <span>Modo de Bloques</span>
@@ -196,9 +208,9 @@ const App = () => {
             {/* <!-- Tabs --> */}
             <div class="border-b border-gray-300">
               <ul class="flex space-x-4 text-sm">
-                <li><a href="#" class="pb-2 border-b-2 border-blue-500">PrimerArchivo</a></li>
-                <li><a href="#" class="pb-2 text-gray-500">SegundoArchivo</a></li>
-                <li><a href="#" class="pb-2 text-gray-500">VersiónDefinitiva</a></li>
+                <li><a href="#" class="lg:pb-2 border-b-2 border-blue-500">Primer archivo</a></li>
+                <li><a href="#" class="lg:pb-2 text-gray-500">Segundo archivo</a></li>
+                <li><a href="#" class="lg:pb-2 text-gray-500">Versión definitiva</a></li>
               </ul>
             </div>
             {/* <!-- Code Editor --> */}
@@ -217,13 +229,14 @@ const App = () => {
             </div>
           </section>
           {/* <!-- Live Video Section --> */}
-          <section class="lg:w-1/3 p-6">
+          <section class="lg:w-1/3 sm:w-2/3 p-6">
             <div class="shadow-md p-4">
               <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold">Video en vivo</h2>
-                <button class="px-4 py-2 bg-purple-500 text-white rounded-md">Mostrar/Ocultar</button>
+                <h2 class="text-lg font-semibold mx-5">Video en vivo</h2>
+                <button class="px-4 py-2 bg-purple-500 text-white rounded-md mx-3">Mostrar/Ocultar</button>
               </div>
-              <VideoPlayer streamUrl={video_src}/>
+              {/* <VideoPlayer streamUrl={video_src}/> */}
+              <VideoPlayer src="https://www.w3schools.com/html/mov_bbb.mp4" />
             </div>
           </section>
       </main>
