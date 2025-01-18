@@ -2,18 +2,16 @@ import { h, render } from "preact";
 import { useEffect, useState } from "preact/hooks";
 import VideoPlayer from "./components/VideoPlayer";
 import "video.js/dist/video-js.css";
-import CodeEditor from "./components/CodeEditor";
 import styles from "./style/index.css";
 import designerImage from "./assets/images/designer.svg";
-import logoImage from "./assets/images/logo.svg";
 import facebookIcon from "./assets/images/facebook-icon.png";
 import youtubeIcon from "./assets/images/youtube-icon.png";
-import NavBar from "./components/NavBar";
 
 const App = () => {
   const [isCollapsibleVisible, setCollapsibleVisible] = useState(true);
   const toggleCollapsible = () => {
     setCollapsibleVisible(!isCollapsibleVisible);
+    console.log("Toggling collapsible... ", isCollapsibleVisible);
   };
   const src = ""
   const video_src = 'https://37c7a4898d68.ngrok.app'
@@ -47,7 +45,7 @@ const App = () => {
     getCurrentFile().code = event.target.value;
     setPrograms([...programs]);
   };
-  const getCode = () => {
+  const getCodeFromCurrentFile = () => {
     let current_file = programs.filter(
       (file) => file.fileId === activeTab + "",
     )[0];
@@ -58,7 +56,7 @@ const App = () => {
     const body_data = {
       exerciseId: selectedExercise.id + "",
       programId: activeTab,
-      code: getCode().replaceAll("\n", "{new_line}"),
+      code: getCodeFromCurrentFile().replaceAll("\n", "{new_line}"),
     };
     console.log("Sending code...", JSON.stringify(body_data));
     fetch(save_code_src, {
@@ -79,7 +77,7 @@ const App = () => {
     const body_data = {
       exerciseId: selectedExercise.id + "",
       programId: activeTab,
-      code: getCode().replaceAll("\n", "{new_line}"),
+      code: getCodeFromCurrentFile().replaceAll("\n", "{new_line}"),
     };
     console.log("Sending code...", JSON.stringify(body_data));
     fetch(run_code_src, {
@@ -117,7 +115,7 @@ const App = () => {
     }
   };
   useEffect(() => {
-    fetch(default_src)
+   /*  fetch(default_src)
       .then((response) => {
         if (!response.ok) {
           throw new Error(
@@ -151,7 +149,7 @@ const App = () => {
         setSelectedExercise(exercises[0] || null);
         setPrograms(selectedExercise.programs);
       })
-      .catch((error) => console.error("Error fetching data:", error));
+      .catch((error) => console.error("Error fetching data:", error)); */
   }, []);
   useEffect(() => {
     if (exercises) setSelectedExercise(exercises[0] || null);
@@ -188,7 +186,7 @@ const App = () => {
           <section class="flex-1 p-6 shadow-md">
             {/* <!-- InfoBox --> */}
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-semibold mx-3">Ejercicio 1</h2>
+              <h2 class="text-lg font-semibold mx-3 whitespace-nowrap">Ejercicio 1</h2>
               <div class="flex items-center space-x-2">
                 <label class="flex items-center space-x-2">
                   <span>Modo de Bloques</span>
@@ -226,24 +224,45 @@ const App = () => {
             <div class="flex space-x-4 mt-4">
               <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Guardar</button>
               <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Ejecutar</button>
+              {
+                !isCollapsibleVisible && (
+                  <button
+                    class="px-4 py-2 bg-purple-500 text-white rounded-md mx-3 hover:bg-purple-700"
+                    onclick={toggleCollapsible}
+                    style="position: absolute;
+    right: 5%;"
+                  >
+                    Mostrar video
+                  </button>
+                )
+              }
             </div>
           </section>
           {/* <!-- Live Video Section --> */}
-          <section class="lg:w-1/3 sm:w-2/3 p-6">
-            <div class="shadow-md p-4">
-              <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold mx-5">Video en vivo</h2>
-                <button class="px-4 py-2 bg-purple-500 text-white rounded-md mx-3">Mostrar/Ocultar</button>
-              </div>
-              {/* <VideoPlayer streamUrl={video_src}/> */}
-              <VideoPlayer src="https://www.w3schools.com/html/mov_bbb.mp4" />
-            </div>
-          </section>
+          {
+            isCollapsibleVisible && (
+              <section class="lg:w-1/3 sm:w-2/3">
+                <div class="shadow-md p-4">
+                  <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold mx-5">Video en vivo</h2>
+                    <button
+                      class="px-4 py-2 bg-purple-500 text-white rounded-md mx-3 hover:bg-purple-700"
+                      onclick={toggleCollapsible}
+                    >
+                      Ocultar video
+                    </button>
+                  </div>
+                  {/* <VideoPlayer streamUrl={video_src}/> */}
+                  <VideoPlayer src="https://www.w3schools.com/html/mov_bbb.mp4" />
+                </div>
+              </section>
+            )
+          }
       </main>
 
       {/* <!-- Footer --> */}
-      <footer class="shadow-md py-4 text-center text-sm">
-        Pie de Página Copyright Educatrónica
+      <footer class="shadow-md py-5 my-5 text-center text-sm">
+        Pie de Página Copyright Educatrónica - 2025
       </footer>
     </div>
   );
