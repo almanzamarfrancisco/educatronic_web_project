@@ -229,8 +229,7 @@ const App = () => {
                   <button
                     class="px-4 py-2 bg-purple-500 text-white rounded-md mx-3 hover:bg-purple-700"
                     onclick={toggleCollapsible}
-                    style="position: absolute;
-    right: 5%;"
+                    style="position: absolute;right: 5%;"
                   >
                     Mostrar video
                   </button>
