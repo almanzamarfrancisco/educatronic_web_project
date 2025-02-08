@@ -289,10 +289,10 @@ int sqlite3_init_database()
         "DROP TABLE IF EXISTS ProgramFiles",
         "CREATE TABLE IF NOT EXISTS Exercises(exercise_id INTEGER PRIMARY KEY AUTOINCREMENT, exercise_name TEXT, content TEXT);",
         "CREATE TABLE IF NOT EXISTS ProgramFiles(programfile_id INTEGER PRIMARY KEY AUTOINCREMENT, program_file_name TEXT, content TEXT, exercise_id INTEGER);",
-        "INSERT INTO Exercises(exercise_name, content) VALUES ('First Exercise', '1. Make the Doors open  for 1 second\n 2. Up to floor 1');",
-        "INSERT INTO Exercises(exercise_name, content) VALUES ('Second Exercise', '1. Make the Doors open  for 3 seconds\n 2. Up to floor 6');",
-        "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('First try', 'O 2{new_line}U 1', 1);",
-        "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('Second try', 'O {new_line}U 6', 2);",
+        "INSERT INTO Exercises(exercise_name, content) VALUES ('Primer Ejercicio', '1. Que suba 6 pisos{new_line}2. Realice una pausa de 2 segundos 3. Después baje 3 pisos{new_line}4. Termine su ejecución');",
+        "INSERT INTO Exercises(exercise_name, content) VALUES ('Segundo Ejercicio', '{new_line}1. Que suba 4 pisos{new_line}2. Después baje 2 pisos{new_line}3. Realice una pausa de 3 segundos 4. Que suba 3 pisos{new_line}5. Después baje 1 piso{new_line}6. Termine su ejecución');",
+        "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('Intento 1', 'I{new_line}B 2{new_line}P 3{new_line}F', 1);",
+        "INSERT INTO ProgramFiles(program_file_name, content, exercise_id) VALUES ('Intento 2', 'I{new_line}S 6{new_line}P 3{new_line}B 3{new_line}F', 2);",
     };
     for (long unsigned int i = 0; i < sizeof(sql_init) / sizeof(sql_init[0]); i++)
     {
