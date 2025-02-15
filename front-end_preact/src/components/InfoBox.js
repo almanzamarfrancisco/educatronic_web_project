@@ -1,25 +1,22 @@
-import { h } from 'preact';
+import { h } from 'preact'
 
 const InfoBox = () => {
-    return (
-        <div>
-            <div class="flex items-center space-x-2">
-                <label class="flex items-center space-x-2">
-                    <span>Modo de Bloques</span>
-                    <input type="checkbox" class="toggle-checkbox"/>
-                </label>
-                <select class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black">
-                    <option>Lista de Ejercicios (Sin ejercicio)</option>
-                    <option>Ejercicio 1</option>
-                    <option>Ejercicio 2</option>
-                    <option>Ejercicio 3</option>
-                </select>
-            </div>
-            <div class="flex space-x-4 mx-3 my-5">
-                lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-            </div>
-        </div>
-    );
-};
+    if (!show) return null
 
-export default InfoBox;
+    return (
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center animate-fade-in">
+          <h2 class="text-xl font-semibold mb-3">⚠️ Attention!</h2>
+          <p class="text-gray-700">{message}</p>
+          <button
+            class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            onClick={onClose}
+          >
+            Okay
+          </button>
+        </div>
+      </div>
+    )
+}
+
+export default InfoBox
