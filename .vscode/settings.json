@@ -2,7 +2,12 @@
     "files.associations": {
         "mongoose.h": "c",
         "elevator.tab.h": "c",
-        "ctype.h": "c"
+        "ctype.h": "c",
+        "time.h": "c",
+        "gpio_management.h": "c",
+        "stdlib.h": "c",
+        "database_management.h": "c",
+        "stdio.h": "c"
     },
     "editor.formatOnSave": true,
     "C_Cpp.errorSquiggles": "disabled"
