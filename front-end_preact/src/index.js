@@ -251,8 +251,8 @@ const App = () => {
                       Ocultar video
                     </button>
                   </div>
-                  {/* <VideoPlayer streamUrl={video_src}/> */}
-                  <VideoPlayer src="https://www.w3schools.com/html/mov_bbb.mp4" />
+                  <VideoPlayer streamUrl={video_src}/>
+                  {/* <VideoPlayer src="https://www.w3schools.com/html/mov_bbb.mp4" /> */}
                 </div>
               </section>
             )
