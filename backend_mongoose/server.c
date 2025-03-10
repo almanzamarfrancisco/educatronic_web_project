@@ -23,7 +23,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *)ev_data;
         if (mg_http_match_uri(hm, "/api/state")) {
-            printf("\t [I] Sending the current state for this user...\n");
+            printf("\t [I] Sending the current state for this user... (/api/state)\n");
             char *json_response = (char *)malloc(sizeof(char) * 1024);
             const char *response =
                 "["
@@ -41,6 +41,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
+            printf("\t [I] State sent (/api/state)\n");
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
