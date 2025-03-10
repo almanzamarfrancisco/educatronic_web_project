@@ -10,5 +10,7 @@
         "stdio.h": "c"
     },
     "editor.formatOnSave": true,
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "C_Cpp.clang_format_fallbackStyle": "Google",
+    "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, IndentWidth: 4, ColumnLimit: 0, BreakBeforeBraces: Attach }"
 }
