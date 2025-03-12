@@ -2,6 +2,7 @@ import { h, render } from "preact"
 import { useEffect, useState } from "preact/hooks"
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
+import CodeEditorMonaco from "./components/CodeEditorMonaco";
 import ErrorModal from "./components/ErrorModal"
 import "video.js/dist/video-js.css"
 import styles from "./style/index.css"
@@ -21,7 +22,7 @@ const App = () => {
     fetch(`http://${base_url}/api/state`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        // console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(!data.programs)
           data.programs = [{
             id: "1234",
@@ -138,13 +139,14 @@ const App = () => {
                   - Borrar archivo
                 </button>
               </div>
-              <textarea
+              {/* <textarea
                 class="w-full h-60 border border-gray-300 mt-1 rounded-md p-2 font-mono text-sm text-black bg-gray-50"
                 spellcheck="false">
                 {
                   activeTabFile.content || 'Selecciona un archivo para ver su contenido'
                 }
-              </textarea>
+              </textarea> */}
+              <CodeEditorMonaco/>
               <div class="flex space-x-4 mt-4">
                 <button class="px-4 py-2 bg-blue-500 text-white rounded-md" disabled={!currentProgram}>Ejecutar</button>
                 <button class={`px-4 py-2 text-white rounded-md ${!currentProgram ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500'}`} disabled={!currentProgram}>Guardar</button>
