@@ -13,14 +13,23 @@ const App = () => {
   const [isVideoVisible, setToggleVideoVisible] = useState(true)
   const [error, setError] = useState({stateGotten: false, message: ""})
   const toggleVideoVisible = () => setToggleVideoVisible(!isVideoVisible)
-  const { programFiles, setProgramFiles, setCurrentProgram } = useAppStore()
-  const video_src = 'https://47f9d06986f4.ngrok.app'
+  const { programFiles, setProgramFiles, setCurrentProgram, currentProgram } = useAppStore()
+  const { exercises, setExercises, setCurrentExercise, currentExercise } = useAppStore()
+  const video_src = 'http://192.168.1.71:8001'
+  const base_url = '192.168.1.71:8000'
   useEffect(() => {
-    fetch('http://192.168.1.71:8000/api/state')
+    fetch(`http://${base_url}/api/state`)
       .then((res) => res.json())
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
-        setProgramFiles(data.programs)
+        if(!data.programs)
+          data.programs = [{
+            id: "1234",
+            name: "Primer archivo",
+            content: ""
+          }]
+        else setProgramFiles(data.programs)
+        setExercises(data.exercises)
         setError({stateGotten: true, message: ""})
       }).catch((err) => {
         console.error(err)
@@ -29,6 +38,7 @@ const App = () => {
   }, [])
   const state = {
     programFiles: programFiles,
+    exercises: exercises,
   }
   const [activeTabFile, setActiveTabFile] = useState({})
   const handleTabChange = (tab) => {
@@ -36,6 +46,11 @@ const App = () => {
     if (!currentTab) console.error(`Tab ${tab} not found`)
     setActiveTabFile(currentTab)
     setCurrentProgram(currentTab)
+  }
+  const handleExerciseListChange = (exerciseId) => {
+    let currentExercise = state.exercises.find(exercise => exercise.id === exerciseId)
+    if (!currentExercise) console.error(`Exercise ${exerciseId} not found`)
+    setCurrentExercise(currentExercise)
   }
   return (
     !error.stateGotten ?
@@ -71,25 +86,25 @@ const App = () => {
             <section class="flex-1 p-6 shadow-md">
               {/* <!-- InfoBox --> */}
               <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold mx-3 whitespace-nowrap">Ejercicio 1</h2>
+                <h2 class="text-lg font-semibold mx-3 whitespace-nowrap">{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</h2>
                 <div class="flex items-center space-x-2">
                   <label class="flex items-center space-x-2">
                     <span>Modo de Bloques</span>
                     <input type="checkbox" class="toggle-checkbox"/>
                   </label>
-                  <select class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black">
-                    <option>Lista de Ejercicios</option>
-                    <option>Ejercicio 1</option>
-                    <option>Ejercicio 2</option>
-                    <option>Ejercicio 3</option>
+                  <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black">
+                    <option disabled={`${!exercises.length?'disabled':''}`}>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
+                    { exercises &&
+                        exercises.map((exercise) => <option value={exercise.id} > {exercise.name} </option>)
+                    }
                   </select>
                 </div>
               </div>
               <div class="flex space-x-4 mx-3 my-5">
-                lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                { currentExercise && currentExercise.content || 'Cuando selecciones un ejercicio aquí se mostrará su contenido' }
               </div>
               {/* <!-- Tabs --> */}
-              <div class="border-b border-gray-300">
+              <div class="border-b border-gray-300 flex items-center justify-between">
                 <ul class="flex space-x-4 text-sm">
                   { state.programFiles && 
                       state.programFiles.map(
@@ -109,18 +124,30 @@ const App = () => {
                       )
                   }
                 </ul>
+                <button class="px-2 py-1 text-xs font-medium text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+                  onclick={() => {console.log('New File taking the current textArea content')}}
+                >
+                  (+) Nuevo archivo
+                </button>
               </div>
               {/* <!-- Code Editor --> */}
+              <div class="flex m-0 p-0 justify-end">
+                <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900`}
+                  onclick={() => {console.log('Delete the current file')}}
+                >
+                  - Borrar archivo
+                </button>
+              </div>
               <textarea
-                class="w-full h-60 border border-gray-300 mt-4 rounded-md p-2 font-mono text-sm text-black bg-gray-50"
+                class="w-full h-60 border border-gray-300 mt-1 rounded-md p-2 font-mono text-sm text-black bg-gray-50"
                 spellcheck="false">
                 {
-                  activeTabFile.content
+                  activeTabFile.content || 'Selecciona un archivo para ver su contenido'
                 }
               </textarea>
               <div class="flex space-x-4 mt-4">
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Guardar</button>
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Ejecutar</button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-md" disabled={!currentProgram}>Ejecutar</button>
+                <button class={`px-4 py-2 text-white rounded-md ${!currentProgram ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500'}`} disabled={!currentProgram}>Guardar</button>
                 {
                   !isVideoVisible && (
                     <button
