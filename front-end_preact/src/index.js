@@ -1,8 +1,15 @@
 import { h, render } from "preact"
 import { useEffect, useState } from "preact/hooks"
+import {
+  useExercises,
+  useCurrentExercise,
+  useProgramFiles,
+  useCurrentProgram,
+  useAppActions,
+} from './store'
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
-import CodeEditorMonaco from "./components/CodeEditorMonaco";
+import CodeEditorMonaco from "./components/CodeEditorMonaco"
 import ErrorModal from "./components/ErrorModal"
 import "video.js/dist/video-js.css"
 import styles from "./style/index.css"
@@ -13,16 +20,21 @@ import youtubeIcon from "./assets/images/youtube-icon.png"
 const App = () => {
   const [isVideoVisible, setToggleVideoVisible] = useState(true)
   const [error, setError] = useState({stateGotten: false, message: ""})
+  const [activeTabFile, setActiveTabFile] = useState({})
   const toggleVideoVisible = () => setToggleVideoVisible(!isVideoVisible)
-  const { programFiles, setProgramFiles, setCurrentProgram, currentProgram } = useAppStore()
-  const { exercises, setExercises, setCurrentExercise, currentExercise } = useAppStore()
-  const video_src = 'http://192.168.1.71:8001'
-  const base_url = '192.168.1.71:8000'
+  const exercises = useExercises()
+  const currentExercise = useCurrentExercise()
+  const programFiles = useProgramFiles()
+  const currentProgram = useCurrentProgram()
+  const { setProgramFiles, setCurrentProgram } = useAppStore()
+  const { setExercises, setCurrentExercise } = useAppStore()
+  const video_src = 'http://192.168.1.71:8001/'
+  const base_url = 'http://192.168.1.71:8000'
   useEffect(() => {
-    fetch(`http://${base_url}/api/state`)
+    fetch(`${base_url}/api/state`)
       .then((res) => res.json())
       .then((data) => {
-        // console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(!data.programs)
           data.programs = [{
             id: "1234",
@@ -37,19 +49,14 @@ const App = () => {
         setError({stateGotten: false, message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`})
       })
   }, [])
-  const state = {
-    programFiles: programFiles,
-    exercises: exercises,
-  }
-  const [activeTabFile, setActiveTabFile] = useState({})
   const handleTabChange = (tab) => {
-    let currentTab = state.programFiles.find(file => file.id === tab)
+    let currentTab = programFiles.find(file => file.id === tab)
     if (!currentTab) console.error(`Tab ${tab} not found`)
     setActiveTabFile(currentTab)
     setCurrentProgram(currentTab)
   }
   const handleExerciseListChange = (exerciseId) => {
-    let currentExercise = state.exercises.find(exercise => exercise.id === exerciseId)
+    let currentExercise = exercises.find(exercise => exercise.id === exerciseId)
     if (!currentExercise) console.error(`Exercise ${exerciseId} not found`)
     setCurrentExercise(currentExercise)
   }
@@ -107,8 +114,8 @@ const App = () => {
               {/* <!-- Tabs --> */}
               <div class="border-b border-gray-300 flex items-center justify-between">
                 <ul class="flex space-x-4 text-sm">
-                  { state.programFiles && 
-                      state.programFiles.map(
+                  { programFiles && 
+                      programFiles.map(
                         (file) => 
                         <li>
                           <a href="#"
@@ -139,13 +146,6 @@ const App = () => {
                   - Borrar archivo
                 </button>
               </div>
-              {/* <textarea
-                class="w-full h-60 border border-gray-300 mt-1 rounded-md p-2 font-mono text-sm text-black bg-gray-50"
-                spellcheck="false">
-                {
-                  activeTabFile.content || 'Selecciona un archivo para ver su contenido'
-                }
-              </textarea> */}
               <CodeEditorMonaco/>
               <div class="flex space-x-4 mt-4">
                 <button class="px-4 py-2 bg-blue-500 text-white rounded-md" disabled={!currentProgram}>Ejecutar</button>

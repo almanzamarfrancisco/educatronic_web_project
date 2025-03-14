@@ -1,12 +1,17 @@
 import { h } from 'preact'
-import { useRef, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import Editor from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
+// import { useCurrentCode, useAppActions } from '../store'
+import { useCurrentProgram, useAppActions } from '../store'
 
 const CodeEditor = () => {
   const editorRef = useRef(null)
   const [theme, setTheme] = useState("automataDark")
-
+  // const currentCode = useCurrentCode();
+  // const { setCurrentCode } = useAppActions();
+  const currentProgram = useCurrentProgram()
+  // const { setCurrentProgram } = useAppActions()
   const handleEditorDidMount = (editor, monacoInstance) => {
     editorRef.current = editor
 
@@ -103,10 +108,18 @@ const CodeEditor = () => {
     { id: "automataLight", name: "Light" },
     { id: "automataHighContrast", name: "High Contrast" }
   ]
+  console.log(currentProgram)
+  useEffect(() => {
+    if (editorRef.current && currentProgram) {
+      editorRef.current.setValue(currentProgram.content)
 
+      // TODO indent code if needed
+    }
+  }
+  , [currentProgram])
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Tab Switcher */}
+      {/* Theme tab switcher */}
       <div className="flex space-x-4 mb-1 p-2 rounded-lg justify-end w-full">
         <span className="text-xs font-medium pt-1">Selección de tema: </span>
         {themes.map(({ id, name }) => (
@@ -130,9 +143,10 @@ const CodeEditor = () => {
         height="300px"
         defaultLanguage="automataLang"
         theme={theme}
-        defaultValue={`// Programa de prueba\nINICIO\nSUBIR 3\n/* Comentario largo */\nBAJAR 1\nFIN`}
+        defaultValue={currentProgram ? currentProgram.content : `// Escribe tu código aquí o selecciona un archivo para editarlo`}
         onMount={handleEditorDidMount}
         className="w-full"
+        // TODO: OnChange to save the current code to the content of the currentProgram
       />
     </div>
   )
