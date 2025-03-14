@@ -7,7 +7,9 @@
         "gpio_management.h": "c",
         "stdlib.h": "c",
         "database_management.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "program_logic.h": "c",
+        "utils.h": "c"
     },
     "editor.formatOnSave": true,
     "C_Cpp.errorSquiggles": "disabled",

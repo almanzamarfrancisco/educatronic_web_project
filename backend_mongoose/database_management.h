@@ -1,39 +1,25 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef DATABASE_MANAGEMENT_H
+#define DATABASE_MANAGEMENT_H
 
 #include <sqlite3.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-// Function declarations
-int sqlite3_init_database();
-void load_exercises_from_db(sqlite3 *db);
-void load_programs_from_db(sqlite3 *db);
-static int exercises_callback(void *NotUsed, int argc, char **argv, char **azColName);
-static int programs_callback(void *NotUsed, int argc, char **argv, char **azColName);
+sqlite3 *connect_database();
 
-// Struct definitions
-typedef struct PROGRAM_FILE {
-    int fileId;
-    char *name;
-    char *code;
-    int exercise_id;
-} program_file;
+int execute_sql(sqlite3 *db, const char *sql);
 
-typedef struct EXERCISE {
-    int exercise_id;
-    char *name;
-    char *content;
-    uint16_t program_files_count;
-} exercise;
+void clear_database(sqlite3 *db);
 
-// Global variable declarations (use extern)
-extern exercise *exercises;
-extern program_file *programs;
-extern size_t exercises_count;
-extern size_t programs_count;
+void migrate_database();
 
-#endif // DATABASE_H
+void seed_database();
+
+int init_database();
+
+void close_database(sqlite3 *db);
+
+char *get_exercises_json(sqlite3 *db);
+char *get_programs_json(sqlite3 *db);
+
+char *escape_json_string(const char *input);
+
+#endif

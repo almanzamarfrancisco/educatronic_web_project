@@ -9,7 +9,7 @@ OUT ?= -o $(PROG)                 # Compiler argument for output file
 SOURCES = main.c server.c gpio_management.c program_logic.c utils.c mongoose.c database_management.c
 
 # Compiler flags
-CFLAGS = -W -Wall -Wextra -g -lwiringPi -pthread -lsqlite3 -I.
+CFLAGS = -W -Wall -Wextra -g -lwiringPi -pthread -lsqlite3 -lcjson -luuid -I.
 
 # Mongoose build options (for debugging)
 CFLAGS_MONGOOSE += -DMG_ENABLE_LINES
@@ -35,6 +35,16 @@ $(PROG): $(SOURCES:.c=.o)
 %.o: %.c
 	$(CC) -c $< $(CFLAGS) $(CFLAGS_MONGOOSE) -o $@
 
+# Migration target (runs the database initialization script)
+migrate: migrate.c migration.sql
+	$(CC) migrate.c -o migrate -lsqlite3
+	./migrate
+
+# Seeder target (inserts seed data into the database)
+seeder: seeder.c
+	$(CC) seeder.c -o seeder -lsqlite3 -lcjson -luuid
+	./seeder
+
 # Clean build artifacts
 clean:
-	$(DELETE) $(PROG) *.o *.obj *.exe *.dSYM
+	$(DELETE) $(PROG) migrate seeder *.o *.obj *.exe *.dSYM

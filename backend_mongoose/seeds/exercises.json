@@ -1,0 +1,14 @@
+[
+    {
+        "exercise_id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Basic Addition",
+        "content": "Write a program that adds two numbers.",
+        "difficulty": "easy"
+    },
+    {
+        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f",
+        "name": "Loop Practice",
+        "content": "Write a program that prints numbers from 1 to 10 using a loop.",
+        "difficulty": "medium"
+    }
+]

@@ -1,0 +1,20 @@
+[
+    {
+        "program_id": "123e4567-e89b-12d3-a456-426614174000",
+        "name": "Basic Movement",
+        "code": "INICIO\nSUBIR 3\nBAJAR 2\nFIN",
+        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+        "program_id": "9b2a6e4c-fae1-4b99-87a9-0a1db3f0c59d",
+        "name": "Pause and Move",
+        "code": "INICIO\nPAUSA\nSUBIR 1\nABRIR\nFIN",
+        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
+    },
+    {
+        "program_id": "fae1b4c2-7e2d-4b39-a96f-1c5d9e3f2a4b",
+        "name": "Multi-line Comment Example",
+        "code": "INICIO\n// This is a comment\nSUBIR 5\n/* Multi-line \n   comment example */\nBAJAR 3\nFIN",
+        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
+    }
+]

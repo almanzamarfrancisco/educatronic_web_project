@@ -4,9 +4,8 @@
 
 int main(void) {
     init_gpio();
-    /* if (sqlite3_init_database() != 0) TODO: make migrations and seeds
-        return 1; */
-
+    if (init_database() != 0)
+        return 1;
     start_server();
     return 0;
 }

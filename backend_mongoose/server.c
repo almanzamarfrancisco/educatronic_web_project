@@ -6,6 +6,7 @@
 #include "database_management.h"
 #include "program_logic.h"
 #include "utils.h"
+
 #define CORS_HEADERS                                                                   \
     "HTTP/1.1 200 OK\r\n"                                                              \
     "Content-Type: application/json\r\n"                                               \
@@ -19,29 +20,33 @@ static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP
 // static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
 
+// Event handler for HTTP requests
 void event_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *)ev_data;
         if (mg_http_match_uri(hm, "/api/state")) {
-            printf("\t [I] Sending the current state for this user... (/api/state)\n");
-            char *json_response = (char *)malloc(sizeof(char) * 1024);
-            const char *response =
-                "["
-                "    {\"id\": \"One\", \"name\": \"Primer archivo\", \"content\": \"I\\nS 6\\nP 2\\nB 3\\nF\"},"
-                "    {\"id\": \"Two\", \"name\": \"Segundo archivo\", \"content\": \"This is the content of the second file\"},"
-                "    {\"id\": \"Three\", \"name\": \"Versión definitiva\", \"content\": \"3rd file content\"}"
-                "]";
-            const char *exercises =
-                "["
-                "    {\"id\": \"One\", \"name\": \"Primer ejercicio\", \"content\": \"Contenido del primer ejercicio\"},"
-                "    {\"id\": \"Two\", \"name\": \"Segundo ejercicio\", \"content\": \"Este es el segundo ejercicio y su contenido\"},"
-                "    {\"id\": \"Three\", \"name\": \"Tercer ejercicio\", \"content\": \"Contenido del tercer ejercicio \\n lorem ipsum \"}"
-                "]";
-            json_response = mg_mprintf("{%m:%s, %m:%s}", MG_ESC("programs"), response, MG_ESC("exercises"), exercises);
+            printf("\t [I] Fetching exercises and programs from database... (/api/state)\n");
+
+            sqlite3 *db = connect_database();
+            if (!db) {
+                fprintf(stderr, "Error connecting to database.\n");
+                mg_http_reply(c, 500, "Content-Type: application/json\r\n", "{\"error\":\"Database connection failed\"}");
+                return;
+            }
+
+            char *exercises_json = get_exercises_json(db);
+            char *programs_json = get_programs_json(db);
+
+            char *json_response = mg_mprintf("{%m:%s, %m:%s}", MG_ESC("programs"), programs_json, MG_ESC("exercises"), exercises_json);
             int content_length = strlen(json_response);
+
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
-            printf("\t [I] State sent (/api/state)\n");
+            printf("\t [I] State sent successfully (/api/state)\n");
+
+            free(exercises_json);
+            free(programs_json);
+            sqlite3_close(db);
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
@@ -49,6 +54,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
     }
 }
 
+// Function to start the HTTP server
 void start_server() {
     struct mg_mgr mgr;
     struct mg_connection *connection;

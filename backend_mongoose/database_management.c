@@ -1,102 +1,165 @@
-#include "database_management.h"
+#include <sqlite3.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-exercise *exercises = NULL;
-program_file *programs = NULL;
-size_t exercises_count = 0;
-size_t programs_count = 0;
-
-int sqlite3_init_database() {
+sqlite3 *connect_database() {
     sqlite3 *db;
-    int rc = sqlite3_open("db.sqlite3", &db);
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
+    int rc = sqlite3_open("educatronic.db", &db);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "Error opening database: %s\n", sqlite3_errmsg(db));
+        return NULL;
+    }
+    return db;
+}
+
+int execute_sql(sqlite3 *db, const char *sql) {
+    char *err_msg = NULL;
+    int rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL Error: %s\n", err_msg);
+        sqlite3_free(err_msg);
+        return rc;
+    }
+    return SQLITE_OK;
+}
+
+void clear_database(sqlite3 *db) {
+    printf("Clearing database...\n");
+    execute_sql(db, "DELETE FROM exercises;");
+    execute_sql(db, "DELETE FROM programs;");
+    execute_sql(db, "DELETE FROM answers;");
+}
+
+void migrate_database() {
+    printf("Running database migration...\n");
+    system("./migrate");
+}
+
+void seed_database() {
+    printf("Seeding database with initial data...\n");
+    system("./seeder");
+}
+
+int init_database() {
+    printf("Initializing database...\n");
+
+    if (system("./migrate") != 0) {
+        fprintf(stderr, "Error: Database migration failed!\n");
         return 1;
     }
-    printf("[I] Database initialized.\n");
-    load_exercises_from_db(db);
-    load_programs_from_db(db);
-    sqlite3_close(db);
-    return 0;
-}
-void load_exercises_from_db(sqlite3 *db) {
-    char *err_msg = 0;
-    exercises_count = 0;
-    const char *exercise_table = "SELECT * FROM Exercises;";
-    int rc = sqlite3_exec(db, exercise_table, exercises_callback, 0, &err_msg);
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Failed to load exercises: %s\n", err_msg);
-        sqlite3_free(err_msg);
+
+    if (system("./seeder") != 0) {
+        fprintf(stderr, "Error: Database seeding failed!\n");
+        return 1;
     }
-    else
-    {
-        printf("\t => Loaded %zu exercises\n", exercises_count);
-        for (size_t i = 0; i < exercises_count; i++)
-            printf("\t\t=> Exercise: %d - %s\n", exercises[i].exercise_id, exercises[i].name);
-        printf("----------------------------------------------------\n");
+
+    printf("Database initialization complete! ✅\n");
+    return 0;  // Success
+}
+
+void close_database(sqlite3 *db) {
+    if (db) {
+        sqlite3_close(db);
     }
 }
-void load_programs_from_db(sqlite3 *db) {
-    char *err_msg = 0;
-    programs_count = 0;
-    printf("Loading programs...\n");
-    const char *program_file_table = "SELECT * FROM ProgramFiles;";
-    int rc = sqlite3_exec(db, program_file_table, programs_callback, 0, &err_msg);
-    if (rc != SQLITE_OK)
-    {
-        fprintf(stderr, "Failed to load programs: %s\n", err_msg);
-        sqlite3_free(err_msg);
+
+char *escape_json_string(const char *input) {
+    if (!input) return strdup("");
+    size_t len = strlen(input);
+    char *escaped = (char *)malloc(len * 2 + 1);
+    char *dst = escaped;
+
+    while (*input) {
+        switch (*input) {
+            case '\n':
+                *dst++ = '\\';
+                *dst++ = 'n';
+                break;  // Escape newlines
+            case '\r':
+                *dst++ = '\\';
+                *dst++ = 'r';
+                break;
+            case '"':
+                *dst++ = '\\';
+                *dst++ = '"';
+                break;  // Escape double quotes
+            case '\\':
+                *dst++ = '\\';
+                *dst++ = '\\';
+                break;  // Escape backslashes
+            default:
+                *dst++ = *input;
+                break;
+        }
+        input++;
     }
-    else
-    {
-        printf("\t => Loaded %zu programs\n", programs_count);
-        for (size_t i = 0; i < programs_count; i++)
-            printf("\t\t=> Program: %d - %s\n", programs[i].fileId, programs[i].name);
-    }
+    *dst = '\0';
+    return escaped;
 }
-static int exercises_callback(void *NotUsed, int argc, char **argv, char **azColName) {
-    (void)NotUsed;
-    (void)argc;
-    (void)azColName;
-    exercises = realloc(exercises, (exercises_count + 1) * sizeof(exercise));
-    if (!exercises)
-    {
-        fprintf(stderr, "Memory allocation failed in exercises\n");
-        exit(1);
+
+char *get_exercises_json(sqlite3 *db) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT exercise_id, name, content FROM exercises;";
+    char *json_result = (char *)malloc(8192);
+    json_result[0] = '\0';
+    strcat(json_result, "[");
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK) {
+        int first = 1;
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            if (!first) strcat(json_result, ",");
+            first = 0;
+
+            const char *exercise_id = (const char *)sqlite3_column_text(stmt, 0);
+            const char *name = (const char *)sqlite3_column_text(stmt, 1);
+            const char *content = (const char *)sqlite3_column_text(stmt, 2);
+            char *escaped_content = escape_json_string(content);
+
+            char temp[2048];
+            snprintf(temp, sizeof(temp),
+                     "{\"id\": \"%s\", \"name\": \"%s\", \"content\": \"%s\"}",
+                     exercise_id, name, escaped_content);
+            strcat(json_result, temp);
+            free(escaped_content);
+        }
+        strcat(json_result, "]");
+        sqlite3_finalize(stmt);
+    } else {
+        fprintf(stderr, "Error fetching exercises: %s\n", sqlite3_errmsg(db));
     }
-    for (size_t i = 0; i < exercises_count; i++)
-    {
-        if (exercises[i].exercise_id == atoi(argv[0]))
-            return 0;
-    }
-    exercises[exercises_count].exercise_id = atoi(argv[0]);
-    exercises[exercises_count].name = strdup(argv[1]);
-    exercises[exercises_count].content = strdup(argv[2]);
-    exercises[exercises_count].program_files_count = 0;
-    exercises_count++;
-    return 0;
+
+    return json_result;
 }
-static int programs_callback(void *NotUsed, int argc, char **argv, char **azColName) {
-    (void)NotUsed;
-    (void)argc;
-    (void)azColName;
-    programs = realloc(programs, (programs_count + 1) * sizeof(program_file));
-    if (!programs)
-    {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(1);
+char *get_programs_json(sqlite3 *db) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT program_id, name, code FROM programs;";
+    char *json_result = (char *)malloc(8192);
+    json_result[0] = '\0';
+    strcat(json_result, "[");
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK) {
+        int first = 1;
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            if (!first) strcat(json_result, ",");
+            first = 0;
+
+            const char *program_id = (const char *)sqlite3_column_text(stmt, 0);
+            const char *name = (const char *)sqlite3_column_text(stmt, 1);
+            const char *code = (const char *)sqlite3_column_text(stmt, 2);
+            char *escaped_code = escape_json_string(code);
+
+            char temp[2048];
+            snprintf(temp, sizeof(temp),
+                     "{\"id\": \"%s\", \"name\": \"%s\", \"content\": \"%s\"}",
+                     program_id, name, escaped_code);
+            strcat(json_result, temp);
+            free(escaped_code);
+        }
+        strcat(json_result, "]");
+        sqlite3_finalize(stmt);
+    } else {
+        fprintf(stderr, "Error fetching programs: %s\n", sqlite3_errmsg(db));
     }
-    for (size_t i = 0; i < programs_count; i++)
-    {
-        if (programs[i].fileId == atoi(argv[0]))
-            return 0;
-    }
-    programs[programs_count].fileId = atoi(argv[0]);
-    programs[programs_count].name = strdup(argv[1]);
-    programs[programs_count].code = strdup(argv[2]);
-    programs[programs_count].exercise_id = atoi(argv[3]);
-    programs_count++;
-    return 0;
+
+    return json_result;
 }
