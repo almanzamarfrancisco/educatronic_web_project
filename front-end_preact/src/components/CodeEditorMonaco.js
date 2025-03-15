@@ -2,16 +2,15 @@ import { h } from 'preact'
 import { useEffect, useRef, useState } from "preact/hooks";
 import Editor from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
-// import { useCurrentCode, useAppActions } from '../store'
-import { useCurrentProgram, useAppActions } from '../store'
+import useAppStore, { useCurrentCode, useCurrentProgram } from '../store'
 
 const CodeEditor = () => {
   const editorRef = useRef(null)
   const [theme, setTheme] = useState("automataDark")
-  // const currentCode = useCurrentCode();
-  // const { setCurrentCode } = useAppActions();
+  const { setCurrentCode } = useAppStore()
+  const currentCode = useCurrentCode()
   const currentProgram = useCurrentProgram()
-  // const { setCurrentProgram } = useAppActions()
+  const previousCodeRef = useRef(currentProgram ? currentProgram.content : "")
   const handleEditorDidMount = (editor, monacoInstance) => {
     editorRef.current = editor
 
@@ -108,15 +107,27 @@ const CodeEditor = () => {
     { id: "automataLight", name: "Light" },
     { id: "automataHighContrast", name: "High Contrast" }
   ]
-  console.log(currentProgram)
   useEffect(() => {
     if (editorRef.current && currentProgram) {
-      editorRef.current.setValue(currentProgram.content)
-
-      // TODO indent code if needed
+      editorRef.current.setValue(currentProgram.content || "")
+      previousCodeRef.current = currentProgram.content
+      setCurrentCode(currentProgram.content)
+      // TODO: indent code if needed
     }
   }
   , [currentProgram])
+  const updateCode = (code) => {
+    setCurrentCode(code)
+    if (!currentProgram) {
+      console.log(`I have to save the code in a new file`)
+    } else if (previousCodeRef.current !== currentCode) {
+      // console.log(`Code updated: ${code}`)
+    }
+  }
+  const compileCode = () => {
+    const result = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. `
+    return result
+  }
   return (
     <div className="flex flex-col items-center w-full">
       {/* Theme tab switcher */}
@@ -146,8 +157,13 @@ const CodeEditor = () => {
         defaultValue={currentProgram ? currentProgram.content : `// Escribe tu código aquí o selecciona un archivo para editarlo`}
         onMount={handleEditorDidMount}
         className="w-full"
-        // TODO: OnChange to save the current code to the content of the currentProgram
+        onChange={(code) => updateCode(code)}
       />
+      {/* Output section */}
+      <div className="flex-col space-x-4 mt-4 p-4 w-full container bg-slate-800">
+        <span>Consola: </span>
+        <pre className="overflow-y-auto">{ compileCode() }</pre>
+      </div>
     </div>
   )
 }

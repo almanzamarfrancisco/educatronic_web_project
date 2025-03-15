@@ -6,6 +6,7 @@ import {
   useProgramFiles,
   useCurrentProgram,
   useAppActions,
+  useCurrentCode,
 } from './store'
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
@@ -25,9 +26,9 @@ const App = () => {
   const exercises = useExercises()
   const currentExercise = useCurrentExercise()
   const programFiles = useProgramFiles()
-  const currentProgram = useCurrentProgram()
-  const { setProgramFiles, setCurrentProgram } = useAppStore()
+  const { setProgramFiles, setCurrentProgram, currentProgram } = useAppStore()
   const { setExercises, setCurrentExercise } = useAppStore()
+  const currentCode = useCurrentCode()
   const video_src = 'http://192.168.1.71:8001/'
   const base_url = 'http://192.168.1.71:8000'
   useEffect(() => {
@@ -60,6 +61,25 @@ const App = () => {
     if (!currentExercise) console.error(`Exercise ${exerciseId} not found`)
     setCurrentExercise(currentExercise)
   }
+  const saveCurrentFile = () => {
+    
+    /* fetch(`${base_url}/api/programs/${currentProgram.id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(currentProgram),
+      mode: "no-cors",
+    })
+      .then((res) => !res ? res.json():'')
+      .then((data) => {
+        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        setError({stateGotten: true, message: ""})
+      }).catch((err) => {
+        console.error(err)
+        setError({stateGotten: false, message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`})
+      }) */
+  }
   return (
     !error.stateGotten ?
       <ErrorModal message={error.message} onClose={() => setError(true)} />
@@ -89,9 +109,9 @@ const App = () => {
         </header>
 
         {/* <!-- Main Content --> */}
-        <main class="flex-1 flex flex-col lg:flex-row items-center">
+        <main class="flex flex-col lg:flex-row items-center">
             {/* <!-- Programming Section --> */}
-            <section class="flex-1 p-6 shadow-md">
+            <section class="p-6 shadow-md">
               {/* <!-- InfoBox --> */}
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold mx-3 whitespace-nowrap">{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</h2>
@@ -101,7 +121,7 @@ const App = () => {
                     <input type="checkbox" class="toggle-checkbox"/>
                   </label>
                   <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black">
-                    <option disabled={`${!exercises.length?'disabled':''}`}>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
+                    <option disabled selected>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
                     { exercises &&
                         exercises.map((exercise) => <option value={exercise.id} > {exercise.name} </option>)
                     }
@@ -148,8 +168,12 @@ const App = () => {
               </div>
               <CodeEditorMonaco/>
               <div class="flex space-x-4 mt-4">
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-md" disabled={!currentProgram}>Ejecutar</button>
-                <button class={`px-4 py-2 text-white rounded-md ${!currentProgram ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500'}`} disabled={!currentProgram}>Guardar</button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Ejecutar</button>
+                <button class="px-4 py-2 text-white rounded-md bg-blue-500"
+                  onClick={() => saveCurrentFile()}
+                >
+                  Guardar
+                </button>
                 {
                   !isVideoVisible && (
                     <button

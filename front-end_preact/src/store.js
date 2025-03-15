@@ -5,8 +5,8 @@ const useAppStore = create((set) => ({
   exercises: [],
   currentExercise: null,
   programFiles: [],
-  currentProgram: null,
-  currentCode: "",
+  currentProgram: null, // Selected program (object) from the tabs
+  currentCode: "", // Current code in the editor
   user: null, // Future: User Info (authentication)
   // Actions (functions to update state)
   setExercises: (exercises) =>
@@ -14,10 +14,10 @@ const useAppStore = create((set) => ({
   setCurrentExercise: (exercise) =>
     set((state) => ({ currentExercise: { ...exercise } })),
   setProgramFiles: (programFiles) =>
-    set((state) => ({ programFiles: [...programFiles] })),
+    set((state) => ({ programFiles: Array.isArray(programFiles) ? programFiles : []   })),
   setCurrentProgram: (program) =>
     set((state) => ({ currentProgram: { ...program } })),
-  setCurrentCode: (code) =>
+  setCurrentCode: (code) => 
     set((state) => ({ currentCode: code })),
   setUser: (user) =>
     set((state) => ({ user: user ? { ...user } : null })),
@@ -30,7 +30,8 @@ export const useProgramFiles = () =>
   useAppStore((state) => state.programFiles);
 export const useCurrentProgram = () =>
   useAppStore((state) => state.currentProgram);
-export const useCurrentCode = () => useAppStore((state) => state.currentCode);
+export const useCurrentCode = () =>
+  useAppStore((state) => state.currentCode);
 export const useUser = () => useAppStore((state) => state.user);
 
 export const useAppActions = () =>
