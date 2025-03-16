@@ -7,6 +7,8 @@ const useAppStore = create((set) => ({
   programFiles: [],
   currentProgram: null, // Selected program (object) from the tabs
   currentCode: "", // Current code in the editor
+  isRenameModalOpen: false,
+  fileToRename: null,
   user: null, // Future: User Info (authentication)
   // Actions (functions to update state)
   setExercises: (exercises) =>
@@ -19,6 +21,10 @@ const useAppStore = create((set) => ({
     set((state) => ({ currentProgram: { ...program } })),
   setCurrentCode: (code) => 
     set((state) => ({ currentCode: code })),
+  openRenameModal: (file) => 
+    set({ isRenameModalOpen: true, fileToRename: file }),
+  closeRenameModal: () => 
+    set({ isRenameModalOpen: false, fileToRename: null }),
   setUser: (user) =>
     set((state) => ({ user: user ? { ...user } : null })),
 }));
@@ -34,6 +40,7 @@ export const useCurrentCode = () =>
   useAppStore((state) => state.currentCode);
 export const useUser = () => useAppStore((state) => state.user);
 
+
 export const useAppActions = () =>
   useAppStore((state) => ({
     setExercises: state.setExercises,
@@ -42,6 +49,8 @@ export const useAppActions = () =>
     setCurrentProgram: state.setCurrentProgram,
     setCurrentCode: state.setCurrentCode,
     setUser: state.setUser,
+    openRenameModal: (file) => set({ isRenameModalOpen: true, fileToRename: file }),
+    closeRenameModal: () => set({ isRenameModalOpen: false, fileToRename: null }),
   }));
 
 export default useAppStore;

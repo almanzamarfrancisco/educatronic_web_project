@@ -4,14 +4,13 @@ import {
   useExercises,
   useCurrentExercise,
   useProgramFiles,
-  useCurrentProgram,
-  useAppActions,
   useCurrentCode,
 } from './store'
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
 import CodeEditorMonaco from "./components/CodeEditorMonaco"
 import ErrorModal from "./components/ErrorModal"
+import RenameFileModal from "./components/RenameFileModal"
 import "video.js/dist/video-js.css"
 import styles from "./style/index.css"
 import designerImage from "./assets/images/designer.svg"
@@ -28,9 +27,12 @@ const App = () => {
   const programFiles = useProgramFiles()
   const { setProgramFiles, setCurrentProgram, currentProgram } = useAppStore()
   const { setExercises, setCurrentExercise } = useAppStore()
+  const { isRenameModalOpen, fileToRename, openRenameModal, closeRenameModal } = useAppStore()
   const currentCode = useCurrentCode()
   const video_src = 'http://192.168.1.71:8001/'
+  // const video_src = 'https://3cdd8c800c90.ngrok.app/'
   const base_url = 'http://192.168.1.71:8000'
+  // const base_url = ''
   useEffect(() => {
     fetch(`${base_url}/api/state`)
       .then((res) => res.json())
@@ -61,14 +63,13 @@ const App = () => {
     if (!currentExercise) console.error(`Exercise ${exerciseId} not found`)
     setCurrentExercise(currentExercise)
   }
-  const saveCurrentFile = () => {
-    
-    /* fetch(`${base_url}/api/programs/${currentProgram.id}`, {
+  const updateFileOnServer = (id, file) => {
+    fetch(`${base_url}/api/programs/${id}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(currentProgram),
+      body: JSON.stringify(file),
       mode: "no-cors",
     })
       .then((res) => !res ? res.json():'')
@@ -78,7 +79,21 @@ const App = () => {
       }).catch((err) => {
         console.error(err)
         setError({stateGotten: false, message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`})
-      }) */
+      })
+  }
+  const saveCurrentFile = () => {
+    if(!currentProgram) { console.log(`There is any file selected`); return }
+    console.log(currentProgram)
+    currentProgram.content = currentCode
+    setProgramFiles(programFiles.map(file => file.id === currentProgram.id ? currentProgram : file))
+    updateFileOnServer(currentProgram.id, currentProgram)
+  }
+  const renameFile = (file, newName) => {
+    if(!file) { console.log(`There is any file selected`); return }
+    if(!newName) { console.log(`There is no new name`); return }
+    file.name = newName
+    setProgramFiles(programFiles.map(f => f.id === file.id ? file : f))
+    updateFileOnServer(file.id, file)
   }
   return (
     !error.stateGotten ?
@@ -151,6 +166,11 @@ const App = () => {
                         </li>
                       )
                   }
+                  { !programFiles.length &&
+                    <li className="text-blue-500 border-b-2 border-blue-500">
+                      Archivo sin nombre
+                    </li>
+                  }
                 </ul>
                 <button class="px-2 py-1 text-xs font-medium text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
                   onclick={() => {console.log('New File taking the current textArea content')}}
@@ -160,6 +180,11 @@ const App = () => {
               </div>
               {/* <!-- Code Editor --> */}
               <div class="flex m-0 p-0 justify-end">
+                <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-1 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-900`}
+                  onclick={() => openRenameModal(currentProgram)}
+                >
+                  Cambiar nombre
+                </button>
                 <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900`}
                   onclick={() => {console.log('Delete the current file')}}
                 >
@@ -174,6 +199,7 @@ const App = () => {
                 >
                   Guardar
                 </button>
+                {/* TODO: add a little green check to say the file is saved and same for execution */}
                 {
                   !isVideoVisible && (
                     <button
@@ -206,6 +232,12 @@ const App = () => {
                 </section>
               )
             }
+          <RenameFileModal 
+            isOpen={isRenameModalOpen}
+            onClose={closeRenameModal}
+            file={fileToRename}
+            onRename={(newName) => renameFile(fileToRename, newName) }
+          />
         </main>
 
         {/* <!-- Footer --> */}
