@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks"
+import { useEffect, useRef } from "preact/hooks"
 import tingle from "tingle.js"
 import "tingle.js/dist/tingle.css"
 

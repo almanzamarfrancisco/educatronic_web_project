@@ -9,6 +9,9 @@ const useAppStore = create((set) => ({
   currentCode: "", // Current code in the editor
   isRenameModalOpen: false,
   fileToRename: null,
+  isDeleteModalOpen: false,
+  fileToDelete: null,
+  isNewFileModalOpen: false,
   user: null, // Future: User Info (authentication)
   // Actions (functions to update state)
   setExercises: (exercises) =>
@@ -25,6 +28,14 @@ const useAppStore = create((set) => ({
     set({ isRenameModalOpen: true, fileToRename: file }),
   closeRenameModal: () => 
     set({ isRenameModalOpen: false, fileToRename: null }),
+  openDeleteModal: (file) => 
+    set({ isDeleteModalOpen: true, fileToDelete: file }),
+  closeDeleteModal: () =>
+     set({ isDeleteModalOpen: false, fileToDelete: null }),
+  openNewFileModal: () => 
+    set({ isNewFileModalOpen: true }),
+  closeNewFileModal: () =>
+    set({ isNewFileModalOpen: false }),
   setUser: (user) =>
     set((state) => ({ user: user ? { ...user } : null })),
 }));
