@@ -5,7 +5,7 @@ export class LexicalAnalyzer {
     }
 
     analyze(script) {
-        script = script.trim().toUpperCase()//.split("\/n")//.map(line => line.trim());
+        script = script.trim().toUpperCase()
         script = script.split("\n").map(line => line.trim())
         let state = this.states.q0;
         if (script.length < 2) return `Error: El programa debe iniciar con un comando 'INICIO' y terminar con un comando 'FIN'.`
