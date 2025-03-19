@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 // #include <time.h>
-
 #include "database_management.h"
 #include "program_logic.h"
 #include "utils.h"
@@ -17,15 +16,16 @@
     "Content-Length: %d\r\n"                                                           \
     "\r\n"
 
-static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
-// static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
+// static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
+static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
+int floor = 0;
 
 // Event handler for HTTP requests
 void event_handler(struct mg_connection *c, int ev, void *ev_data) {
     if (ev == MG_EV_HTTP_MSG) {
         struct mg_http_message *hm = (struct mg_http_message *)ev_data;
-        if (mg_http_match_uri(hm, "/api/state")) {
+        if (mg_http_match_uri(hm, "/api/state") && mg_vcmp(&hm->method, "GET") == 0) {
             printf("\t [I] Fetching exercises and programs from database... (/api/state)\n");
             sqlite3 *db = connect_database();
             if (!db) {
@@ -43,8 +43,8 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             free(exercises_json);
             free(programs_json);
             sqlite3_close(db);
-        } else if (mg_http_match_uri(hm, "/api/programs/update/*") && mg_vcmp(&hm->method, "GET") == 0) {
-            printf("\t[I] Yes! This is a received POST request to UPDATE programs\n");
+        } else if (mg_http_match_uri(hm, "/api/programs/update/*") && mg_vcmp(&hm->method, "PUT") == 0) {
+            printf("\t[I] Yes! This is a received PUT request to UPDATE programs\n");
             char id[37] = {0};
             const char *uri_start = hm->uri.ptr + strlen("/api/programs/update/");
             size_t uri_len = hm->uri.len - strlen("/api/programs/update/");
@@ -65,8 +65,8 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             if (!update_program(db, id, hm->body.ptr)) mg_http_reply(c, 400, "Content-Type: application/json\r\n", "{\"error\": \"Failed to update program\"}");
             mg_http_reply(c, 200, "Content-Type: application/json\r\n", "{\"status\":\"ok\"}");
             sqlite3_close(db);
-        } else if (mg_http_match_uri(hm, "/api/programs/delete/*") && mg_vcmp(&hm->method, "POST") == 0) {
-            printf("\t[I] Yes! This is a received POST request to DELETE programs\n");
+        } else if (mg_http_match_uri(hm, "/api/programs/delete/*") && mg_vcmp(&hm->method, "DELETE") == 0) {
+            printf("\t[I] Yes! This is a received DELETE request to DELETE programs\n");
             char id[37] = {0};
             const char *uri_start = hm->uri.ptr + strlen("/api/programs/delete/");
             size_t uri_len = hm->uri.len - strlen("/api/programs/delete/");
@@ -103,6 +103,43 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
             sqlite3_close(db);
+        } else if (mg_http_match_uri(hm, "/api/programs/execute") && mg_vcmp(&hm->method, "POST") == 0) {
+            printf("\t[I] Yes! This is a received POST request to EXECUTE programs\n");
+            char *code = mg_json_get_str(mg_str(hm->body.ptr), "$.code");
+            char *program_id = mg_json_get_str(mg_str(hm->body.ptr), "$.programId");
+            if (!program_id) {
+                mg_http_reply(c, 400, "Content-Type: application/json\r\n", "{\"error\":\"Invalid program ID\"}");
+                return;
+            }
+            if (!code) {
+                mg_http_reply(c, 400, "Content-Type: application/json\r\n", "{\"error\":\"Invalid code\"}");
+                return;
+            }
+            char *error = analyzeScript(code);
+            if (strcmp(error, "Sintaxis válida.") != 0) {
+                mg_http_reply(c, 400, "Content-Type: application/json\r\n", mg_mprintf("{\"error\":\"%s\"}", error));
+                free(error);
+                return;
+            }
+            free(error);
+            // Execute the program
+            char error_line[12] = {0};
+            floor = execute_commands(floor, code, error_line);
+            char floor_str[12];
+            sprintf(floor_str, "%d", floor);
+            if (floor < 0 || floor > 7)
+                printf("\t[I] Elevator out of bounds at line %s.\n", error_line);
+            else
+                printf("\t[I] Elevator reached floor %d.\n", floor);
+            char *json_response = mg_mprintf("{%m:%m, %m:%s}",
+                                             MG_ESC("status"), MG_ESC(floor >= 0 ? "ok" : "error"),
+                                             MG_ESC(floor >= 0 ? "floor" : "line"), floor >= 0 ? floor_str : error_line);
+            int content_length = strlen(json_response);
+            mg_printf(c, CORS_HEADERS, content_length);
+            mg_printf(c, "%s\n", json_response);
+            if (floor < 0) floor = 0;
+            if (floor > 7) floor = 7;
+            printf("\t[I] Current floor: %d\n", floor);
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);

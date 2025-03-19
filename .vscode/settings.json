@@ -11,7 +11,9 @@
         "program_logic.h": "c",
         "utils.h": "c",
         "system_error": "c",
-        "uuid.h": "c"
+        "uuid.h": "c",
+        "server.h": "c",
+        "cmath": "c"
     },
     "editor.formatOnSave": true,
     "C_Cpp.errorSquiggles": "disabled",
