@@ -1,60 +1,192 @@
 import { h, render } from "preact"
 import { useEffect, useState } from "preact/hooks"
+import {
+  useExercises,
+  useCurrentExercise,
+  useProgramFiles,
+  useCurrentCode,
+} from './store'
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
+import CodeEditorMonaco from "./components/CodeEditorMonaco"
 import ErrorModal from "./components/ErrorModal"
+import RenameFileModal from "./components/RenameFileModal"
+import DeleteFileModal from "./components/DeleteFileModal"
 import "video.js/dist/video-js.css"
 import styles from "./style/index.css"
 import designerImage from "./assets/images/designer.svg"
 import facebookIcon from "./assets/images/facebook-icon.png"
 import youtubeIcon from "./assets/images/youtube-icon.png"
+import NewFileModal from "./components/NewFileModal"
+import { LexicalAnalyzer } from "./utils/LexicalAnalyzer";
 
 const App = () => {
   const [isVideoVisible, setToggleVideoVisible] = useState(true)
-  const [error, setError] = useState({stateGotten: false, message: ""})
+  const [error, setError] = useState({stateGotten: true, message: "", closeButton: false})
+  const [activeTabFile, setActiveTabFile] = useState({})
   const toggleVideoVisible = () => setToggleVideoVisible(!isVideoVisible)
-  const { programFiles, setProgramFiles, setCurrentProgram, currentProgram } = useAppStore()
-  const { exercises, setExercises, setCurrentExercise, currentExercise } = useAppStore()
+  const exercises = useExercises()
+  const currentExercise = useCurrentExercise()
+  const programFiles = useProgramFiles()
+  const { setProgramFiles, setCurrentProgram, currentProgram, setCompileOutput } = useAppStore()
+  const { setExercises, setCurrentExercise } = useAppStore()
+  const { isRenameModalOpen, fileToRename, openRenameModal, closeRenameModal } = useAppStore()
+  const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
+  const { isNewFileModalOpen, openNewFileModal, closeNewFileModal } = useAppStore()
+  const currentCode = useCurrentCode()
+  // const video_src = 'https://3a0f33e3ef63.ngrok.app/'
   const video_src = 'http://192.168.1.71:8001'
-  const base_url = '192.168.1.71:8000'
+  // const base_url = 'https://educatronic.ngrok.app'
+  const base_url = 'http://192.168.1.71:8000'
+  const noExercisesArray = [{
+    id: '1234',
+    name: "Archivo sin nombre",
+    content: "",
+    exerciseId: "any"
+  }]
   useEffect(() => {
-    fetch(`http://${base_url}/api/state`)
+    fetch(`${base_url}/api/state`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
-        if(!data.programs)
-          data.programs = [{
-            id: "1234",
-            name: "Primer archivo",
-            content: ""
-          }]
-        else setProgramFiles(data.programs)
+        // console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        if(!data.exercises || !data.exercises.length) {
+          setError({stateGotten: false, message: "No se encontraron ejercicios", closeButton: true})
+          console.log(`Error: ${JSON.stringify(error)}`)
+          setProgramFiles(noExercisesArray)
+          return
+        }
         setExercises(data.exercises)
-        setError({stateGotten: true, message: ""})
-      }).catch((err) => {
-        console.error(err)
-        setError({stateGotten: false, message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`})
+        setProgramFiles(data.programs)
+        setCurrentExercise(data.exercises[0])
+        return
       })
-  }, [])
-  const state = {
-    programFiles: programFiles,
-    exercises: exercises,
+      .catch((err) => {
+        console.error(err)
+        setError({
+          stateGotten: false,
+          message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
+          closeButton: false
+        })
+      })
+  }, [ setExercises, setProgramFiles, setError ])
+  const onCloseErrorScreen = () => {
+    setError({stateGotten: true, message: "", closeButton: false})
+    handleTabChange('1234')
   }
-  const [activeTabFile, setActiveTabFile] = useState({})
   const handleTabChange = (tab) => {
-    let currentTab = state.programFiles.find(file => file.id === tab)
+    let currentTab = programFiles.find(file => file.id === tab)
     if (!currentTab) console.error(`Tab ${tab} not found`)
     setActiveTabFile(currentTab)
     setCurrentProgram(currentTab)
   }
   const handleExerciseListChange = (exerciseId) => {
-    let currentExercise = state.exercises.find(exercise => exercise.id === exerciseId)
+    let currentExercise = exercises.find(exercise => exercise.id === exerciseId)
     if (!currentExercise) console.error(`Exercise ${exerciseId} not found`)
     setCurrentExercise(currentExercise)
   }
+  const updateFileOnServer = (id, file) => {
+    fetch(`${base_url}/api/programs/update/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(file),
+      mode: "no-cors",
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response was not ok')
+        return res.json();
+      })
+      .then((data) => {
+        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        setError({stateGotten: true, message: ""})
+      }).catch((err) => {
+        console.error(err)
+        setError({
+          stateGotten: false,
+          message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
+          closeButton: false
+        })
+      })
+  }
+  const saveCurrentFile = () => {
+    if(!currentProgram) { console.log(`There is any file selected`); return }
+    console.log(currentProgram)
+    currentProgram.content = currentCode
+    setProgramFiles(programFiles.map(file => file.id === currentProgram.id ? currentProgram : file))
+    updateFileOnServer(currentProgram.id, currentProgram)
+  }
+  const renameFile = (file, newName) => {
+    if(!file) { console.log(`There is any file selected`); return }
+    if(!newName) { console.log(`There is no new name`); return }
+    file.name = newName
+    setProgramFiles(programFiles.map(f => f.id === file.id ? file : f))
+    updateFileOnServer(file.id, file)
+  }
+  const deleteFile = (fileId) => {
+    const notDeletedFiles = programFiles.filter(file => file.id !== fileId)
+    setProgramFiles(notDeletedFiles)
+    setCurrentProgram(programFiles[0])
+    setActiveTabFile(programFiles[0])
+    fetch(`${base_url}/api/programs/delete/${fileId}`,{
+        method: 'POST',
+        mode: "no-cors",
+      })
+      .then((res) => !res ? res.json():'')
+      .then((data) => {
+        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        setError({stateGotten: true, message: ""})
+      }).catch((err) => {
+        console.error(err)
+        setError({
+          stateGotten: false,
+          message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
+          closeButton: false
+        })
+      }
+    )
+  }
+  const createFile = (fileName) => {
+    if(!fileName) { console.log(`There is no file name`); return }
+    console.log(`Creating file ${fileName}`)
+    fetch(`${base_url}/api/programs/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: {
+        name: "",
+        content: "",
+        exercise_id: currentExercise.id
+      },
+      mode: "no-cors",
+    })
+      .then((res) => !res ? res.json():'')
+      .then((data) => {
+        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        const newFile = {
+          id: data.newProgramId,
+          name: fileName,
+          content: ""
+        }
+        setProgramFiles([...programFiles, newFile])
+      }).catch((err) => {
+        console.error(err)
+        setError({
+          stateGotten: false,
+          message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
+          closeButton: false
+        })
+      })
+  }
+  const compileCode = () => {
+    const lexer = new LexicalAnalyzer()
+    const validationResult = lexer.analyze(currentCode)
+    setCompileOutput(validationResult)
+  }
   return (
     !error.stateGotten ?
-      <ErrorModal message={error.message} onClose={() => setError(true)} />
+      <ErrorModal message={error.message} closeButton={error.closeButton} onClose={() => {onCloseErrorScreen()}} />
       :
       <div class="h-screen">
         {/* <!-- Header --> */}
@@ -81,9 +213,9 @@ const App = () => {
         </header>
 
         {/* <!-- Main Content --> */}
-        <main class="flex-1 flex flex-col lg:flex-row items-center">
+        <main class="flex flex-col lg:flex-row items-center min-w-screen">
             {/* <!-- Programming Section --> */}
-            <section class="flex-1 p-6 shadow-md">
+            <section className={`p-6 shadow-md ${isVideoVisible ? 'lg:w-2/3':'w-full'}`}>
               {/* <!-- InfoBox --> */}
               <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold mx-3 whitespace-nowrap">{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</h2>
@@ -93,9 +225,9 @@ const App = () => {
                     <input type="checkbox" class="toggle-checkbox"/>
                   </label>
                   <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black">
-                    <option disabled={`${!exercises.length?'disabled':''}`}>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
+                    <option disabled>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
                     { exercises &&
-                        exercises.map((exercise) => <option value={exercise.id} > {exercise.name} </option>)
+                        exercises.map((exercise, index) => <option value={exercise.id} selected={!index?'selected':''} > {exercise.name} </option>)
                     }
                   </select>
                 </div>
@@ -105,11 +237,13 @@ const App = () => {
               </div>
               {/* <!-- Tabs --> */}
               <div class="border-b border-gray-300 flex items-center justify-between">
-                <ul class="flex space-x-4 text-sm">
-                  { state.programFiles && 
-                      state.programFiles.map(
+                <ul class="flex space-x-4 text-sm container overflow-x-auto overflow-y-clip">
+                  { programFiles && 
+                      programFiles.filter(
+                        (file) => file.exercise_id === currentExercise.id
+                      ).map(
                         (file) => 
-                        <li>
+                        <li className="min-w-fit">
                           <a href="#"
                               onclick={() => handleTabChange(file.id)}
                               class={activeTabFile.id === file.id 
@@ -125,29 +259,37 @@ const App = () => {
                   }
                 </ul>
                 <button class="px-2 py-1 text-xs font-medium text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-                  onclick={() => {console.log('New File taking the current textArea content')}}
+                  onclick={() => {openNewFileModal()}}
                 >
                   (+) Nuevo archivo
                 </button>
               </div>
               {/* <!-- Code Editor --> */}
               <div class="flex m-0 p-0 justify-end">
+                <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-1 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-900`}
+                  onclick={() => openRenameModal(currentProgram)}
+                >
+                  Cambiar nombre
+                </button>
                 <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900`}
-                  onclick={() => {console.log('Delete the current file')}}
+                  onclick={() => openDeleteModal(currentProgram)}
                 >
                   - Borrar archivo
                 </button>
               </div>
-              <textarea
-                class="w-full h-60 border border-gray-300 mt-1 rounded-md p-2 font-mono text-sm text-black bg-gray-50"
-                spellcheck="false">
-                {
-                  activeTabFile.content || 'Selecciona un archivo para ver su contenido'
-                }
-              </textarea>
+              <CodeEditorMonaco/>
               <div class="flex space-x-4 mt-4">
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-md" disabled={!currentProgram}>Ejecutar</button>
-                <button class={`px-4 py-2 text-white rounded-md ${!currentProgram ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500'}`} disabled={!currentProgram}>Guardar</button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-md"
+                  onClick={() => compileCode()}
+                >
+                  Ejecutar
+                </button>
+                <button class="px-4 py-2 text-white rounded-md bg-blue-500"
+                  onClick={() => saveCurrentFile()}
+                >
+                  Guardar
+                </button>
+                {/* TODO: add a little green check to say the file is saved and same for execution */}
                 {
                   !isVideoVisible && (
                     <button
@@ -180,10 +322,27 @@ const App = () => {
                 </section>
               )
             }
+          <RenameFileModal 
+            isOpen={isRenameModalOpen}
+            onClose={closeRenameModal}
+            file={fileToRename}
+            onRename={(newName) => renameFile(fileToRename, newName) }
+          />
+          <DeleteFileModal
+            isOpen={isDeleteModalOpen}
+            onClose={closeDeleteModal}
+            file={fileToDelete}
+            onDelete={deleteFile}
+          />
+          <NewFileModal
+            isOpen={isNewFileModalOpen}
+            onClose={closeNewFileModal}
+            onCreate={(fileName) => createFile(fileName)}
+          />
         </main>
 
         {/* <!-- Footer --> */}
-        <footer class="shadow-md py-5 my-5 text-center text-sm">
+        <footer class="shadow-md py-5 my-5 text-center text-sm min-w-screen">
           Pie de Página Copyright Educatrónica - 2025
         </footer>
       </div>
