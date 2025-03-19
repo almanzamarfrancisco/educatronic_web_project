@@ -18,16 +18,16 @@ export class LexicalAnalyzer {
             let line = script[i]
             let tokens = line.split(` `)
             let command = tokens[0]
-            if (!Object.values(this.commands).includes(command)) return `Error: Comando desconocido '${command}' en la línea ${i+2}.`
+            if (!Object.values(this.commands).includes(command)) return `Error: Comando desconocido '${command}' en la línea ${Number(i)+2}.`
             if (command === this.commands.I) return `Error: El comando '${command}' Solo debe ir al inicio del programa.`
             if (command === this.commands.F) return `Error: El comando '${command}' Solo debe ir al final del programa.`
             if (this.commands.A.includes(command) && tokens.length === 1) {
                 state = this.states.q2
                 continue
             }
-            if (tokens.length !== 2 || tokens.length < 2) return `Error: El comando '${command}' es necesario un número en la línea ${i+2}.`
+            if (tokens.length !== 2 || tokens.length < 2) return `Error: El comando '${command}' necesita un número en la línea ${Number(i)+2}.`
             let floor = tokens[1]
-            if (!/^[1-7]$/.test(floor)) return `Error: Número inválido: '${floor}' en la línea ${i+2}. El comando '${tokens[0]}' espera un número entre 1 y 7.`
+            if (!/^[1-7]$/.test(floor)) return `Error: Número inválido: '${floor}' en la línea ${Number(i)+2}. El comando '${tokens[0]}' espera un número entre 1 y 7.`
             state = this.states.q3
         }
         state = this.states.qFinal
