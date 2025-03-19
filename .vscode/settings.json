@@ -9,7 +9,9 @@
         "database_management.h": "c",
         "stdio.h": "c",
         "program_logic.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "system_error": "c",
+        "uuid.h": "c"
     },
     "editor.formatOnSave": true,
     "C_Cpp.errorSquiggles": "disabled",

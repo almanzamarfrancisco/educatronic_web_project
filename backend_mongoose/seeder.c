@@ -34,36 +34,29 @@ int execute_sql(sqlite3 *db, const char *sql) {
     }
     return SQLITE_OK;
 }
-
 // Function to load and parse JSON file
 cJSON *load_json(const char *filename) {
     if (!file_exists(filename)) {
         exit(EXIT_FAILURE);
     }
-
     FILE *file = fopen(filename, "r");
     if (!file) {
         fprintf(stderr, "Error opening file: %s\n", filename);
         return NULL;
     }
-
     fseek(file, 0, SEEK_END);
     long length = ftell(file);
     fseek(file, 0, SEEK_SET);
-
     char *data = (char *)malloc(length + 1);
     fread(data, 1, length, file);
     data[length] = '\0';
     fclose(file);
-
     cJSON *json = cJSON_Parse(data);
     free(data);
-
     if (!json) {
         fprintf(stderr, "Error parsing JSON: %s\n", cJSON_GetErrorPtr());
         return NULL;
     }
-
     return json;
 }
 
@@ -71,7 +64,6 @@ cJSON *load_json(const char *filename) {
 void seed_exercises(sqlite3 *db) {
     cJSON *json = load_json("./seeds/exercises.json");
     if (!json) return;
-
     printf("Seeding Exercises...\n");
     cJSON *exercise;
     cJSON_ArrayForEach(exercise, json) {
@@ -93,7 +85,6 @@ void seed_exercises(sqlite3 *db) {
 void seed_programs(sqlite3 *db) {
     cJSON *json = load_json("./seeds/programs.json");
     if (!json) return;
-
     printf("Seeding Programs...\n");
     cJSON *program;
     cJSON_ArrayForEach(program, json) {
@@ -101,7 +92,6 @@ void seed_programs(sqlite3 *db) {
         char *name = cJSON_GetObjectItem(program, "name")->valuestring;
         char *code = cJSON_GetObjectItem(program, "code")->valuestring;
         char *exercise_id = cJSON_GetObjectItem(program, "exercise_id")->valuestring;
-
         char sql[1024];
         snprintf(sql, sizeof(sql),
                  "INSERT INTO programs (program_id, name, code, exercise_id) VALUES ('%s', '%s', '%s', '%s');",
@@ -115,7 +105,6 @@ void seed_programs(sqlite3 *db) {
 void seed_answers(sqlite3 *db) {
     cJSON *json = load_json("./seeds/answers.json");
     if (!json) return;
-
     printf("Seeding Answers...\n");
     cJSON *answer;
     cJSON_ArrayForEach(answer, json) {
@@ -160,6 +149,5 @@ int main() {
 
     sqlite3_close(db);
     printf("Database seeding complete! 🚀\n");
-
     return EXIT_SUCCESS;
 }
