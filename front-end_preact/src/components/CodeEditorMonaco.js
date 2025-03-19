@@ -2,7 +2,7 @@ import { h } from 'preact'
 import { useEffect, useRef, useState } from "preact/hooks";
 import Editor from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
-import useAppStore, { useCurrentCode, useCurrentProgram } from '../store'
+import useAppStore, { useCurrentCode, useCurrentProgram, useCompileOutput } from '../store'
 
 const CodeEditor = () => {
   const editorRef = useRef(null)
@@ -10,6 +10,7 @@ const CodeEditor = () => {
   const { setCurrentCode } = useAppStore()
   const currentCode = useCurrentCode()
   const currentProgram = useCurrentProgram()
+  const compileOutput = useCompileOutput()
   const previousCodeRef = useRef(currentProgram ? currentProgram.content : "")
   const handleEditorDidMount = (editor, monacoInstance) => {
     editorRef.current = editor
@@ -25,7 +26,8 @@ const CodeEditor = () => {
       tokenizer: {
         root: [
           [/\b(INICIO|FIN|SUBIR|BAJAR|PAUSA|ABRIR)\b/i, "keyword"],
-          [/\b[1-7]\b/, "number"],
+          [/\bPAUSA\b\s+\d+/i, ["keyword", "number"]], 
+          [/\b[0-9]+\b/, "number"],
           [/\/\/.*/, "comment"],
           [/\/\*/, "comment", "@comment"],
           [/\s+/, "white"]
@@ -124,10 +126,6 @@ const CodeEditor = () => {
       // console.log(`Code updated: ${code}`)
     }
   }
-  const compileCode = () => {
-    const result = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. `
-    return result
-  }
   return (
     <div className="flex flex-col items-center w-full">
       {/* Theme tab switcher */}
@@ -160,9 +158,9 @@ const CodeEditor = () => {
         onChange={(code) => updateCode(code)}
       />
       {/* Output section */}
-      <div className="flex-col space-x-4 mt-4 p-4 w-full container bg-slate-800">
+      <div className="flex-col space-x-4 mt-4 p-1 w-full container bg-slate-800">
         <span>Consola: </span>
-        <pre className="overflow-y-auto">{ compileCode() }</pre>
+        <pre className="overflow-y-auto block overflow-auto my-5 relative">{ compileOutput }</pre>
       </div>
     </div>
   )

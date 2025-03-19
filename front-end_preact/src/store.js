@@ -12,6 +12,7 @@ const useAppStore = create((set) => ({
   isDeleteModalOpen: false,
   fileToDelete: null,
   isNewFileModalOpen: false,
+  compileOutput: "",
   user: null, // Future: User Info (authentication)
   // Actions (functions to update state)
   setExercises: (exercises) =>
@@ -36,11 +37,14 @@ const useAppStore = create((set) => ({
     set({ isNewFileModalOpen: true }),
   closeNewFileModal: () =>
     set({ isNewFileModalOpen: false }),
+  setCompileOutput: (output) =>
+    set((state) => ({ compileOutput: output })),
   setUser: (user) =>
     set((state) => ({ user: user ? { ...user } : null })),
 }));
 
-export const useExercises = () => useAppStore((state) => state.exercises);
+export const useExercises = () => 
+  useAppStore((state) => state.exercises);
 export const useCurrentExercise = () =>
   useAppStore((state) => state.currentExercise);
 export const useProgramFiles = () =>
@@ -49,7 +53,10 @@ export const useCurrentProgram = () =>
   useAppStore((state) => state.currentProgram);
 export const useCurrentCode = () =>
   useAppStore((state) => state.currentCode);
-export const useUser = () => useAppStore((state) => state.user);
+export const useCompileOutput = () =>
+  useAppStore((state) => state.compileOutput);
+export const useUser = () => 
+  useAppStore((state) => state.user);
 
 
 export const useAppActions = () =>
@@ -62,6 +69,7 @@ export const useAppActions = () =>
     setUser: state.setUser,
     openRenameModal: (file) => set({ isRenameModalOpen: true, fileToRename: file }),
     closeRenameModal: () => set({ isRenameModalOpen: false, fileToRename: null }),
+    setCompileOutput: state.setCompileOutput,
   }));
 
 export default useAppStore;

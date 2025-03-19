@@ -18,6 +18,7 @@ import designerImage from "./assets/images/designer.svg"
 import facebookIcon from "./assets/images/facebook-icon.png"
 import youtubeIcon from "./assets/images/youtube-icon.png"
 import NewFileModal from "./components/NewFileModal"
+import { LexicalAnalyzer } from "./utils/LexicalAnalyzer";
 
 const App = () => {
   const [isVideoVisible, setToggleVideoVisible] = useState(true)
@@ -27,7 +28,7 @@ const App = () => {
   const exercises = useExercises()
   const currentExercise = useCurrentExercise()
   const programFiles = useProgramFiles()
-  const { setProgramFiles, setCurrentProgram, currentProgram } = useAppStore()
+  const { setProgramFiles, setCurrentProgram, currentProgram, setCompileOutput } = useAppStore()
   const { setExercises, setCurrentExercise } = useAppStore()
   const { isRenameModalOpen, fileToRename, openRenameModal, closeRenameModal } = useAppStore()
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
@@ -47,7 +48,7 @@ const App = () => {
     fetch(`${base_url}/api/state`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        // console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(!data.exercises || !data.exercises.length) {
           setError({stateGotten: false, message: "No se encontraron ejercicios", closeButton: true})
           console.log(`Error: ${JSON.stringify(error)}`)
@@ -178,6 +179,11 @@ const App = () => {
         })
       })
   }
+  const compileCode = () => {
+    const lexer = new LexicalAnalyzer()
+    const validationResult = lexer.analyze(currentCode)
+    setCompileOutput(validationResult)
+  }
   return (
     !error.stateGotten ?
       <ErrorModal message={error.message} closeButton={error.closeButton} onClose={() => {onCloseErrorScreen()}} />
@@ -273,7 +279,11 @@ const App = () => {
               </div>
               <CodeEditorMonaco/>
               <div class="flex space-x-4 mt-4">
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-md">Ejecutar</button>
+                <button class="px-4 py-2 bg-blue-500 text-white rounded-md"
+                  onClick={() => compileCode()}
+                >
+                  Ejecutar
+                </button>
                 <button class="px-4 py-2 text-white rounded-md bg-blue-500"
                   onClick={() => saveCurrentFile()}
                 >
