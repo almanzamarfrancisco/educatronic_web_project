@@ -34,10 +34,10 @@ const App = () => {
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
   const { isNewFileModalOpen, openNewFileModal, closeNewFileModal } = useAppStore()
   const currentCode = useCurrentCode()
-  // const video_src = 'https://3a0f33e3ef63.ngrok.app/'
-  const video_src = 'http://192.168.1.71:8001'
-  // const base_url = 'https://educatronic.ngrok.app'
-  const base_url = 'http://192.168.1.71:8000'
+  const streamURL = 'https://3a0f33e3ef63.ngrok.app/'
+  // const streamURL = 'http://192.168.1.71:8001'
+  const base_url = 'https://educatronic.ngrok.app'
+  // const base_url = 'http://192.168.1.71:8000'
   const noExercisesArray = [{
     id: '1234',
     name: "Archivo sin nombre",
@@ -85,13 +85,14 @@ const App = () => {
     setCurrentExercise(currentExercise)
   }
   const updateFileOnServer = (id, file) => {
+    console.log(`Updating file ${id} on server and file ${JSON.stringify(file, null, 2)}`)
     fetch(`${base_url}/api/programs/update/${id}`, {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(file),
-      mode: "no-cors",
+      // mode: "no-cors",
     })
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok')
@@ -124,13 +125,14 @@ const App = () => {
     updateFileOnServer(file.id, file)
   }
   const deleteFile = (fileId) => {
+    console.log(`Deleting file ${fileId}`)
     const notDeletedFiles = programFiles.filter(file => file.id !== fileId)
     setProgramFiles(notDeletedFiles)
     setCurrentProgram(programFiles[0])
     setActiveTabFile(programFiles[0])
     fetch(`${base_url}/api/programs/delete/${fileId}`,{
-        method: 'POST',
-        mode: "no-cors",
+        method: 'DELETE',
+        // mode: "no-cors",
       })
       .then((res) => !res ? res.json():'')
       .then((data) => {
@@ -147,6 +149,7 @@ const App = () => {
     )
   }
   const createFile = (fileName) => {
+    console.log(`Creating file ${fileName}`)
     if(!fileName) { console.log(`There is no file name`); return }
     console.log(`Creating file ${fileName}`)
     fetch(`${base_url}/api/programs/create`, {
@@ -159,7 +162,7 @@ const App = () => {
         content: "",
         exercise_id: currentExercise.id
       },
-      mode: "no-cors",
+      // mode: "no-cors",
     })
       .then((res) => !res ? res.json():'')
       .then((data) => {
@@ -179,10 +182,39 @@ const App = () => {
         })
       })
   }
-  const compileCode = () => {
+  const compileAndExecuteCode = () => {
     const lexer = new LexicalAnalyzer()
     const validationResult = lexer.analyze(currentCode)
     setCompileOutput(validationResult)
+    if(validationResult !== `Sintaxis válida.`) return
+    console.log(`Request to ${base_url}/api/programs/execute : ${JSON.stringify({code: currentCode, programId: currentProgram.id}, null, 2)}`)
+    fetch(`${base_url}/api/programs/execute`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        code: currentCode,
+        programId: currentProgram.id
+      }),
+      // mode: "no-cors",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        if(data.floor && data.status === 'ok')
+            setCompileOutput(`Ejecución exitosa. Piso actual: ${data.floor}`)
+        else if (data.status === 'error' && data.line)
+            setCompileOutput(`Error en la ejecución, línea: ${data.line}`)
+        setError({stateGotten: true, message: ""})
+      }).catch((err) => {
+        console.error(err)
+        setError({
+          stateGotten: false,
+          message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
+          closeButton: false
+        })
+      })
   }
   return (
     !error.stateGotten ?
@@ -280,7 +312,7 @@ const App = () => {
               <CodeEditorMonaco/>
               <div class="flex space-x-4 mt-4">
                 <button class="px-4 py-2 bg-blue-500 text-white rounded-md"
-                  onClick={() => compileCode()}
+                  onClick={() => compileAndExecuteCode()}
                 >
                   Ejecutar
                 </button>
@@ -317,7 +349,7 @@ const App = () => {
                         Ocultar video
                       </button>
                     </div>
-                    <VideoPlayer streamUrl={video_src}/>
+                    <VideoPlayer streamUrl={streamURL}/>
                   </div>
                 </section>
               )
