@@ -17,8 +17,8 @@
     "Content-Length: %d\r\n"                                                           \
     "\r\n"
 
-static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
-// static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
+// static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
+static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
 
 // Event handler for HTTP requests
