@@ -12,8 +12,46 @@ const CodeEditor = () => {
   const currentProgram = useCurrentProgram()
   const compileOutput = useCompileOutput()
   const previousCodeRef = useRef(currentProgram ? currentProgram.content : "")
+  const validateAutomataSyntax = (editor, monaco) => {
+    const model = editor.getModel()
+    if (!model) return
+    const text = model.getValue()
+    const lines = text.split("\n")
+    let markers = []
+    lines.forEach((line, lineNumber) => {
+      const validKeywords = ["INICIO", "FIN", "SUBIR", "BAJAR", "PAUSA", "ABRIR"]
+      const words = line.split(/\s+/)
+      words.forEach((word) => {
+        if (!validKeywords.includes(word) && isNaN(word) && !word.startsWith("//")) {
+          markers.push({
+            startLineNumber: lineNumber + 1,
+            startColumn: line.indexOf(word) + 1,
+            endLineNumber: lineNumber + 1,
+            endColumn: line.indexOf(word) + word.length + 1,
+            message: `Error de sintaxis: "${word}" no es un comando válido.`,
+            severity: monaco.MarkerSeverity.Error,
+          })
+        }
+      })
+      if (/PAUSA\b/.test(line) && !/PAUSA\s+\d+/.test(line)) {
+        markers.push({
+          startLineNumber: lineNumber + 1,
+          startColumn: line.indexOf("PAUSA") + 1,
+          endLineNumber: lineNumber + 1,
+          endColumn: line.indexOf("PAUSA") + "PAUSA".length + 1,
+          message: `"PAUSA" debe tener un número.`,
+          severity: monaco.MarkerSeverity.Error,
+        })
+      }
+    })
+    monaco.editor.setModelMarkers(model, "owner", markers);
+  }
+  
   const handleEditorDidMount = (editor, monacoInstance) => {
     editorRef.current = editor
+    editor.onDidChangeModelContent(() => {
+      validateAutomataSyntax(editor, monacoInstance);
+    });
 
     monacoInstance.languages.register({
       id: "automataLang",

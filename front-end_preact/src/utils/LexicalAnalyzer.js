@@ -17,7 +17,6 @@ export class LexicalAnalyzer {
         for (let i in script) {
             let line = script[i]
             let tokens = line.split(` `)
-            console.log(tokens)            
             let command = tokens[0]
             if (!Object.values(this.commands).includes(command)) return `Error: Comando desconocido '${command}' en la línea ${i+2}.`
             if (command === this.commands.I) return `Error: El comando '${command}' Solo debe ir al inicio del programa.`
@@ -26,7 +25,7 @@ export class LexicalAnalyzer {
                 state = this.states.q2
                 continue
             }
-            if (tokens.length !== 2 || tokens.length < 2) return `Error: Comando '${command}' es necesario un número en la línea ${i+2}.`
+            if (tokens.length !== 2 || tokens.length < 2) return `Error: El comando '${command}' es necesario un número en la línea ${i+2}.`
             let floor = tokens[1]
             if (!/^[1-7]$/.test(floor)) return `Error: Número inválido: '${floor}' en la línea ${i+2}. El comando '${tokens[0]}' espera un número entre 1 y 7.`
             state = this.states.q3
