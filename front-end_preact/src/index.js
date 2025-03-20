@@ -39,7 +39,7 @@ const App = () => {
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
   const { isNewFileModalOpen, openNewFileModal, closeNewFileModal } = useAppStore()
   const currentCode = useCurrentCode()
-  const streamURL = 'https://3a0f33e3ef63.ngrok.app/'
+  const streamURL = 'https://stream-educatronic.ngrok.app/'
   // const streamURL = 'http://192.168.1.71:8001'
   const base_url = 'https://educatronic.ngrok.app'
   // const base_url = 'http://192.168.1.71:8000'
