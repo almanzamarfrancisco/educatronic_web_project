@@ -18,11 +18,16 @@ const CodeEditor = () => {
     const text = model.getValue()
     const lines = text.split("\n")
     let markers = []
+    let multiLineComment = false
     lines.forEach((line, lineNumber) => {
       const validKeywords = ["INICIO", "FIN", "SUBIR", "BAJAR", "PAUSA", "ABRIR"]
       const words = line.split(/\s+/)
+      if (line.startsWith("//")) return
+      if (line.startsWith("/*")) multiLineComment = true
+      if (multiLineComment) return
+      if (line.endsWith("*/")) multiLineComment = false
       words.forEach((word) => {
-        if (!validKeywords.includes(word) && isNaN(word) && !word.startsWith("//")) {
+        if (!validKeywords.includes(word) && isNaN(word) && !word.startsWith("//") && !word.startsWith("/*")) {
           markers.push({
             startLineNumber: lineNumber + 1,
             startColumn: line.indexOf(word) + 1,
@@ -79,6 +84,10 @@ const CodeEditor = () => {
 
     monacoInstance.languages.setLanguageConfiguration("automataLang", {
       comments: {
+        lineComment: "//",
+        blockComment: ["/*", "*/"]
+      },
+      comment: {
         lineComment: "//",
         blockComment: ["/*", "*/"]
       },

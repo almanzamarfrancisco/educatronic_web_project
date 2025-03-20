@@ -12,6 +12,7 @@ import CodeEditorMonaco from "./components/CodeEditorMonaco"
 import ErrorModal from "./components/ErrorModal"
 import RenameFileModal from "./components/RenameFileModal"
 import DeleteFileModal from "./components/DeleteFileModal"
+import StatusIcon from "./components/StatusIcon"
 import "video.js/dist/video-js.css"
 import styles from "./style/index.css"
 import designerImage from "./assets/images/designer.svg"
@@ -24,6 +25,7 @@ const App = () => {
   const [isVideoVisible, setToggleVideoVisible] = useState(true)
   const [error, setError] = useState({stateGotten: true, message: "", closeButton: false})
   const [activeTabFile, setActiveTabFile] = useState({})
+  const [statusIcon, setStatusIcon] = useState({isOpen: true, status: "neutral"})
   const toggleVideoVisible = () => setToggleVideoVisible(!isVideoVisible)
   const exercises = useExercises()
   const currentExercise = useCurrentExercise()
@@ -83,9 +85,11 @@ const App = () => {
     let currentExercise = exercises.find(exercise => exercise.id === exerciseId)
     if (!currentExercise) console.error(`Exercise ${exerciseId} not found`)
     setCurrentExercise(currentExercise)
+    handleTabChange(programFiles.find(file => file.exercise_id === exerciseId).id)
   }
   const updateFileOnServer = (id, file) => {
     console.log(`Updating file ${id} on server and file ${JSON.stringify(file, null, 2)}`)
+    setStatusIcon({isOpen: true, status: "loading"})
     fetch(`${base_url}/api/programs/update/${id}`, {
       method: 'PUT',
       headers: {
@@ -101,6 +105,10 @@ const App = () => {
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         setError({stateGotten: true, message: ""})
+        setStatusIcon({isOpen: true, status: "success"})
+        setTimeout(() => {
+          setStatusIcon({isOpen: false, status: "neutral"})
+        }, 3000)
       }).catch((err) => {
         console.error(err)
         setError({
@@ -130,6 +138,7 @@ const App = () => {
     setProgramFiles(notDeletedFiles)
     setCurrentProgram(programFiles[0])
     setActiveTabFile(programFiles[0])
+    setStatusIcon({isOpen: true, status: "loading"})
     fetch(`${base_url}/api/programs/delete/${fileId}`,{
         method: 'DELETE',
         // mode: "no-cors",
@@ -138,6 +147,10 @@ const App = () => {
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         setError({stateGotten: true, message: ""})
+        setStatusIcon({isOpen: true, status: "success"})
+        setTimeout(() => {
+          setStatusIcon({isOpen: false, status: "neutral"})
+        }, 3000)
       }).catch((err) => {
         console.error(err)
         setError({
@@ -152,6 +165,7 @@ const App = () => {
     console.log(`Creating file ${fileName}`)
     if(!fileName) { console.log(`There is no file name`); return }
     console.log(`Creating file ${fileName}`)
+    setStatusIcon({isOpen: true, status: "loading"})
     fetch(`${base_url}/api/programs/create`, {
       method: 'POST',
       headers: {
@@ -173,6 +187,10 @@ const App = () => {
           content: ""
         }
         setProgramFiles([...programFiles, newFile])
+        setStatusIcon({isOpen: true, status: "success"})
+        setTimeout(() => {
+          setStatusIcon({isOpen: false, status: "neutral"})
+        }, 3000)
       }).catch((err) => {
         console.error(err)
         setError({
@@ -188,6 +206,7 @@ const App = () => {
     setCompileOutput(validationResult)
     if(validationResult !== `Sintaxis válida.`) return
     console.log(`Request to ${base_url}/api/programs/execute : ${JSON.stringify({code: currentCode, programId: currentProgram.id}, null, 2)}`)
+    setStatusIcon({isOpen: true, status: "loading"})
     fetch(`${base_url}/api/programs/execute`, {
       method: 'POST',
       headers: {
@@ -202,10 +221,20 @@ const App = () => {
       .then((res) => res.json())
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
-        if(data.floor && data.status === 'ok')
-            setCompileOutput(`Ejecución exitosa. Piso actual: ${data.floor}`)
-        else if (data.status === 'error' && data.line)
-            setCompileOutput(`Error en la ejecución, línea: ${data.line}`)
+        if(data.floor && data.status === 'ok'){
+          setCompileOutput(`Ejecución exitosa. Piso actual: ${data.floor}`)
+          setStatusIcon({isOpen: true, status: "success"})
+          setTimeout(() => {
+            setStatusIcon({isOpen: false, status: "neutral"})
+          }, 3000)
+        }
+        else if (data.status === 'error' && data.line){
+          setCompileOutput(`Error en la ejecución, línea: ${data.line}`)
+          setStatusIcon({isOpen: true, status: "fail"})
+          setTimeout(() => {
+            setStatusIcon({isOpen: false, status: "neutral"})
+          }, 3000)
+        }
         setError({stateGotten: true, message: ""})
       }).catch((err) => {
         console.error(err)
@@ -321,7 +350,7 @@ const App = () => {
                 >
                   Guardar
                 </button>
-                {/* TODO: add a little green check to say the file is saved and same for execution */}
+                <StatusIcon status={statusIcon.status} size={32} />
                 {
                   !isVideoVisible && (
                     <button

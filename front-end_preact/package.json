@@ -16,6 +16,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@preact/compat": "^18.3.1",
     "css-loader": "^7.1.2",
+    "lucide-preact": "^0.483.0",
     "npm": "^10.8.0",
     "preact": "^10.22.0",
     "style-loader": "^4.0.0",
