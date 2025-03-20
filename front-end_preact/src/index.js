@@ -5,6 +5,7 @@ import {
   useCurrentExercise,
   useProgramFiles,
   useCurrentCode,
+  useIsBlocklySelected,
 } from './store'
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
@@ -13,6 +14,7 @@ import ErrorModal from "./components/ErrorModal"
 import RenameFileModal from "./components/RenameFileModal"
 import DeleteFileModal from "./components/DeleteFileModal"
 import StatusIcon from "./components/StatusIcon"
+import BlocklyInterface from "./components/BlocklyInterface"
 import "video.js/dist/video-js.css"
 import styles from "./style/index.css"
 import designerImage from "./assets/images/designer.svg"
@@ -30,7 +32,8 @@ const App = () => {
   const exercises = useExercises()
   const currentExercise = useCurrentExercise()
   const programFiles = useProgramFiles()
-  const { setProgramFiles, setCurrentProgram, currentProgram, setCompileOutput } = useAppStore()
+  const isBlocklySelected = useIsBlocklySelected()
+  const { setProgramFiles, setCurrentProgram, currentProgram, setCompileOutput, setBlocklySelected } = useAppStore()
   const { setExercises, setCurrentExercise } = useAppStore()
   const { isRenameModalOpen, fileToRename, openRenameModal, closeRenameModal } = useAppStore()
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
@@ -80,6 +83,7 @@ const App = () => {
     if (!currentTab) console.error(`Tab ${tab} not found`)
     setActiveTabFile(currentTab)
     setCurrentProgram(currentTab)
+    console.log(currentProgram)
   }
   const handleExerciseListChange = (exerciseId) => {
     let currentExercise = exercises.find(exercise => exercise.id === exerciseId)
@@ -283,7 +287,11 @@ const App = () => {
                 <div class="flex items-center space-x-2">
                   <label class="flex items-center space-x-2">
                     <span>Modo de Bloques</span>
-                    <input type="checkbox" class="toggle-checkbox"/>
+                    <input type="checkbox"
+                      class="toggle-checkbox"
+                      checked={isBlocklySelected}
+                      onChange={(e) => setBlocklySelected(e.target.checked)}
+                    />
                   </label>
                   <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black">
                     <option disabled>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
@@ -338,7 +346,10 @@ const App = () => {
                   - Borrar archivo
                 </button>
               </div>
-              <CodeEditorMonaco/>
+              {isBlocklySelected ?
+                <BlocklyInterface/>
+                :
+                <CodeEditorMonaco/>}
               <div class="flex space-x-4 mt-4">
                 <button class="px-4 py-2 bg-blue-500 text-white rounded-md"
                   onClick={() => compileAndExecuteCode()}
