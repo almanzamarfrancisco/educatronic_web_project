@@ -31,15 +31,15 @@ fi
 # Define the bundle.js file path
 BUNDLE_JS="/home/lucas/Desktop/projects/educatronic_web_project/backend_mongoose/web_root/bundle.js" 
 
-# Validate that streamURL is present in bundle.js before replacing it
-if grep -q '(yt,{streamUrl:"' "$BUNDLE_JS"; then
-    echo "streamURL found in bundle.js. Replacing URL..." | tee -a "$LOG_FILE"
+# Validate that streamUrl is present in bundle.js before replacing it
+if grep -q '{streamUrl:"' "$BUNDLE_JS"; then
+    echo "streamUrl found in bundle.js. Replacing URL..." | tee -a "$LOG_FILE"
     
     # Replace the URL inside bundle.js
-    sed -i "s#(yt,{streamUrl:\"[^\"]*\"})#(yt,{streamUrl:\"$RANDOM_NGROK_URL\"})#" "$BUNDLE_JS"
+    sed -i "s#({streamUrl:\"[^\"]*\"})#{streamUrl:\"$RANDOM_NGROK_URL\"})#" "$BUNDLE_JS"
 
     echo "Updated bundle.js with new stream URL: $RANDOM_NGROK_URL" | tee -a "$LOG_FILE"
 else
-    echo "Error: streamURL not found in bundle.js. No changes made." | tee -a "$LOG_FILE"
+    echo "Error: streamUrl not found in bundle.js. No changes made." | tee -a "$LOG_FILE"
     exit 1
 fi
