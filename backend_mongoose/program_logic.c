@@ -65,9 +65,11 @@ int isValidCommand(const char *command) {
     }
     return 0;
 }
-int isValidNumber(const char *str) {
-    if (strlen(str) == 1 && str[0] >= '1' && str[0] <= '7') return 1;
-    return 0;
+int isBetween1And7(const char *str) {
+    return strlen(str) == 1 && str[0] >= '1' && str[0] <= '7';
+}
+int isNumeric(const char *str) {
+    return strlen(str) == 1 && str[0] >= '1' && str[0] <= '9';
 }
 char *analyzeScript(const char *script) {
     char *lines[MAX_LINES];
@@ -110,14 +112,25 @@ char *analyzeScript(const char *script) {
             snprintf(errorMsg, sizeof(errorMsg), "Error: El comando 'FIN' solo debe ir al final del programa (línea %d).", i + 1);
             return strdup(errorMsg);
         }
-        if (strcmp(command, "ABRIR") == 0 && !arg) {
+        if (strcmp(command, "ABRIR") == 0) {
+            if (arg) {
+                char msg[100];
+                snprintf(msg, sizeof(msg), "Error: El comando 'ABRIR' no debe tener argumentos (línea %d).", i + 1);
+                return strdup(msg);
+            }
             // state = Q2;
             continue;
         }
-        if (!arg || !isValidNumber(arg)) {
-            char errorMsg[100];
-            snprintf(errorMsg, sizeof(errorMsg), "Error: Número inválido '%s' en la línea %d. El comando '%s' espera un número entre 1 y 7.", arg ? arg : "N/A", i + 1, command);
-            return strdup(errorMsg);
+        if (!arg || !isNumeric(arg)) {
+            char msg[100];
+            snprintf(msg, sizeof(msg), "Error: Número inválido '%s' en la línea %d. El comando '%s' espera un número.", arg ? arg : "N/A", i + 1, command);
+            return strdup(msg);
+        }
+
+        if ((strcmp(command, "SUBIR") == 0 || strcmp(command, "BAJAR") == 0) && !isBetween1And7(arg)) {
+            char msg[150];
+            snprintf(msg, sizeof(msg), "Error: Número fuera de rango '%s' en la línea %d. El comando '%s' solo acepta números del 1 al 7.", arg, i + 1, command);
+            return strdup(msg);
         }
         // state = Q3;
     }

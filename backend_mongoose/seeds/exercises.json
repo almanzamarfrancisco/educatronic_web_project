@@ -1,26 +1,32 @@
 [
     {
         "exercise_id": "550e8400-e29b-41d4-a716-446655440000",
-        "name": "Suma Básica",
-        "content": "Escribe un programa que sume dos números.",
+        "name": "Ejercicio 1",
+        "content": "Hacer un programa para manipular el elevador, comenzando desde el piso 1, de la siguiente forma:\n1. Que suba 6 pisos\n2. Realice una pausa de 2 segundos\n3. Después baje 3 pisos\n4. Termine su ejecución\n Si el elevador comenzó en el piso 1, ¿En qué piso quedará al final de la ejecución del programa?",
         "difficulty": "easy"
     },
     {
         "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f",
-        "name": "Práctica de Bucles",
-        "content": "Escribe un programa que imprima los números del 1 al 10 usando un bucle.",
+        "name": "Ejercicio 2",
+        "content": "Hacer un programa para manipular el elevador, comenzando desde el piso 2, de la siguiente forma:\n1. Que suba 4 pisos\n2. Después baje 2 pisos\n3. Realice una pausa de 3 segundos\n4. Que suba 3 pisos\n5. Después baje 1 piso\n6. Termine su ejecución\nSi el elevador comenzó en el piso 2, ¿En qué piso quedará al final de la ejecución del\nprograma?",
         "difficulty": "medium"
     },
     {
         "exercise_id": "d3b4e5f6-7a8b-4c9d-8e0f-1a2b3c4d5e6f",
-        "name": "Inversión de Cadenas",
-        "content": "Escribe un programa que invierta una cadena dada.",
+        "name": "Ejercicio 3",
+        "content": "Crea un programa comenzando con piso 1, de la siguiente forma:\n1. Que suba 5 pisos\n2. Realice una pausa de 2 segundos\n3. Después baje 2 pisos\n4. Que suba 3 pisos\n5. Realice una pausa de 1 segundo\n6. Después baje 4 pisos\n7. Termine su ejecución\nSi el elevador comenzó en el piso 1 ¿En qué piso quedará al final de la ejecución del programa?",
         "difficulty": "easy"
     },
     {
         "exercise_id": "e4f5g6h7-8i9j-0k1l-2m3n-4o5p6q7r8s9t",
-        "name": "Verificador de Números Primos",
-        "content": "Escribe un programa que verifique si un número dado es primo.",
+        "name": "Ejercicio 4",
+        "content": "Crea un programa comenzando con piso comenzando desde el piso 1, de la siguiente forma:\n1. Que suba 3 pisos\n2. Realice una pausa de 2 segundos\n3. Después baje 2 pisos\n4. Que suba 3 pisos\n5. Realice una pausa de 2 segundos\n6. Después baje 2 pisos\n7. Que suba 3 pisos\n8. Realice una pausa de 2 segundos\n9. Después baje 2 pisos\n10. Termine su ejecución\nSi el elevador comenzó en el piso 1, ¿En qué piso quedará al final de la ejecución del\nprograma?",
+        "difficulty": "medium"
+    },
+    {
+        "exercise_id": "6dca7418-6ce0-4587-ba50-0442e870e9aa",
+        "name": "Ejercicio 5",
+        "content": "Hacer un programa para manipular el elevador, comenzando desde el piso 1, de la siguiente forma:\n 1. Que suba 1 piso\nRepetir 3\n2. Que suba 3 pisos\n3. Realice una pausa de 2 segundos\n4. Después baje 2 pisos\nFin repetir\n5. Después baje 1 piso\n6. Termine su ejecución\nSi el elevador comenzó en el piso 1, ¿En que piso quedará al final de la ejecución del\nprograma?",
         "difficulty": "medium"
     }
 ]

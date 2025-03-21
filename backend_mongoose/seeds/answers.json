@@ -1,12 +1,32 @@
 [
     {
-        "id": "a3c1d9e0-4a8b-43c7-9231-ff91a1e6e2b5",
+        "id": "541efaa4-8307-4c88-99ce-1c3f05afa64d",
         "exercise_id": "550e8400-e29b-41d4-a716-446655440000",
-        "expected_output": "15"
+        "expected_program": "",
+        "expected_output": "4"
     },
     {
-        "id": "b47f24e2-70c3-41aa-9dd9-f376c9d3a6a1",
+        "id": "1e2d3339-7d20-4d22-a8d3-af2cd50f5a99",
         "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f",
-        "expected_output": "1 2 3 4 5 6 7 8 9 10"
+        "expected_program": "",
+        "expected_output": "6"
+    },
+    {
+        "id": "50eee962-ab72-4d23-b6e6-f909dddd6a2d",
+        "exercise_id": "d3b4e5f6-7a8b-4c9d-8e0f-1a2b3c4d5e6f",
+        "expected_program": "",
+        "expected_output": "3"
+    },
+    {
+        "id": "fcecf0de-9f35-4e45-8ccb-f81495bc12a7",
+        "exercise_id": "e4f5g6h7-8i9j-0k1l-2m3n-4o5p6q7r8s9t",
+        "expected_program": "",
+        "expected_output": "4"
+    },
+    {
+        "id": "c440aa2a-0986-4f46-ba82-55bda29f9182",
+        "exercise_id": "f5g6h7i8-9j0k-1l2m-3n4o-5p6q7r8s9t0u",
+        "expected_program": "",
+        "expected_output": "4"
     }
 ]
