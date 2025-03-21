@@ -72,7 +72,7 @@ void seed_exercises(sqlite3 *db) {
         char *content = cJSON_GetObjectItem(exercise, "content")->valuestring;
         char *difficulty = cJSON_GetObjectItem(exercise, "difficulty")->valuestring;
 
-        char sql[512];
+        char sql[1024];
         snprintf(sql, sizeof(sql),
                  "INSERT INTO exercises (exercise_id, name, content, difficulty) VALUES ('%s', '%s', '%s', '%s');",
                  exercise_id, name, content, difficulty);
