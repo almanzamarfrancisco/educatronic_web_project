@@ -80,7 +80,10 @@ const App = () => {
   }
   const handleTabChange = (tab) => {
     let currentTab = programFiles.find(file => file.id === tab)
-    if (!currentTab) console.error(`Tab ${tab} not found`)
+    if (!currentTab) {
+      console.error(`Tab ${tab} not found`)
+      currentTab = {}
+    }
     setActiveTabFile(currentTab)
     setCurrentProgram(currentTab)
     console.log(currentProgram)
@@ -89,7 +92,8 @@ const App = () => {
     let currentExercise = exercises.find(exercise => exercise.id === exerciseId)
     if (!currentExercise) console.error(`Exercise ${exerciseId} not found`)
     setCurrentExercise(currentExercise)
-    handleTabChange(programFiles.find(file => file.exercise_id === exerciseId).id)
+    const firstProgram = programFiles.find(file => file.exercise_id === exerciseId)
+    handleTabChange(firstProgram?.id)
   }
   const updateFileOnServer = (id, file) => {
     console.log(`Updating file ${id} on server and file ${JSON.stringify(file, null, 2)}`)
@@ -301,8 +305,10 @@ const App = () => {
                   </select>
                 </div>
               </div>
-              <div class="flex space-x-4 mx-3 my-5">
-                { currentExercise && currentExercise.content || 'Cuando selecciones un ejercicio aquí se mostrará su contenido' }
+              <div class="space-x-4 mx-3 my-5 flex-row">
+              { currentExercise && currentExercise.content.split('\n').map((line, index) => (
+                <p key={index}>{line}<br/></p>
+              )) || `<pre>Cuando selecciones un ejercicio aquí se mostrará su contenido<pre/>` }
               </div>
               {/* <!-- Tabs --> */}
               <div class="border-b border-gray-300 flex items-center justify-between">
