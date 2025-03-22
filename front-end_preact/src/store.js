@@ -14,6 +14,7 @@ const useAppStore = create((set) => ({
   isNewFileModalOpen: false,
   compileOutput: "",
   isBlocklySeleted: false,
+  currentFloor: 0,
   user: null, // Future: User Info (authentication)
   // Actions (functions to update state)
   setExercises: (exercises) =>
@@ -42,6 +43,8 @@ const useAppStore = create((set) => ({
     set((state) => ({ compileOutput: output })),
   setBlocklySelected: (selected) =>
     set((state) => ({ isBlocklySeleted: selected })),
+  setCurrentFloor: (floor) =>
+    set((state) => ({ currentFloor: floor })),
   setUser: (user) =>
     set((state) => ({ user: user ? { ...user } : null })),
 }));
@@ -60,6 +63,8 @@ export const useCompileOutput = () =>
   useAppStore((state) => state.compileOutput);
 export const useIsBlocklySelected = () =>
   useAppStore((state) => state.isBlocklySeleted);
+export const useCurrentFloor = () =>
+  useAppStore((state) => state.currentFloor);
 export const useUser = () => 
   useAppStore((state) => state.user);
 
@@ -76,6 +81,7 @@ export const useAppActions = () =>
     closeRenameModal: () => set({ isRenameModalOpen: false, fileToRename: null }),
     setBlocklySelected: state.setBlocklySelected,
     setCompileOutput: state.setCompileOutput,
+    setCurrentFllor: state.setCurrent
   }));
 
 export default useAppStore;

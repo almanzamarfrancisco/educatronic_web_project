@@ -6,6 +6,7 @@ import {
   useProgramFiles,
   useCurrentCode,
   useIsBlocklySelected,
+  useCurrentFloor,
 } from './store'
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
@@ -32,8 +33,9 @@ const App = () => {
   const exercises = useExercises()
   const currentExercise = useCurrentExercise()
   const programFiles = useProgramFiles()
+  const currentFloor = useCurrentFloor()
   const isBlocklySelected = useIsBlocklySelected()
-  const { setProgramFiles, setCurrentProgram, currentProgram, setCompileOutput, setBlocklySelected } = useAppStore()
+  const { setProgramFiles, setCurrentProgram, currentProgram, setCompileOutput, setBlocklySelected, setCurrentFloor } = useAppStore()
   const { setExercises, setCurrentExercise } = useAppStore()
   const { isRenameModalOpen, fileToRename, openRenameModal, closeRenameModal } = useAppStore()
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
@@ -53,7 +55,7 @@ const App = () => {
     fetch(`${base_url}/api/state`)
       .then((res) => res.json())
       .then((data) => {
-        // console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(!data.exercises || !data.exercises.length) {
           setError({stateGotten: false, message: "No se encontraron ejercicios", closeButton: true})
           console.log(`Error: ${JSON.stringify(error)}`)
@@ -63,6 +65,7 @@ const App = () => {
         setExercises(data.exercises)
         setProgramFiles(data.programs)
         setCurrentExercise(data.exercises[0])
+        setCurrentFloor(Number(data.currentFloor))
         return
       })
       .catch((err) => {
@@ -231,6 +234,7 @@ const App = () => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(data.floor && data.status === 'ok'){
           setCompileOutput(`Ejecución exitosa. Piso actual: ${data.floor}`)
+          setCurrentFloor(data.floor)
           setStatusIcon({isOpen: true, status: "success"})
           setTimeout(() => {
             setStatusIcon({isOpen: false, status: "neutral"})
@@ -305,10 +309,19 @@ const App = () => {
                   </select>
                 </div>
               </div>
-              <div class="space-x-4 mx-3 my-5 flex-row">
-              { currentExercise && currentExercise.content.split('\n').map((line, index) => (
-                <p key={index}>{line}<br/></p>
-              )) || `<pre>Cuando selecciones un ejercicio aquí se mostrará su contenido<pre/>` }
+              <div className="space-x-4 mx-3 my-5 flex">
+                <div class="space-x-4 mx-3 my-5 flex-row">
+                { currentExercise && currentExercise.content.split('\n').map((line, index) => (
+                  <p key={index}>{line}<br/></p>
+                )) || `<pre>Cuando selecciones un ejercicio aquí se mostrará su contenido<pre/>` }
+                </div>
+                <div className="flex-row items-center space-x-2 border-l-2 border-gray-300">
+                  <h1 class="text-4xl font-bold mx-3 text-center">Piso Actual </h1>
+                  <h3
+                    class="text-9xl font-bold mx-3 bg-cyan-800 text-center rounded-lg transition transform duration-500 ease-in-out">
+                      {currentFloor ?? '0'}
+                  </h3>
+                </div>
               </div>
               {/* <!-- Tabs --> */}
               <div class="border-b border-gray-300 flex items-center justify-between">

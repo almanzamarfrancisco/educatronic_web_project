@@ -20,7 +20,7 @@ const CodeEditor = () => {
     let markers = []
     let multiLineComment = false
     lines.forEach((line, lineNumber) => {
-      const validKeywords = ["INICIO", "FIN", "SUBIR", "BAJAR", "PAUSA", "ABRIR"]
+      const validKeywords = ["INICIO", "FIN", "SUBIR", "BAJAR", "PAUSA", "ABRIR", "REPETIR", "FIN_REPETIR"]
       const words = line.split(/\s+/)
       if (line.startsWith("//")) return
       if (line.startsWith("/*")) multiLineComment = true
@@ -48,6 +48,16 @@ const CodeEditor = () => {
           severity: monaco.MarkerSeverity.Error,
         })
       }
+      if (/^REPETIR\b/.test(line) && !/^REPETIR\s+\d+/.test(line)) {
+        markers.push({
+          startLineNumber: lineNumber + 1,
+          startColumn: line.indexOf("REPETIR") + 1,
+          endLineNumber: lineNumber + 1,
+          endColumn: line.indexOf("REPETIR") + "REPETIR".length + 1,
+          message: `"REPETIR" debe tener un número.`,
+          severity: monaco.MarkerSeverity.Error,
+        })
+      }
     })
     monaco.editor.setModelMarkers(model, "owner", markers);
   }
@@ -68,7 +78,7 @@ const CodeEditor = () => {
     monacoInstance.languages.setMonarchTokensProvider("automataLang", {
       tokenizer: {
         root: [
-          [/\b(INICIO|FIN|SUBIR|BAJAR|PAUSA|ABRIR)\b/i, "keyword"],
+          [/\b(INICIO|FIN|SUBIR|BAJAR|PAUSA|ABRIR|REPETIR|FIN_REPETIR)\b/i, "keyword"],
           [/\bPAUSA\b\s+\d+/i, ["keyword", "number"]], 
           [/\b[0-9]+\b/, "number"],
           [/\/\/.*/, "comment"],
@@ -98,6 +108,14 @@ const CodeEditor = () => {
         },
         {
           beforeText: /^\s*FIN\s*$/,
+          action: { indentAction: monacoInstance.languages.IndentAction.Outdent }
+        },
+        {
+          beforeText: /^\s*REPETIR\s+\d+\s*$/,
+          action: { indentAction: monacoInstance.languages.IndentAction.Indent }
+        },
+        {
+          beforeText: /^\s*FIN_REPETIR\s*$/,
           action: { indentAction: monacoInstance.languages.IndentAction.Outdent }
         }
       ]
