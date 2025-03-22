@@ -1,5 +1,6 @@
 #include "program_logic.h"
 
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,73 +8,137 @@
 
 #include "gpio_management.h"
 
-const char *commands[] = {"SUBIR", "BAJAR", "PAUSA", "ABRIR", "INICIO", "FIN"};
-const int commandsCount = sizeof(commands) / sizeof(commands[0]);
+void openDoor() { printf("\t\t\t🚪 Puerta abierta\n"); }
+void elevatorGoUp() { printf("\t\t\t⬆️ Subiendo un piso\n"); }
+void elevatorGoDown() { printf("\t\t\t⬇️ Bajando un piso\n"); }
 
-/* typedef enum { Q0,
-               Q1,
-               Q2,
-               Q3,
-               QFINAL } State; */
+CommandDef commandTable[] = {
+    {"INICIO", "INICIO", {}, 0, CMD_PROGRAM_START},
+    {"SUBIR", "SUBIR", {"^[1-7]$"}, 1, CMD_REGULAR},
+    {"BAJAR", "BAJAR", {"^[1-7]$"}, 1, CMD_REGULAR},
+    {"PAUSA", "PAUSA", {"^[0-9]+$"}, 1, CMD_REGULAR},
+    {"ABRIR", "ABRIR", {}, 0, CMD_REGULAR},
+    {"REPETIR", "REPETIR", {"^[0-9]+$"}, 1, CMD_BLOCK_START},
+    {"FIN_REPETIR", "FIN_REPETIR", {}, 0, CMD_BLOCK_END},
+    {"FIN", "FIN", {}, 0, CMD_PROGRAM_END}};
+const int commandsCount = sizeof(commandTable) / sizeof(commandTable[0]);
 
+CommandDef *getCommandByToken(const char *token) {
+    for (int i = 0; i < commandsCount; i++) {
+        if (strcmp(commandTable[i].token, token) == 0) {
+            return &commandTable[i];
+        }
+    }
+    return NULL;
+}
+CommandDef *getProgramInitializerComand() {
+    for (int i = 0; i < commandsCount; i++) {
+        if (commandTable[i].role == CMD_PROGRAM_START) {
+            return &commandTable[i];
+        }
+    }
+    return NULL;
+}
+CommandDef *getProgramFinalizerComand() {
+    for (int i = 0; i < commandsCount; i++) {
+        if (commandTable[i].role == CMD_PROGRAM_END) {
+            return &commandTable[i];
+        }
+    }
+    return NULL;
+}
+int matchRegex(const char *pattern, const char *input) {
+    regex_t regex;
+    if (regcomp(&regex, pattern, REG_EXTENDED)) return 0;
+    int result = regexec(&regex, input, 0, NULL, 0);
+    regfree(&regex);
+    return result == 0;
+}
 int execute_commands(int floor, char *code, char *error_line) {
+    printf("\t[I] Starting program execution... 🚀\n");
     char *lines[MAX_LINES];
     int lineCount = 0;
-    char scriptCopy[strlen(code) + 1];
-    strcpy(scriptCopy, code);
-    char *line = strtok(scriptCopy, "\n");
+    char codeCopy[strlen(code) + 1];
+    strcpy(codeCopy, code);
+    char *line = strtok(codeCopy, "\n");
     while (line && lineCount < MAX_LINES) {
         while (*line == ' ') line++;
         lines[lineCount++] = strdup(line);
         line = strtok(NULL, "\n");
     }
-    for (int i = 1; i < lineCount - 1; i++) {
+    return execute_block(lines, 1, lineCount - 1, &floor, error_line);
+}
+int execute_block(char **lines, int start, int end, int *floor, char *error_line) {
+    for (int i = start; i < end; i++) {
         char lineCopy[MAX_LENGTH];
         strcpy(lineCopy, lines[i]);
         char *command = strtok(lineCopy, " ");
         char *arg = strtok(NULL, " ");
-        if (strcmp(command, "ABRIR") == 0 && !arg) {
-            /* openDoor(); */
-            continue;
-        }
-        printf("\t\t[I] current floor: %d -> command: %s %s\n", floor, command, arg);
-        if (strcmp(command, "SUBIR") == 0) {
-            floor += atoi(arg);
-            if (floor > 7) {
-                snprintf(error_line, 12, "%d", i + 1);
-                return floor;
+        CommandDef *cmd = getCommandByToken(command);
+        switch (cmd->role) {
+            case CMD_PROGRAM_START:
+            case CMD_PROGRAM_END:
+            case CMD_BLOCK_END:
+                break;
+            case CMD_BLOCK_START: {
+                printf("\t\t🔁 Repitiendo %s veces\n", arg);
+                int repeatCount = atoi(arg);
+                int loopStart = i + 1;
+                int loopEnd = -1;
+                for (int j = loopStart; j < end; j++) {
+                    char tempLine[MAX_LENGTH];
+                    strcpy(tempLine, lines[j]);
+                    char *maybeEnd = strtok(tempLine, " ");
+                    CommandDef *maybeCmd = getCommandByToken(maybeEnd);
+                    if (maybeCmd && maybeCmd->role == CMD_BLOCK_END && strcmp(maybeCmd->token, "FIN_REPETIR") == 0) {
+                        loopEnd = j;
+                        break;
+                    }
+                }
+                for (int r = 0; r < repeatCount; r++) {
+                    execute_block(lines, loopStart, loopEnd, floor, error_line);
+                }
+                i = loopEnd;
+                printf("\t\t🔚 Fin del bloque de repetición\n");
+                break;
             }
-            // elevatorGoUp();
-            continue;
-        }
-        if (strcmp(command, "BAJAR") == 0) {
-            floor -= atoi(arg);
-            if (floor < 0) {
-                snprintf(error_line, 12, "%d", i + 1);
-                return floor;
+            case CMD_REGULAR: {
+                if (strcmp(cmd->token, "SUBIR") == 0) {
+                    int value = atoi(arg);
+                    for (int s = 0; s < value; s++) {
+                        elevatorGoUp();
+                        (*floor)++;
+                        if (*floor > 7) {
+                            sprintf(error_line, "%d.", i + 1);
+                            return -1;
+                        }
+                    }
+                } else if (strcmp(cmd->token, "BAJAR") == 0) {
+                    int value = atoi(arg);
+                    for (int s = 0; s < value; s++) {
+                        elevatorGoDown();
+                        (*floor)--;
+                        if (*floor < 1) {
+                            sprintf(error_line, "%d.", i + 1);
+                            return -1;
+                        }
+                    }
+                } else if (strcmp(cmd->token, "PAUSA") == 0) {
+                    printf("\t\t\t⏸ Pausa de %s segundos\n", arg);
+                } else if (strcmp(cmd->token, "ABRIR") == 0) {
+                    openDoor();
+                }
+                break;
             }
-            // elevatorGoDown();
-            continue;
         }
-        if (strcmp(command, "PAUSA") == 0) sleep(atoi(arg));
     }
-    return floor;
+    return *floor;
 }
-int isValidCommand(const char *command) {
-    for (int i = 0; i < commandsCount; i++) {
-        if (strcmp(command, commands[i]) == 0) return 1;
-    }
-    return 0;
-}
-int isBetween1And7(const char *str) {
-    return strlen(str) == 1 && str[0] >= '1' && str[0] <= '7';
-}
-int isNumeric(const char *str) {
-    return strlen(str) == 1 && str[0] >= '1' && str[0] <= '9';
-}
+
 char *analyzeScript(const char *script) {
+    printf("\t[I] Starting syntax analysis... 📝\n");
     char *lines[MAX_LINES];
-    int lineCount = 0;
+    int lineCount = 0, repeatBlockOpen = 0, programOpened = 0;
     char scriptCopy[strlen(script) + 1];
     strcpy(scriptCopy, script);
     char *line = strtok(scriptCopy, "\n");
@@ -82,58 +147,86 @@ char *analyzeScript(const char *script) {
         lines[lineCount++] = strdup(line);
         line = strtok(NULL, "\n");
     }
-    if (lineCount < 2) {
-        return strdup("Error: El programa debe iniciar con 'INICIO' y terminar con 'FIN'.");
+    if (lineCount < 2) return strdup("Error: El programa debe iniciar con 'INICIO' y terminar con 'FIN'.");
+    CommandDef *initCmd = getProgramInitializerComand();
+    CommandDef *endCmd = getProgramFinalizerComand();
+    if (strcmp(lines[0], initCmd->command) != 0) {
+        char msg[100];
+        snprintf(msg, sizeof(msg), "Error: El programa debe iniciar con '%s'.", initCmd->command);
+        return strdup(msg);
     }
-    if (strcmp(lines[0], "INICIO") != 0) {
-        return strdup("Error: El programa debe iniciar con 'INICIO'.");
+    if (strcmp(lines[lineCount - 1], endCmd->command) != 0) {
+        char msg[100];
+        snprintf(msg, sizeof(msg), "Error: El programa debe terminar con '%s'.", endCmd->command);
+        return strdup(msg);
     }
-    if (strcmp(lines[lineCount - 1], "FIN") != 0) {
-        return strdup("Error: El programa debe finalizar con 'FIN'.");
-    }
-    // State state = Q1;
     for (int i = 1; i < lineCount - 1; i++) {
         char lineCopy[MAX_LENGTH];
         strcpy(lineCopy, lines[i]);
         char *command = strtok(lineCopy, " ");
         char *arg = strtok(NULL, " ");
-        if (!isValidCommand(command)) {
-            char errorMsg[100];
-            snprintf(errorMsg, sizeof(errorMsg), "Error: Comando desconocido '%s' en la línea %d.", command, i + 1);
-            return strdup(errorMsg);
-        }
-        if (strcmp(command, "INICIO") == 0) {
-            char errorMsg[100];
-            snprintf(errorMsg, sizeof(errorMsg), "Error: El comando 'INICIO' solo debe ir al inicio del programa (línea %d).", i + 1);
-            return strdup(errorMsg);
-        }
-        if (strcmp(command, "FIN") == 0) {
-            char errorMsg[100];
-            snprintf(errorMsg, sizeof(errorMsg), "Error: El comando 'FIN' solo debe ir al final del programa (línea %d).", i + 1);
-            return strdup(errorMsg);
-        }
-        if (strcmp(command, "ABRIR") == 0) {
-            if (arg) {
-                char msg[100];
-                snprintf(msg, sizeof(msg), "Error: El comando 'ABRIR' no debe tener argumentos (línea %d).", i + 1);
+        CommandDef *cmd = getCommandByToken(command);
+        char msg[100];
+        if (cmd->role == CMD_PROGRAM_END) {
+            if (programOpened)
+                programOpened = 0;
+            else {
+                snprintf(msg, 100, "Error: En la línea %d, elomando '%s' no se puede usar 2 o más veces seguidas ", i + 1, command);
                 return strdup(msg);
             }
-            // state = Q2;
             continue;
         }
-        if (!arg || !isNumeric(arg)) {
-            char msg[100];
-            snprintf(msg, sizeof(msg), "Error: Número inválido '%s' en la línea %d. El comando '%s' espera un número.", arg ? arg : "N/A", i + 1, command);
-            return strdup(msg);
+        if (cmd->role == CMD_PROGRAM_START) {
+            if (!programOpened)
+                programOpened = 1;
+            else {
+                snprintf(msg, 100, "Error: En la línea %d, el comando '%s' no se puede usar 2 o más veces seguidas ", i + 1, command);
+                return strdup(msg);
+            }
+            continue;
         }
-
-        if ((strcmp(command, "SUBIR") == 0 || strcmp(command, "BAJAR") == 0) && !isBetween1And7(arg)) {
-            char msg[150];
-            snprintf(msg, sizeof(msg), "Error: Número fuera de rango '%s' en la línea %d. El comando '%s' solo acepta números del 1 al 7.", arg, i + 1, command);
-            return strdup(msg);
+        if (cmd->role == CMD_BLOCK_START) {
+            if (repeatBlockOpen) {
+                snprintf(msg, 100, "Error: En la línea %d, el comando '%s' no se puede usar 2 o más veces seguidas ", i + 1, command);
+                return strdup(msg);
+            }
+            repeatBlockOpen = 1;
         }
-        // state = Q3;
+        if (cmd->role == CMD_BLOCK_END) {
+            if (!repeatBlockOpen) {
+                snprintf(msg, 100, "Error: En la línea %d, el comando '%s' no se puede usar 2 o más veces seguidas ", i + 1, command);
+                return strdup(msg);
+            }
+            repeatBlockOpen = 0;
+        }
+        if (!validateLine(cmd, arg, i + 1, msg)) return strdup(msg);
     }
-    // state = QFINAL;
+    if (repeatBlockOpen)
+        return strdup("Error: Bloque 'REPETIR' sin cerrar.");
+    if (programOpened)
+        return strdup("Error: Programa sin cerrar.");
+    printf("\t[I] Syntax analysis completed. Valid syntax ✅\n");
     return strdup("Sintaxis válida.");
+}
+int validateLine(const CommandDef *cmd, char *arg, int lineNumber, char *msg) {
+    if (!cmd) {
+        snprintf(msg, 100, "Error: Comando '%s' no reconocido en línea %d.", cmd->command, lineNumber);
+        return 0;
+    }
+    if (cmd->param_count == 0 && arg != NULL) {
+        snprintf(msg, 100, "Error: El comando '%s' no debe tener argumentos. Línea %d.", cmd->command, lineNumber);
+        return 0;
+    }
+    if (cmd->param_count == 1) {
+        if (!arg) {
+            snprintf(msg, 100, "Error: El comando '%s' requiere un parámetro. Línea %d.", cmd->command, lineNumber);
+            return 0;
+        }
+        if (!matchRegex(cmd->parameters[0], arg)) {
+            snprintf(msg, 100, "Error: El parámetro '%s' no es válido para '%s'. Línea %d.", arg, cmd->command, lineNumber);
+            return 0;
+        }
+    }
+    printf("\t\t[t]Línea %d válida: %s %s ✅\n", lineNumber, cmd->command, arg ? arg : "");
+    return 1;
 }

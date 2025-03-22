@@ -1,92 +1,92 @@
 [
     {
-        "program_id": "123e4567-e89b-12d3-a456-426614174000",
-        "name": "Basic Movement",
-        "code": "INICIO\nSUBIR 3\nBAJAR 2\nFIN",
-        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
-    },
-    {
-        "program_id": "9b2a6e4c-fae1-4b99-87a9-0a1db3f0c59d",
-        "name": "Pause and Move",
-        "code": "INICIO\nPAUSA\nSUBIR 1\nABRIR\nFIN",
-        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
-    },
-    {
-        "program_id": "fae1b4c2-7e2d-4b39-a96f-1c5d9e3f2a4b",
-        "name": "Multi-line Comment Example",
-        "code": "INICIO\n// This is a comment\nSUBIR 5\n/* Multi-line \n   comment example */\nBAJAR 3\nFIN",
-        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
-    },
-    {
-        "program_id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3g4h5i6j",
-        "name": "Advanced Movement",
-        "code": "INICIO\nSUBIR 10\nBAJAR 5\nFIN",
-        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
-    },
-    {
-        "program_id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3g4h5i6j7k",
-        "name": "Complex Sequence",
-        "code": "INICIO\nSUBIR 2\nPAUSA\nBAJAR 2\nFIN",
-        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
-    },
-    {
-        "program_id": "c3d4e5f6-a7b8-9c0d-1e2f-3g4h5i6j7k8l",
         "name": "Loop Example",
-        "code": "INICIO\nREPITE 3\nSUBIR 1\nBAJAR 1\nFIN",
+        "program_id": "c3d4e5f6-a7b8-9c0d-1e2f-3g4h5i6j7k8l",
+        "code": "INICIO\n    PAUSA 5\n    REPETIR 2\n        SUBIR 1\n        BAJAR 2\n        PAUSA 1\n    FIN_REPETIR\n    ABRIR\n    PAUSA 1\nFIN",
         "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
     },
     {
-        "program_id": "d4e5f6g7-h8i9-0j1k-2l3m-4n5o6p7q8r9s",
+        "name": "Advanced Movement",
+        "program_id": "123e4567-e89b-12d3-a456-426614174000",
+        "code": "INICIO\n    SUBIR 2\n    REPETIR 2\n        BAJAR 1\n        PAUSA 1\n    FIN_REPETIR\n    ABRIR\nFIN",
+        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+        "name": "Complex Sequence",
+        "program_id": "9b2a6e4c-fae1-4b99-87a9-0a1db3f0c59d",
+        "code": "INICIO\n    PAUSA 2\n    SUBIR 1\n    REPETIR 3\n        BAJAR 1\n        ABRIR\n    FIN_REPETIR\n    PAUSA 1\nFIN",
+        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
+    },
+    {
         "name": "Pause and Open",
-        "code": "INICIO\nPAUSA\nABRIR\nFIN",
+        "program_id": "fae1b4c2-7e2d-4b39-a96f-1c5d9e3f2a4b",
+        "code": "INICIO\n    SUBIR 1\n    BAJAR 1\n    SUBIR 1\n    BAJAR 1\n    ABRIR\n    PAUSA 2\nFIN",
         "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
     },
     {
-        "program_id": "e5f6g7h8-i9j0-1k2l-3m4n-5o6p7q8r9s0t",
-        "name": "Close and Move",
-        "code": "INICIO\nCERRAR\nSUBIR 2\nFIN",
-        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
-    },
-    {
-        "program_id": "f6g7h8i9-j0k1-2l3m-4n5o-6p7q8r9s0t1u",
         "name": "Open and Close",
-        "code": "INICIO\nABRIR\nCERRAR\nFIN",
+        "program_id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3g4h5i6j",
+        "code": "INICIO\n    SUBIR 1\n    REPETIR 2\n        PAUSA 1\n        BAJAR 1\n        ABRIR\n    FIN_REPETIR\n    SUBIR 1\nFIN",
+        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+        "name": "Simple Movement",
+        "program_id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3g4h5i6j7k",
+        "code": "INICIO\n    PAUSA 1\n    SUBIR 3\n    BAJAR 2\n    ABRIR\n    PAUSA 2\n    SUBIR 1\nFIN",
+        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+        "name": "Pause and Continue",
+        "program_id": "c3d4e5f6-a7b8-9c0d-1e2f-3g4h5i6j7k8l",
+        "code": "INICIO\n    SUBIR 3\n    SUBIR 3\n    SUBIR 2\n    ABRIR\nFIN",
+        "exercise_id": "550e8400-e29b-41d4-a716-446655440000"
+    },
+    {
+        "name": "Complex Movement",
+        "program_id": "d4e5f6g7-h8i9-0j1k-2l3m-4n5o6p7q8r9s",
+        "code": "INICIO\n    SUBIR 1\n    REPETIR 5\n        BAJAR 1\n    FIN_REPETIR\n    ABRIR\nFIN",
         "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
     },
     {
-        "program_id": "g7h8i9j0-k1l2-3m4n-5o6p-7q8r9s0t1u2v",
-        "name": "Simple Movement",
-        "code": "INICIO\nSUBIR 1\nBAJAR 1\nFIN",
-        "exercise_id": "d3b4e5f6-7a8b-4c9d-8e0f-1a2b3c4d5e6f"
-    },
-    {
-        "program_id": "h8i9j0k1-l2m3-4n5o-6p7q-8r9s0t1u2v3w",
-        "name": "Pause and Continue",
-        "code": "INICIO\nPAUSA\nCONTINUAR\nFIN",
-        "exercise_id": "d3b4e5f6-7a8b-4c9d-8e0f-1a2b3c4d5e6f"
-    },
-    {
-        "program_id": "i9j0k1l2-m3n4-5o6p-7q8r-9s0t1u2v3w4x",
-        "name": "Complex Movement",
-        "code": "INICIO\nSUBIR 3\nPAUSA\nBAJAR 3\nFIN",
-        "exercise_id": "d3b4e5f6-7a8b-4c9d-8e0f-1a2b3c4d5e6f"
-    },
-    {
-        "program_id": "j0k1l2m3-n4o5-6p7q-8r9s-0t1u2v3w4x5y",
         "name": "Open and Pause",
-        "code": "INICIO\nABRIR\nPAUSA\nFIN",
-        "exercise_id": "e4f5g6h7-8i9j-0k1l-2m3n-4o5p6q7r8s9t"
+        "program_id": "e5f6g7h8-i9j0-1k2l-3m4n-5o6p7q8r9s0t",
+        "code": "INICIO\n    SUBIR 2\n    CERRAR\n    PAUSA 1\n    ABRIR\nFIN",
+        "exercise_id": "c2a3c5d1-3b21-4b45-9d8f-2a4b6d9e2e3f"
     },
     {
-        "program_id": "k1l2m3n4-o5p6-7q8r-9s0t-1u2v3w4x5y6z",
         "name": "Close and Pause",
-        "code": "INICIO\nCERRAR\nPAUSA\nFIN",
+        "program_id": "f6g7h8i9-j0k1-2l3m-4n5o-6p7q8r9s0t1u",
+        "code": "INICIO\n    SUBIR 1\n    REPETIR 3\n        BAJAR 1\n        ABRIR\n    SUBIR 1\nFIN",
+        "exercise_id": "d3b4e5f6-7a8b-4c9d-8e0f-1a2b3c4d5e6f"
+    },
+    {
+        "name": "Pause and Close",
+        "program_id": "g7h8i9j0-k1l2-3m4n-5o6p-7q8r9s0t1u2v",
+        "code": "INICIO\n    SUBIR\n    PAUSA 1\n    BAJAR 2\n    ABRIR\nFIN",
+        "exercise_id": "d3b4e5f6-7a8b-4c9d-8e0f-1a2b3c4d5e6f"
+    },
+    {
+        "program_id": "m1n2o3p4-q5r6-7s8t-9u0v-w1x2y3z4a5b6",
+        "name": "Open and Loop",
+        "code": "INICIO\n    ABRIR\n    REPETIR 2\n        PAUSA 1\n        SUBIR 1\n    FIN_REPETIR\n    BAJAR 1\nFIN",
         "exercise_id": "e4f5g6h7-8i9j-0k1l-2m3n-4o5p6q7r8s9t"
     },
     {
-        "program_id": "l2m3n4o5-p6q7-8r9s-0t1u-2v3w4x5y6z7a",
-        "name": "Pause and Close",
-        "code": "INICIO\nPAUSA\nCERRAR\nFIN",
+        "program_id": "n2o3p4q5-r6s7-8t9u-0v1w-x2y3z4a5b6c7",
+        "name": "Pause Spam (Invalid)",
+        "code": "INICIO\n    PAUSA\n    PAUSA\n    PAUSA\n    SUBIR 1\n    BAJAR 1\nFIN",
+        "exercise_id": "e4f5g6h7-8i9j-0k1l-2m3n-4o5p6q7r8s9t"
+    },
+    {
+        "program_id": "o3p4q5r6-s7t8-9u0v-1w2x-y3z4a5b6c7d8",
+        "name": "Zigzag Moves",
+        "code": "INICIO\n    SUBIR 1\n    BAJAR 1\n    SUBIR 2\n    PAUSA 2\n    ABRIR\nFIN",
+        "exercise_id": "6dca7418-6ce0-4587-ba50-0442e870e9aa"
+    },
+    {
+        "program_id": "p4q5r6s7-t8u9-0v1w-2x3y-z4a5b6c7d8e9",
+        "name": "Broken Loop (Invalid)",
+        "code": "INICIO\n    REPETIR 3\n        SUBIR 1\n        BAJAR 1\n    SUBIR 1\nFIN",
         "exercise_id": "6dca7418-6ce0-4587-ba50-0442e870e9aa"
     }
 ]
