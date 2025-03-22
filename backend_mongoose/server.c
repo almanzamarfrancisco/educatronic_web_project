@@ -35,7 +35,10 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             }
             char *exercises_json = get_exercises_json(db);
             char *programs_json = get_programs_json(db);
-            char *json_response = mg_mprintf("{%m:%s, %m:%s}", MG_ESC("programs"), programs_json, MG_ESC("exercises"), exercises_json);
+            char *json_response = mg_mprintf("{%m:%s, %m:%s, %m:%d}",
+                                             MG_ESC("programs"), programs_json,
+                                             MG_ESC("exercises"), exercises_json,
+                                             MG_ESC("currentFloor"), floor);
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
