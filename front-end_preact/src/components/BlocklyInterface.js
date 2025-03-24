@@ -65,6 +65,7 @@ const BlocklyInterface = () => {
         let repeatBlock = null
         let repeatActive = false
         lines.forEach((line, index) => {
+            line = line.trim()
             const parts = line.split(" ")
             const command = parts[0]
             const value = parts[1] ? parseInt(parts[1]) : null

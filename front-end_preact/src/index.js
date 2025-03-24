@@ -213,9 +213,15 @@ const App = () => {
   }
   const compileAndExecuteCode = () => {
     const lexer = new LexicalAnalyzer()
+    setStatusIcon({isOpen: true, status: "loading"})
     const validationResult = lexer.analyze(currentCode)
     setCompileOutput(validationResult)
-    if(validationResult !== `Sintaxis válida.`) return
+    if(validationResult !== `Sintaxis válida.`) {
+      setTimeout(() => {
+        setStatusIcon({isOpen: false, status: "fail"})
+      }, 1000)
+      return
+    }
     console.log(`Request to ${base_url}/api/programs/execute : ${JSON.stringify({code: currentCode, programId: currentProgram.id}, null, 2)}`)
     setStatusIcon({isOpen: true, status: "loading"})
     fetch(`${base_url}/api/programs/execute`, {
