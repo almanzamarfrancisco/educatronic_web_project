@@ -6,10 +6,10 @@ DELETE = rm -rf                  # Command to remove files
 OUT ?= -o $(PROG)                 # Compiler argument for output file
 
 # Source files (modular structure)
-SOURCES = main.c server.c gpio_management.c program_logic.c utils.c mongoose.c database_management.c
+SOURCES = main.c server.c UART_control.c program_logic.c utils.c mongoose.c database_management.c
 
 # Compiler flags
-CFLAGS = -W -Wall -Wextra -g -lwiringPi -pthread -lsqlite3 -lcjson -luuid -I.
+CFLAGS = -W -Wall -Wextra -g -pthread -lsqlite3 -lcjson -luuid -I. # -lwiringPi
 
 # Mongoose build options (for debugging)
 CFLAGS_MONGOOSE += -DMG_ENABLE_LINES

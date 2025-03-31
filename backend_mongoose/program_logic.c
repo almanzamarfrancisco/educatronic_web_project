@@ -6,11 +6,25 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "gpio_management.h"
+#include "UART_control.h"
 
-void openDoor() { printf("\t\t\t🚪 Puerta abierta\n"); }
-void elevatorGoUp() { printf("\t\t\t⬆️ Subiendo un piso\n"); }
-void elevatorGoDown() { printf("\t\t\t⬇️ Bajando un piso\n"); }
+u_char command_to_execute;
+
+void openDoor() {
+    command_to_execute = 4;
+    printf("\t\t\t🚪 Opening door\n");
+    // write(fd_serie, &command_to_execute, 1);
+}
+void elevatorGoUp(int *fd_serie) {
+    command_to_execute = 0x022;
+    printf("\t\t\t⬆️ Going one floor up\n");
+    write(*fd_serie, &command_to_execute, 1);
+}
+void elevatorGoDown(int *fd_serie) {
+    command_to_execute = 0x11;
+    printf("\t\t\t⬇️ Going one floor down\n");
+    write(*fd_serie, &command_to_execute, 1);
+}
 
 CommandDef commandTable[] = {
     {"INICIO", "INICIO", {}, 0, CMD_PROGRAM_START},
@@ -31,7 +45,7 @@ CommandDef *getCommandByToken(const char *token) {
     }
     return NULL;
 }
-CommandDef *getProgramInitializerComand() {
+CommandDef *getProgramInitializerCommand() {
     for (int i = 0; i < commandsCount; i++) {
         if (commandTable[i].role == CMD_PROGRAM_START) {
             return &commandTable[i];
@@ -39,7 +53,7 @@ CommandDef *getProgramInitializerComand() {
     }
     return NULL;
 }
-CommandDef *getProgramFinalizerComand() {
+CommandDef *getProgramFinalizerCommand() {
     for (int i = 0; i < commandsCount; i++) {
         if (commandTable[i].role == CMD_PROGRAM_END) {
             return &commandTable[i];
@@ -54,7 +68,7 @@ int matchRegex(const char *pattern, const char *input) {
     regfree(&regex);
     return result == 0;
 }
-int execute_commands(int floor, char *code, char *error_line) {
+int execute_commands(int floor, char *code, char *error_line, int *file_descriptor_serie) {
     printf("\t[I] Starting program execution... 🚀\n");
     char *lines[MAX_LINES];
     int lineCount = 0;
@@ -66,9 +80,9 @@ int execute_commands(int floor, char *code, char *error_line) {
         lines[lineCount++] = strdup(line);
         line = strtok(NULL, "\n");
     }
-    return execute_block(lines, 1, lineCount - 1, &floor, error_line);
+    return execute_block(lines, 1, lineCount - 1, &floor, error_line, file_descriptor_serie);
 }
-int execute_block(char **lines, int start, int end, int *floor, char *error_line) {
+int execute_block(char **lines, int start, int end, int *floor, char *error_line, int *file_descriptor_serie) {
     for (int i = start; i < end; i++) {
         char lineCopy[MAX_LENGTH];
         strcpy(lineCopy, lines[i]);
@@ -96,7 +110,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                     }
                 }
                 for (int r = 0; r < repeatCount; r++) {
-                    execute_block(lines, loopStart, loopEnd, floor, error_line);
+                    execute_block(lines, loopStart, loopEnd, floor, error_line, file_descriptor_serie);
                 }
                 i = loopEnd;
                 printf("\t\t🔚 Fin del bloque de repetición\n");
@@ -106,7 +120,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                 if (strcmp(cmd->token, "SUBIR") == 0) {
                     int value = atoi(arg);
                     for (int s = 0; s < value; s++) {
-                        elevatorGoUp();
+                        elevatorGoUp(file_descriptor_serie);
                         (*floor)++;
                         if (*floor > 7) {
                             sprintf(error_line, "%d.", i + 1);
@@ -116,7 +130,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                 } else if (strcmp(cmd->token, "BAJAR") == 0) {
                     int value = atoi(arg);
                     for (int s = 0; s < value; s++) {
-                        elevatorGoDown();
+                        elevatorGoDown(file_descriptor_serie);
                         (*floor)--;
                         if (*floor < 1) {
                             sprintf(error_line, "%d.", i + 1);
@@ -148,8 +162,8 @@ char *analyzeScript(const char *script) {
         line = strtok(NULL, "\n");
     }
     if (lineCount < 2) return strdup("Error: El programa debe iniciar con 'INICIO' y terminar con 'FIN'.");
-    CommandDef *initCmd = getProgramInitializerComand();
-    CommandDef *endCmd = getProgramFinalizerComand();
+    CommandDef *initCmd = getProgramInitializerCommand();
+    CommandDef *endCmd = getProgramFinalizerCommand();
     if (strcmp(lines[0], initCmd->command) != 0) {
         char msg[100];
         snprintf(msg, sizeof(msg), "Error: El programa debe iniciar con '%s'.", initCmd->command);
