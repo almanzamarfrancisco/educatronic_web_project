@@ -13,7 +13,12 @@
         "system_error": "c",
         "uuid.h": "c",
         "server.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "string.h": "c",
+        "wiringpi.h": "c",
+        "uart_control.h": "c",
+        "unistd.h": "c",
+        "termios.h": "c"
     },
     "editor.formatOnSave": true,
     "C_Cpp.errorSquiggles": "disabled",

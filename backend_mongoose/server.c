@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 // #include <time.h>
+#include "UART_control.h"
 #include "database_management.h"
 #include "program_logic.h"
 #include "utils.h"
@@ -16,10 +17,11 @@
     "Content-Length: %d\r\n"                                                           \
     "\r\n"
 
-// static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
-static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
+static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
+// static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
-int floor = 0;
+int current_floor = 0;
+int fd_serie = -1;
 
 // Event handler for HTTP requests
 void event_handler(struct mg_connection *c, int ev, void *ev_data) {
@@ -38,7 +40,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             char *json_response = mg_mprintf("{%m:%s, %m:%s, %m:%d}",
                                              MG_ESC("programs"), programs_json,
                                              MG_ESC("exercises"), exercises_json,
-                                             MG_ESC("currentFloor"), floor);
+                                             MG_ESC("currentFloor"), current_floor);
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
@@ -127,22 +129,22 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             free(error);
             // Execute the program
             char error_line[12] = {0};
-            floor = execute_commands(floor, code, error_line);
-            char floor_str[12];
-            sprintf(floor_str, "%d", floor);
-            if (floor < 0 || floor > 7)
+            current_floor = execute_commands(current_floor, code, error_line, &fd_serie);
+            char current_floor_str[12];
+            sprintf(current_floor_str, "%d", current_floor);
+            if (current_floor < 0 || current_floor > 7)
                 printf("\t[I] Elevator out of bounds at line %s.\n", error_line);
             else
-                printf("\t[I] Elevator reached floor %d.\n", floor);
+                printf("\t[I] Elevator reached current_floor %d.\n", current_floor);
             char *json_response = mg_mprintf("{%m:%m, %m:%s}",
-                                             MG_ESC("status"), MG_ESC(floor >= 0 ? "ok" : "error"),
-                                             MG_ESC(floor >= 0 ? "floor" : "line"), floor >= 0 ? floor_str : error_line);
+                                             MG_ESC("status"), MG_ESC(current_floor >= 0 ? "ok" : "error"),
+                                             MG_ESC(current_floor >= 0 ? "current_floor" : "line"), current_floor >= 0 ? current_floor_str : error_line);
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
-            if (floor < 0) floor = 0;
-            if (floor > 7) floor = 7;
-            printf("\t[I] Current floor: %d\n", floor);
+            if (current_floor < 0) current_floor = 0;
+            if (current_floor > 7) current_floor = 7;
+            printf("\t[I] Current current_floor: %d\n", current_floor);
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
@@ -167,6 +169,12 @@ void start_server() {
         return;
     }
     printf("HTTP server initialized on %s\n", s_http_addr);
+    fd_serie = setup_uart();
+    if (fd_serie == -1) {
+        perror("\t[E] Error opening serial port\n");
+        return;
+    }
+    printf("\t[I] Serial opened with descriptor: %d\n", fd_serie);
     for (;;)
         mg_mgr_poll(&mgr, 500);
     mg_mgr_free(&mgr);

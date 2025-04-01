@@ -213,9 +213,15 @@ const App = () => {
   }
   const compileAndExecuteCode = () => {
     const lexer = new LexicalAnalyzer()
+    setStatusIcon({isOpen: true, status: "loading"})
     const validationResult = lexer.analyze(currentCode)
     setCompileOutput(validationResult)
-    if(validationResult !== `Sintaxis válida.`) return
+    if(validationResult !== `Sintaxis válida.`) {
+      setTimeout(() => {
+        setStatusIcon({isOpen: false, status: "fail"})
+      }, 1000)
+      return
+    }
     console.log(`Request to ${base_url}/api/programs/execute : ${JSON.stringify({code: currentCode, programId: currentProgram.id}, null, 2)}`)
     setStatusIcon({isOpen: true, status: "loading"})
     fetch(`${base_url}/api/programs/execute`, {
@@ -325,14 +331,14 @@ const App = () => {
               </div>
               {/* <!-- Tabs --> */}
               <div class="border-b border-gray-300 flex items-center justify-between">
-                <ul class="flex space-x-4 text-sm container overflow-x-auto overflow-y-clip">
+                <ul class="flex space-x-4 text-sm container overflow-x-auto overflow-y-clip" id="tabs">
                   { programFiles && 
                       programFiles.filter(
                         (file) => file.exercise_id === currentExercise.id
                       ).map(
                         (file) => 
                         <li className="min-w-fit">
-                          <a href="#"
+                          <a href="#tabs"
                               onclick={() => handleTabChange(file.id)}
                               class={activeTabFile.id === file.id 
                                   ? 

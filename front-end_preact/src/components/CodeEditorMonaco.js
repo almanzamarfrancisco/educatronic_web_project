@@ -1,8 +1,9 @@
 import { h } from 'preact'
-import { useEffect, useRef, useState } from "preact/hooks";
-import Editor from "@monaco-editor/react";
-import * as monaco from "monaco-editor";
+import { useEffect, useRef, useState } from "preact/hooks"
+import Editor from "@monaco-editor/react"
+import * as monaco from "monaco-editor"
 import useAppStore, { useCurrentCode, useCurrentProgram, useCompileOutput } from '../store'
+import { LexicalAnalyzer } from "../utils/LexicalAnalyzer";
 
 const CodeEditor = () => {
   const editorRef = useRef(null)
@@ -12,6 +13,7 @@ const CodeEditor = () => {
   const currentProgram = useCurrentProgram()
   const compileOutput = useCompileOutput()
   const previousCodeRef = useRef(currentProgram ? currentProgram.content : "")
+  const lexer = new LexicalAnalyzer()
   const validateAutomataSyntax = (editor, monaco) => {
     const model = editor.getModel()
     if (!model) return
@@ -20,53 +22,42 @@ const CodeEditor = () => {
     let markers = []
     let multiLineComment = false
     lines.forEach((line, lineNumber) => {
-      const validKeywords = ["INICIO", "FIN", "SUBIR", "BAJAR", "PAUSA", "ABRIR", "REPETIR", "FIN_REPETIR"]
-      const words = line.split(/\s+/)
       if (line.startsWith("//")) return
       if (line.startsWith("/*")) multiLineComment = true
       if (multiLineComment) return
       if (line.endsWith("*/")) multiLineComment = false
-      words.forEach((word) => {
-        if (!validKeywords.includes(word) && isNaN(word) && !word.startsWith("//") && !word.startsWith("/*")) {
-          markers.push({
-            startLineNumber: lineNumber + 1,
-            startColumn: line.indexOf(word) + 1,
-            endLineNumber: lineNumber + 1,
-            endColumn: line.indexOf(word) + word.length + 1,
-            message: `Error de sintaxis: "${word}" no es un comando válido.`,
-            severity: monaco.MarkerSeverity.Error,
-          })
-        }
+      const [command, arg] = line.trim().split(/\s+/)
+      const cmd = lexer.getCommandByToken(command)
+      if(!cmd) {
+        markers.push({
+          startLineNumber: lineNumber + 1,
+          startColumn: 1,
+          endLineNumber: lineNumber + 1,
+          endColumn: line.length + 1,
+          message: `Error de sintaxis: "${command}" no es un comando válido.`,
+          severity: monaco.MarkerSeverity.Error,
+        })
+        return
+      }
+      const validCommand = lexer.validateLine(cmd, arg, lineNumber + 1)
+      if (validCommand === true) return
+      markers.push({
+        startLineNumber: lineNumber + 1,
+        startColumn: 1,
+        endLineNumber: lineNumber + 1,
+        endColumn: line.length + 1,
+        message: validCommand,
+        severity: monaco.MarkerSeverity.Error,
       })
-      if (/PAUSA\b/.test(line) && !/PAUSA\s+\d+/.test(line)) {
-        markers.push({
-          startLineNumber: lineNumber + 1,
-          startColumn: line.indexOf("PAUSA") + 1,
-          endLineNumber: lineNumber + 1,
-          endColumn: line.indexOf("PAUSA") + "PAUSA".length + 1,
-          message: `"PAUSA" debe tener un número.`,
-          severity: monaco.MarkerSeverity.Error,
-        })
-      }
-      if (/^REPETIR\b/.test(line) && !/^REPETIR\s+\d+/.test(line)) {
-        markers.push({
-          startLineNumber: lineNumber + 1,
-          startColumn: line.indexOf("REPETIR") + 1,
-          endLineNumber: lineNumber + 1,
-          endColumn: line.indexOf("REPETIR") + "REPETIR".length + 1,
-          message: `"REPETIR" debe tener un número.`,
-          severity: monaco.MarkerSeverity.Error,
-        })
-      }
     })
-    monaco.editor.setModelMarkers(model, "owner", markers);
+    monaco.editor.setModelMarkers(model, "owner", markers)
   }
   
   const handleEditorDidMount = (editor, monacoInstance) => {
     editorRef.current = editor
     editor.onDidChangeModelContent(() => {
-      validateAutomataSyntax(editor, monacoInstance);
-    });
+      validateAutomataSyntax(editor, monacoInstance)
+    })
 
     monacoInstance.languages.register({
       id: "automataLang",

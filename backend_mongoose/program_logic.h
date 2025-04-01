@@ -1,8 +1,8 @@
 #ifndef PROGRAM_LOGIC_H
 #define PROGRAM_LOGIC_H
 
-int execute_commands(int floor, char *code, char *error_line);
-int execute_block(char **lines, int start, int end, int *floor, char *error_line);
+int execute_commands(int floor, char *code, char *error_line, int *file_descriptor_serie);
+int execute_block(char **lines, int start, int end, int *floor, char *error_line, int *file_descriptor_serie);
 #define MAX_LINES 100
 #define MAX_LENGTH 50
 #define MAX_PARAMS 3
@@ -26,8 +26,8 @@ typedef struct {
     CommandRole role;
 } CommandDef;
 CommandDef *getCommandByToken(const char *token);
-CommandDef *getProgramInitializerComand();
-CommandDef *getProgramFinalizerComand();
+CommandDef *getProgramInitializerCommand();
+CommandDef *getProgramFinalizerCommand();
 int validateLine(const CommandDef *cmd, char *arg, int lineNumber, char *msg);
 
 #endif  // PROGRAM_LOGIC_H
