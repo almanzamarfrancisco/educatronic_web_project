@@ -17,8 +17,8 @@
     "Content-Length: %d\r\n"                                                           \
     "\r\n"
 
-// static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
-static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
+static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
+// static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
 int current_floor = 0;
 int fd_serie = -1;
@@ -169,10 +169,9 @@ void start_server() {
         return;
     }
     printf("HTTP server initialized on %s\n", s_http_addr);
-    fd_serie = config_serial("/dev/ttyS0", B9600);
+    fd_serie = setup_uart();
     if (fd_serie == -1) {
-        printf("\t[E] Error opening serial port\n");
-        perror("\t[E] Error al abrir el dispositivo serial\n");
+        perror("\t[E] Error opening serial port\n");
         return;
     }
     printf("\t[I] Serial opened with descriptor: %d\n", fd_serie);

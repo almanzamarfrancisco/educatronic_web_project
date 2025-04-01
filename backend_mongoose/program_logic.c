@@ -18,12 +18,12 @@ void openDoor() {
 void elevatorGoUp(int *fd_serie) {
     command_to_execute = 0x022;
     printf("\t\t\t⬆️ Going one floor up\n");
-    write(*fd_serie, &command_to_execute, 1);
+    execute_command(command_to_execute, fd_serie);
 }
 void elevatorGoDown(int *fd_serie) {
     command_to_execute = 0x11;
     printf("\t\t\t⬇️ Going one floor down\n");
-    write(*fd_serie, &command_to_execute, 1);
+    execute_command(command_to_execute, fd_serie);
 }
 
 CommandDef commandTable[] = {
