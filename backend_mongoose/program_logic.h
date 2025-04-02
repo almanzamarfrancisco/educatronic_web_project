@@ -6,6 +6,10 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
 #define MAX_LINES 100
 #define MAX_LENGTH 50
 #define MAX_PARAMS 3
+#define LAST_FLOOR 7
+#define FIRST_FLOOR 1
+#define TIME_LIMIT 9
+#define LOOP_LIMIT 9
 
 extern const int commandsCount;
 
@@ -29,5 +33,5 @@ CommandDef *getCommandByToken(const char *token);
 CommandDef *getProgramInitializerCommand();
 CommandDef *getProgramFinalizerCommand();
 int validateLine(const CommandDef *cmd, char *arg, int lineNumber, char *msg);
-
+void init_patterns();
 #endif  // PROGRAM_LOGIC_H

@@ -12,27 +12,30 @@ u_char command_to_execute;
 
 void openDoor() {
     command_to_execute = 4;
-    printf("\t\t\t🚪 Opening door\n");
+    printf("\t\t🚪 Opening door\n");
     // write(fd_serie, &command_to_execute, 1);
 }
 void elevatorGoUp(int *fd_serie) {
     command_to_execute = 0x022;
-    printf("\t\t\t⬆️ Going one floor up\n");
-    execute_command(command_to_execute, fd_serie);
+    printf("\t\t⬆️ Going one floor up\n");
+    execute_command(&command_to_execute, fd_serie);
 }
 void elevatorGoDown(int *fd_serie) {
     command_to_execute = 0x11;
-    printf("\t\t\t⬇️ Going one floor down\n");
-    execute_command(command_to_execute, fd_serie);
+    printf("\t\t⬇️ Going one floor down\n");
+    execute_command(&command_to_execute, fd_serie);
 }
+char floor_boundaries[20];
+char time_limit[20];
+char loop_limit[20];
 
 CommandDef commandTable[] = {
     {"INICIO", "INICIO", {}, 0, CMD_PROGRAM_START},
-    {"SUBIR", "SUBIR", {"^[1-7]$"}, 1, CMD_REGULAR},
-    {"BAJAR", "BAJAR", {"^[1-7]$"}, 1, CMD_REGULAR},
-    {"PAUSA", "PAUSA", {"^[0-9]+$"}, 1, CMD_REGULAR},
+    {"SUBIR", "SUBIR", {floor_boundaries}, 1, CMD_REGULAR},
+    {"BAJAR", "BAJAR", {floor_boundaries}, 1, CMD_REGULAR},
+    {"PAUSA", "PAUSA", {time_limit}, 1, CMD_REGULAR},
     {"ABRIR", "ABRIR", {}, 0, CMD_REGULAR},
-    {"REPETIR", "REPETIR", {"^[0-9]+$"}, 1, CMD_BLOCK_START},
+    {"REPETIR", "REPETIR", {loop_limit}, 1, CMD_BLOCK_START},
     {"FIN_REPETIR", "FIN_REPETIR", {}, 0, CMD_BLOCK_END},
     {"FIN", "FIN", {}, 0, CMD_PROGRAM_END}};
 const int commandsCount = sizeof(commandTable) / sizeof(commandTable[0]);
@@ -122,7 +125,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                     for (int s = 0; s < value; s++) {
                         elevatorGoUp(file_descriptor_serie);
                         (*floor)++;
-                        if (*floor > 7) {
+                        if (*floor > LAST_FLOOR) {
                             sprintf(error_line, "%d.", i + 1);
                             return -1;
                         }
@@ -132,13 +135,13 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                     for (int s = 0; s < value; s++) {
                         elevatorGoDown(file_descriptor_serie);
                         (*floor)--;
-                        if (*floor < 1) {
+                        if (*floor < FIRST_FLOOR) {
                             sprintf(error_line, "%d.", i + 1);
                             return -1;
                         }
                     }
                 } else if (strcmp(cmd->token, "PAUSA") == 0) {
-                    printf("\t\t\t⏸ Pausa de %s segundos\n", arg);
+                    printf("\t\t⏸ Pausa de %s segundos\n", arg);
                 } else if (strcmp(cmd->token, "ABRIR") == 0) {
                     openDoor();
                 }
@@ -241,6 +244,12 @@ int validateLine(const CommandDef *cmd, char *arg, int lineNumber, char *msg) {
             return 0;
         }
     }
-    printf("\t\t[t]Línea %d válida: %s %s ✅\n", lineNumber, cmd->command, arg ? arg : "");
+    printf("\t\t[t] Línea %d válida: %s %s ✅\n", lineNumber, cmd->command, arg ? arg : "");
     return 1;
+}
+void init_patterns() {
+    snprintf(floor_boundaries, sizeof(floor_boundaries), "^[%d-%d]$", FIRST_FLOOR, LAST_FLOOR);
+    snprintf(time_limit, sizeof(time_limit), "^[%d-%d]$", 0, TIME_LIMIT);
+    snprintf(loop_limit, sizeof(loop_limit), "^[%d-%d]$", 0, LOOP_LIMIT);
+    printf("⠾[I] Patterns initialized: floor_boundaries: %s, time_limit: %s, loop_limit: %s\n", floor_boundaries, time_limit, loop_limit);
 }
