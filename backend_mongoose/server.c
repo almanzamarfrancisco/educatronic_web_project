@@ -48,6 +48,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             free(exercises_json);
             free(programs_json);
             sqlite3_close(db);
+            free(json_response);
         } else if (mg_http_match_uri(hm, "/api/programs/update/*") && mg_vcmp(&hm->method, "PUT") == 0) {
             printf("\t[I] Yes! This is a received PUT request to UPDATE programs\n");
             char id[37] = {0};
@@ -108,6 +109,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
             sqlite3_close(db);
+            free(json_response);
         } else if (mg_http_match_uri(hm, "/api/programs/execute") && mg_vcmp(&hm->method, "POST") == 0) {
             printf("\t[I] Yes! This is a received POST request to EXECUTE programs\n");
             char *code = mg_json_get_str(mg_str(hm->body.ptr), "$.code");
@@ -145,6 +147,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             if (current_floor < 0) current_floor = 0;
             if (current_floor > 7) current_floor = 7;
             printf("\t[I] Current current_floor: %d\n", current_floor);
+            free(json_response);
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
