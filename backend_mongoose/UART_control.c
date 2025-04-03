@@ -44,7 +44,44 @@ int receive_ack(int *fd_serie) {
 
 int execute_command(unsigned char *command, int *fd_serie) {
     write((int)*fd_serie, command, 1);
-    printf("\t\t Command sent: 0x%0X\n", *command);
+    printf("\t\t📫 Command sent: 0x%0X\n", *command);
     receive_ack(fd_serie);
     return 0;
+}
+void elevatorGoUp(unsigned int floors, int *fd_serie) {
+    int actualFloor = floors - 1;
+    unsigned char cmd = (actualFloor << 4) | SUBIR;
+    printf("\t\t⬆️  Going up %u floors...\n", floors);
+    execute_command(&cmd, fd_serie);
+}
+
+void elevatorGoDown(unsigned int floors, int *fd_serie) {
+    int actualFloor = floors - 1;
+    unsigned char cmd = (actualFloor << 4) | BAJAR;
+    printf("\t\t⬇️  Going down %u floors...\n", floors);
+    execute_command(&cmd, fd_serie);
+}
+
+void pause_execution(unsigned int seconds, int *fd_serie) {
+    unsigned char cmd = (seconds << 4) | PAUSAR;
+    printf("\t\t⏸ Pausing execution for %u seconds...\n", seconds);
+    execute_command(&cmd, fd_serie);
+}
+
+void openDoor(int *fd_serie) {
+    unsigned char cmd = ABRIR;
+    printf("\t\t🚪 Opening door...\n");
+    execute_command(&cmd, fd_serie);
+}
+
+void send_start(int *fd_serie) {
+    unsigned char cmd = INICIO;
+    printf("\t\t🟢 Sending START command...\n");
+    execute_command(&cmd, fd_serie);
+}
+
+void send_finish(int *fd_serie) {
+    unsigned char cmd = FIN;
+    printf("\t\t🔴 Sending FINISH command...\n");
+    execute_command(&cmd, fd_serie);
 }

@@ -10,21 +10,6 @@
 
 u_char command_to_execute;
 
-void openDoor() {
-    command_to_execute = 4;
-    printf("\t\t🚪 Opening door\n");
-    // write(fd_serie, &command_to_execute, 1);
-}
-void elevatorGoUp(int *fd_serie) {
-    command_to_execute = 0x022;
-    printf("\t\t⬆️ Going one floor up\n");
-    execute_command(&command_to_execute, fd_serie);
-}
-void elevatorGoDown(int *fd_serie) {
-    command_to_execute = 0x11;
-    printf("\t\t⬇️ Going one floor down\n");
-    execute_command(&command_to_execute, fd_serie);
-}
 char floor_boundaries[20];
 char time_limit[20];
 char loop_limit[20];
@@ -43,6 +28,14 @@ const int commandsCount = sizeof(commandTable) / sizeof(commandTable[0]);
 CommandDef *getCommandByToken(const char *token) {
     for (int i = 0; i < commandsCount; i++) {
         if (strcmp(commandTable[i].token, token) == 0) {
+            return &commandTable[i];
+        }
+    }
+    return NULL;
+}
+CommandDef *getCommandByCommandName(const char *command) {
+    for (int i = 0; i < commandsCount; i++) {
+        if (strcmp(commandTable[i].command, command) == 0) {
             return &commandTable[i];
         }
     }
@@ -83,7 +76,7 @@ int execute_commands(int floor, char *code, char *error_line, int *file_descript
         lines[lineCount++] = strdup(line);
         line = strtok(NULL, "\n");
     }
-    return execute_block(lines, 1, lineCount - 1, &floor, error_line, file_descriptor_serie);
+    return execute_block(lines, 0, lineCount, &floor, error_line, file_descriptor_serie);
 }
 int execute_block(char **lines, int start, int end, int *floor, char *error_line, int *file_descriptor_serie) {
     for (int i = start; i < end; i++) {
@@ -94,7 +87,11 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
         CommandDef *cmd = getCommandByToken(command);
         switch (cmd->role) {
             case CMD_PROGRAM_START:
+                send_start(file_descriptor_serie);
+                break;
             case CMD_PROGRAM_END:
+                send_finish(file_descriptor_serie);
+                break;
             case CMD_BLOCK_END:
                 break;
             case CMD_BLOCK_START: {
@@ -120,35 +117,32 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                 break;
             }
             case CMD_REGULAR: {
-                if (strcmp(cmd->token, "SUBIR") == 0) {
+                if (strcmp(cmd->token, (getCommandByCommandName("SUBIR"))->token) == 0) {
                     int value = atoi(arg);
-                    for (int s = 0; s < value; s++) {
-                        elevatorGoUp(file_descriptor_serie);
-                        (*floor)++;
-                        if (*floor > LAST_FLOOR) {
-                            sprintf(error_line, "%d.", i + 1);
-                            return -1;
-                        }
+                    (*floor) += value;
+                    if (*floor > LAST_FLOOR) {
+                        sprintf(error_line, "%d", i + 1);
+                        return -1;
                     }
-                } else if (strcmp(cmd->token, "BAJAR") == 0) {
+                    elevatorGoUp(value, file_descriptor_serie);
+                } else if (strcmp(cmd->token, (getCommandByCommandName("BAJAR"))->token) == 0) {
                     int value = atoi(arg);
-                    for (int s = 0; s < value; s++) {
-                        elevatorGoDown(file_descriptor_serie);
-                        (*floor)--;
-                        if (*floor < FIRST_FLOOR) {
-                            sprintf(error_line, "%d.", i + 1);
-                            return -1;
-                        }
+                    (*floor) -= value;
+                    if (*floor < FIRST_FLOOR) {
+                        sprintf(error_line, "%d", i + 1);
+                        return -1;
                     }
-                } else if (strcmp(cmd->token, "PAUSA") == 0) {
-                    printf("\t\t⏸ Pausa de %s segundos\n", arg);
-                } else if (strcmp(cmd->token, "ABRIR") == 0) {
-                    openDoor();
+                    elevatorGoDown(value, file_descriptor_serie);
+                } else if (strcmp(cmd->token, (getCommandByCommandName("PAUSA"))->token) == 0) {
+                    pause_execution(atoi(arg), file_descriptor_serie);
+                } else if (strcmp(cmd->token, (getCommandByCommandName("ABRIR"))->token) == 0) {
+                    openDoor(file_descriptor_serie);
                 }
                 break;
             }
         }
     }
+    // delay_ms(1000);
     return *floor;
 }
 
@@ -252,4 +246,9 @@ void init_patterns() {
     snprintf(time_limit, sizeof(time_limit), "^[%d-%d]$", 0, TIME_LIMIT);
     snprintf(loop_limit, sizeof(loop_limit), "^[%d-%d]$", 0, LOOP_LIMIT);
     printf("⠾[I] Patterns initialized: floor_boundaries: %s, time_limit: %s, loop_limit: %s\n", floor_boundaries, time_limit, loop_limit);
+}
+void delay_ms(unsigned int ms) {
+    for (unsigned int j = 0; j < ms; j++) {
+        for (volatile unsigned long i = 0; i < 200000; i++);
+    }
 }

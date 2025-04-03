@@ -17,10 +17,10 @@
     "Content-Length: %d\r\n"                                                           \
     "\r\n"
 
-static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
-// static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
+// static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
+static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
-int current_floor = 0;
+int current_floor = 1;
 int fd_serie = -1;
 
 // Event handler for HTTP requests
@@ -148,6 +148,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             if (current_floor > 7) current_floor = 7;
             printf("\t[I] Current current_floor: %d\n", current_floor);
             free(json_response);
+            current_floor = 1;
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
@@ -172,6 +173,7 @@ void start_server() {
         return;
     }
     printf("HTTP server initialized on %s\n", s_http_addr);
+    init_patterns();
     fd_serie = setup_uart();
     if (fd_serie == -1) {
         perror("\t[E] Error opening serial port\n");

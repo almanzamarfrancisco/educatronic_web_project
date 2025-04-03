@@ -7,7 +7,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
 #define MAX_LENGTH 50
 #define MAX_PARAMS 3
 #define LAST_FLOOR 7
-#define FIRST_FLOOR 1
+#define FIRST_FLOOR 0
 #define TIME_LIMIT 9
 #define LOOP_LIMIT 9
 
@@ -30,8 +30,10 @@ typedef struct {
     CommandRole role;
 } CommandDef;
 CommandDef *getCommandByToken(const char *token);
+CommandDef *getCommandByCommandName(const char *command);
 CommandDef *getProgramInitializerCommand();
 CommandDef *getProgramFinalizerCommand();
 int validateLine(const CommandDef *cmd, char *arg, int lineNumber, char *msg);
 void init_patterns();
+void delay_ms(unsigned int ms);
 #endif  // PROGRAM_LOGIC_H
