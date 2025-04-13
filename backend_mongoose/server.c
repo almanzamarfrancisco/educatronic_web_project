@@ -110,7 +110,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             mg_printf(c, "%s\n", json_response);
             sqlite3_close(db);
             free(json_response);
-        } else if (mg_http_match_uri(hm, "/api/programs/execute") && mg_vcmp(&hm->method, "POST") == 0) {
+        } else if (mg_http_match_uri(hm, "/api/programs/execute") && mg_vcmp(&hm->method, "POST") == 0) { // TODO: Make a fork to execute the program on the background
             printf("\t[I] Yes! This is a received POST request to EXECUTE programs\n");
             char *code = mg_json_get_str(mg_str(hm->body.ptr), "$.code");
             char *program_id = mg_json_get_str(mg_str(hm->body.ptr), "$.programId");

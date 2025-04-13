@@ -35,17 +35,25 @@ int receive_ack(int *fd_serie) {
     unsigned char response[1];
     int bytesRead = read((int)*fd_serie, response, 1);
     if (bytesRead == ACK) {
-        printf("\t\t ✅ Response received: 0x%0X\n", response[0]);
+        printf("\t\t\t✅ Response received: 0x%0X\n", response[0]);
+        exit(0);
     } else {
-        printf("\t\t ❌ No response received\n");
+        printf("\t\t\t❌ No response received\n");
+        exit(1);
     }
-    return 1;
 }
 
 int execute_command(unsigned char *command, int *fd_serie) {
     write((int)*fd_serie, command, 1);
     printf("\t\t📫 Command sent: 0x%0X\n", *command);
-    receive_ack(fd_serie);
+    sleep(5);
+    pid_t pid = fork();
+    if (pid == 0) {
+        printf("\t\t\t[I] Child process %d created to track ACK.\n", pid);
+        receive_ack(fd_serie);
+    } else if (pid < 0) {
+        perror("❌ Fork failed");
+    }
     return 0;
 }
 void elevatorGoUp(unsigned int floors, int *fd_serie) {

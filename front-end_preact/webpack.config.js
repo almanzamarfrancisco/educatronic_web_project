@@ -1,8 +1,13 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const os = require("os");
+const threads = os.cpus().length;
+
 
 module.exports = {
   entry: "./src/index.js",
+  cache: true,
+  mode: "production",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
@@ -12,9 +17,17 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-        },
+        use: [
+          {
+            loader: "babel-loader",
+          },
+          {
+            loader: "thread-loader",
+            options: {
+              workers: threads - 1,
+            },
+          },
+      ],
       },
       {
         test: /\.css$/,

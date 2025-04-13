@@ -14,38 +14,32 @@ const BlocklyInterface = () => {
     const customTheme = Blockly.Theme.defineTheme("customTheme", {
         base: Blockly.Themes.Classic,
         blockStyles: {
-        logic_blocks: { colourPrimary: "#FF6F00" }, // Example: Orange logic blocks
-        loop_blocks: { colourPrimary: "#1E88E5" }, // Example: Blue loop blocks
-        math_blocks: { colourPrimary: "#D81B60" }, // Example: Pink math blocks
-        text_blocks: { colourPrimary: "#43A047" }, // Example: Green text blocks
-        variable_blocks: { colourPrimary: "#E53935" }, // Example: Red variable blocks
+            logic_blocks: { colourPrimary: "#FF6F00", hat: "rounded", }, // Example: Orange logic blocks
+            loop_blocks: { colourPrimary: "#1E88E5" }, // Example: Blue loop blocks
+            math_blocks: { colourPrimary: "#D81B60" }, // Example: Pink math blocks
+            text_blocks: { colourPrimary: "#43A047" }, // Example: Green text blocks
+            variable_blocks: { colourPrimary: "#E53935" }, // Example: Red variable blocks
         },
         categoryStyles: {
-        logic_category: { colour: "#FF6F00" },
-        loop_category: { colour: "#1E88E5" },
-        math_category: { colour: "#D81B60" },
-        text_category: { colour: "#43A047" },
-        variable_category: { colour: "#E53935" },
+            logic_category: { colour: "#FF6F00" },
+            loop_category: { colour: "#1E88E5" },
+            math_category: { colour: "#D81B60" },
+            text_category: { colour: "#43A047" },
+            variable_category: { colour: "#E53935" },
         },
         componentStyles: {
-        workspaceBackgroundColour: "#121212", // Dark mode background
-        toolboxBackgroundColour: "#1E1E1E",
-        toolboxForegroundColour: "#FFFFFF",
-        flyoutBackgroundColour: "#1E1E1E",
-        flyoutForegroundColour: "#FFFFFF",
-        scrollbarColour: "#FF6F00",
+            workspaceBackgroundColour: "#121212", // Dark mode background
+            toolboxBackgroundColour: "#1E1E1E",
+            toolboxForegroundColour: "#FFFFFF",
+            flyoutBackgroundColour: "#1E1E1E",
+            flyoutForegroundColour: "#FFFFFF",
+            scrollbarColour: "#FF6F00",
         },
         fontStyle: {
             family: "Poppins, sans-serif",
             weight: "bold",
             size: 14,
         },
-        blockStyles: {
-            logic_blocks: {
-                colourPrimary: "#FF6F00",
-                hat: "rounded", 
-            }
-        }
     })
     const updateBlocksFromCode = (workspace, code) => {
         workspace.clear()

@@ -14,6 +14,8 @@ char floor_boundaries[20];
 char time_limit[20];
 char loop_limit[20];
 
+// TODO: Make an updater to automatically update the front-end lexic analyzer
+
 CommandDef commandTable[] = {
     {"INICIO", "INICIO", {}, 0, CMD_PROGRAM_START},
     {"SUBIR", "SUBIR", {floor_boundaries}, 1, CMD_REGULAR},
@@ -142,7 +144,6 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
             }
         }
     }
-    // delay_ms(1000);
     return *floor;
 }
 
@@ -246,9 +247,4 @@ void init_patterns() {
     snprintf(time_limit, sizeof(time_limit), "^[%d-%d]$", 0, TIME_LIMIT);
     snprintf(loop_limit, sizeof(loop_limit), "^[%d-%d]$", 0, LOOP_LIMIT);
     printf("⠾[I] Patterns initialized: floor_boundaries: %s, time_limit: %s, loop_limit: %s\n", floor_boundaries, time_limit, loop_limit);
-}
-void delay_ms(unsigned int ms) {
-    for (unsigned int j = 0; j < ms; j++) {
-        for (volatile unsigned long i = 0; i < 200000; i++);
-    }
 }

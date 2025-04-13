@@ -29,6 +29,7 @@ const App = () => {
   const [error, setError] = useState({stateGotten: true, message: "", closeButton: false})
   const [activeTabFile, setActiveTabFile] = useState({})
   const [statusIcon, setStatusIcon] = useState({isOpen: true, status: "neutral"})
+  const [isExecuteDisabled, setExecuteDisabled] = useState(false);
   const toggleVideoVisible = () => setToggleVideoVisible(!isVideoVisible)
   const exercises = useExercises()
   const currentExercise = useCurrentExercise()
@@ -55,7 +56,7 @@ const App = () => {
     fetch(`${base_url}/api/state`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
+        // console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(!data.exercises || !data.exercises.length) {
           setError({stateGotten: false, message: "No se encontraron ejercicios", closeButton: true})
           console.log(`Error: ${JSON.stringify(error)}`)
@@ -89,7 +90,7 @@ const App = () => {
     }
     setActiveTabFile(currentTab)
     setCurrentProgram(currentTab)
-    console.log(currentProgram)
+    // console.log(currentProgram)
   }
   const handleExerciseListChange = (exerciseId) => {
     let currentExercise = exercises.find(exercise => exercise.id === exerciseId)
@@ -212,6 +213,7 @@ const App = () => {
       })
   }
   const compileAndExecuteCode = () => {
+    setExecuteDisabled(true)
     const lexer = new LexicalAnalyzer()
     setStatusIcon({isOpen: true, status: "loading"})
     const validationResult = lexer.analyze(currentCode)
@@ -219,6 +221,7 @@ const App = () => {
     if(validationResult !== `Sintaxis válida.`) {
       setTimeout(() => {
         setStatusIcon({isOpen: false, status: "fail"})
+        setExecuteDisabled(false)
       }, 1000)
       return
     }
@@ -238,17 +241,19 @@ const App = () => {
       .then((res) => res.json())
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
-        if(data.floor && data.status === 'ok'){
-          setCompileOutput(`Ejecución exitosa. Piso actual: ${data.floor}`)
-          setCurrentFloor(data.floor)
+        if(data.current_floor && data.status === 'ok'){
+          setCompileOutput(`Ejecución exitosa. Piso actual: ${data.current_floor}`)
+          setCurrentFloor(data.current_floor)
           setStatusIcon({isOpen: true, status: "success"})
           setTimeout(() => {
             setStatusIcon({isOpen: false, status: "neutral"})
+            setExecuteDisabled(false)
           }, 3000)
         }
         else if (data.status === 'error' && data.line){
           setCompileOutput(`Error en la ejecución, línea: ${data.line}`)
           setStatusIcon({isOpen: true, status: "fail"})
+          setExecuteDisabled(false)
           setTimeout(() => {
             setStatusIcon({isOpen: false, status: "neutral"})
           }, 3000)
@@ -376,8 +381,10 @@ const App = () => {
                 :
                 <CodeEditorMonaco/>}
               <div class="flex space-x-4 mt-4">
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-md"
+                <button
+                  class={`px-4 py-2 bg-blue-500 text-white rounded-md ${isExecuteDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => compileAndExecuteCode()}
+                  disabled={isExecuteDisabled}
                 >
                   Ejecutar
                 </button>

@@ -18,7 +18,8 @@
         "wiringpi.h": "c",
         "uart_control.h": "c",
         "unistd.h": "c",
-        "termios.h": "c"
+        "termios.h": "c",
+        "types.h": "c"
     },
     "editor.formatOnSave": true,
     "C_Cpp.errorSquiggles": "disabled",
