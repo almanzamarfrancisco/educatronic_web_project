@@ -60,8 +60,6 @@ const App = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(file),
-        mode: "no-cors",
       }
     )
       .then((res) => res.json())
