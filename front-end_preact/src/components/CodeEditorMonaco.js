@@ -161,9 +161,9 @@ const CodeEditor = () => {
   }
 
   const themes = [
-    { id: "automataDark", name: "Dark" },
-    { id: "automataLight", name: "Light" },
-    { id: "automataHighContrast", name: "High Contrast" }
+    { id: "automataDark", name: "Oscuro" },
+    { id: "automataLight", name: "Claro" },
+    { id: "automataHighContrast", name: "Alto contraste" }
   ]
   useEffect(() => {
     if (editorRef.current && currentProgram) {
@@ -195,7 +195,7 @@ const CodeEditor = () => {
               monaco.editor.setTheme(id)
             }}
             className={`text-xs font-medium px-2 py-1 rounded-md transition ${
-              theme === id ? "bg-blue-800 text-white me-2 mb-2" : "text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
+              theme === id ? "bg-violet-700 hover:bg-violet-900 text-white me-2 mb-2" : "bg-sky-900 hover:bg-sky-700  text-white me-2 mb-2"
             }`}
           >
             {name}

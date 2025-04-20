@@ -3,7 +3,11 @@ module.exports = {
   purge: ["./src/**/*.{js,jsx,ts,tsx}"],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        nunito: ['Fredoka', 'sans-serif'], // Add Nunito font
+      },
+    },
   },
   variants: {
     extend: {},
