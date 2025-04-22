@@ -245,7 +245,6 @@ const App = () => {
         code: currentCode,
         programId: currentProgram.id
       }),
-      // mode: "no-cors",
     })
       .then((res) => res.json())
       .then((data) => {
@@ -283,18 +282,18 @@ const App = () => {
       :
       <div class="h-screen">
         {/* <!-- Header --> */}
-        <header class="shadow-md py-4 px-6 bg-sky-800">
+        <header class="shadow-md py-4 px-6 bg-sky-800 w-full">
           <div class="flex space-x-4 justify-between items-center">
             <div class="flex-1 items-center space-x-4">
               <div class="flex items-center space-x-2">
-                <img src={designerImage} alt="Logo" class="w-20" />
-                <h1 class="text-5xl flex-1">Educatrónica <p className="text-sm">Aprendiendo a aprender</p></h1>
+                <img src={designerImage} alt="Logo" class="w-20"/>
+                <h1 class="text-5xl flex-1">Educatrónica <p className="text-sm pl-10">Aprendiendo a aprender</p></h1>
                 <div class="flex-1">
                   <div class="flex items-center flex-col sm:flex-row justify-end">
-                    <img src={facebookIcon} class="h-10 w-10 flex-none"
+                    <img src={facebookIcon} class="h-10 w-10 flex-none mx-2"
                             alt="Youtube icon"
                             loading="lazy"/>
-                    <img src={youtubeIcon} class="h-10 w-10 flex-none"
+                    <img src={youtubeIcon} class="h-10 w-10 flex-none mx-2"
                           alt="Youtube icon"
                         loading="lazy"/>
                   </div>
@@ -336,7 +335,7 @@ const App = () => {
                       checked={isBlocklySelected}
                       onChange={(e) => setBlocklySelected(e.target.checked)}
                     />
-                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                    <div class="mx-2 relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
                     <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Modo de bloques</span>
                   </label>
                 </div>
@@ -347,10 +346,10 @@ const App = () => {
                   <p key={index}>{line}<br/></p>
                 )) || <pre>Cuando selecciones un ejercicio aquí se mostrará su contenido</pre> }
                 </div>
-                <div className="flex-row items-center space-x-2 border-l-2 border-gray-300">
+                <div className="flex-row items-center space-x-2 border-l-2 border-gray-300 pl-5">
                   <h1 class="text-xl mx-3 text-center">Piso Actual </h1>
                   <h3
-                    class="text-5xl mx-3 bg-cyan-800 text-center rounded-lg transition transform duration-500 ease-in-out">
+                    class="text-5xl m-2 p-3 bg-cyan-800 text-center rounded-lg transition transform duration-500 ease-in-out">
                       {currentFloor ?? '0'}
                   </h3>
                 </div>
@@ -391,7 +390,7 @@ const App = () => {
                 >
                   Cambiar nombre
                 </button>
-                <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900`}
+                <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-900 dark:focus:ring-red-900`}
                   onclick={() => openDeleteModal(currentProgram)}
                 >
                   <img src={trash} class="h-5 w-5 mx-2 flex-none inline"
@@ -408,13 +407,13 @@ const App = () => {
                 <CodeEditorMonaco/>}
               <div class="flex space-x-4 mt-4">
                 <button
-                  class={`px-4 py-2 bg-blue-500 text-white rounded-md ${isExecuteDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  class={`px-4 py-2 bg-sky-800 hover:bg-sky-900 text-white rounded-md ${isExecuteDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => compileAndExecuteCode()}
                   disabled={isExecuteDisabled}
                 >
                   Ejecutar
                 </button>
-                <button class="px-4 py-2 text-white rounded-md bg-blue-500"
+                <button class="px-4 py-2 text-white rounded-md bg-sky-800 hover:bg-sky-900"
                   onClick={() => saveCurrentFile()}
                 >
                   Guardar
@@ -423,7 +422,7 @@ const App = () => {
                 {
                   !isVideoVisible && (
                     <button
-                      class="px-4 py-2 bg-emerald-900 text-white rounded-md mx-3 hover:bg-emerald-700"
+                      class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
                       onclick={toggleVideoVisible}
                       style="position: absolute;right: 5%;"
                     >
@@ -434,25 +433,37 @@ const App = () => {
               </div>
             </section>
             {/* <!-- Live Video Section --> */}
-            {
-              isVideoVisible && (
-                <section class="lg:w-1/3 sm:w-2/3">
-                  <div class="shadow-md p-4">
-                    <div class="flex justify-center items-center">
-                      <div class="w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
-                      <h2 class="text-2xl mx-5">Video en vivo</h2>
-                      <button
-                        class="px-4 py-2 bg-emerald-900 text-white rounded-md mx-3 hover:bg-emerald-700"
-                        onclick={toggleVideoVisible}
-                      >
-                        Ocultar video
-                      </button>
+            <section class="lg:w-1/3 sm:w-2/3 flex-row h-screen">
+              <div className=" items-center justify-between">
+                <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot? </h1>
+                <p className="py-2">
+                  lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+                </p>
+                <p className="py-2">
+                  lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+                </p>
+                <p className="py-2">
+                  lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+                </p>
+              </div>
+              {
+                isVideoVisible && (
+                    <div class="shadow-md p-4">
+                      <div class="flex justify-center items-center">
+                        <div class="w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
+                        <h2 class="text-2xl mx-5">Video en vivo</h2>
+                        <button
+                          class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
+                          onclick={toggleVideoVisible}
+                        >
+                          Ocultar video
+                        </button>
+                      </div>
+                      <VideoPlayer streamUrl={streamURL}/>
                     </div>
-                    <VideoPlayer streamUrl={streamURL}/>
-                  </div>
-                </section>
-              )
-            }
+                )
+              }
+            </section>
           <RenameFileModal 
             isOpen={isRenameModalOpen}
             onClose={closeRenameModal}
