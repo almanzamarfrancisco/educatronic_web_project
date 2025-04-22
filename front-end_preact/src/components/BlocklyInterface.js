@@ -13,20 +13,6 @@ const BlocklyInterface = () => {
     const previousCodeRef = useRef(currentProgram ? currentProgram.content : "")
     const customTheme = Blockly.Theme.defineTheme("customTheme", {
         base: Blockly.Themes.Classic,
-        blockStyles: {
-            logic_blocks: { colourPrimary: "#FF6F00", hat: "rounded", }, // Example: Orange logic blocks
-            loop_blocks: { colourPrimary: "#1E88E5" }, // Example: Blue loop blocks
-            math_blocks: { colourPrimary: "#D81B60" }, // Example: Pink math blocks
-            text_blocks: { colourPrimary: "#43A047" }, // Example: Green text blocks
-            variable_blocks: { colourPrimary: "#E53935" }, // Example: Red variable blocks
-        },
-        categoryStyles: {
-            logic_category: { colour: "#FF6F00" },
-            loop_category: { colour: "#1E88E5" },
-            math_category: { colour: "#D81B60" },
-            text_category: { colour: "#43A047" },
-            variable_category: { colour: "#E53935" },
-        },
         componentStyles: {
             workspaceBackgroundColour: "#121212", // Dark mode background
             toolboxBackgroundColour: "#1E1E1E",
@@ -36,7 +22,7 @@ const BlocklyInterface = () => {
             scrollbarColour: "#FF6F00",
         },
         fontStyle: {
-            family: "Poppins, sans-serif",
+            family: "Fredoka, sans-serif",
             weight: "bold",
             size: 14,
         },
@@ -108,7 +94,7 @@ const BlocklyInterface = () => {
                 type: "begin",
                 message0: "INICIO",
                 nextStatement: null,
-                colour: 120,
+                colour: '#e9dc3c',
             },
             {
                 type: "up",
@@ -116,7 +102,7 @@ const BlocklyInterface = () => {
                 args0: [{ type: "field_number", name: "FLOORS", value: 1, min: 0, max: 7 }],
                 previousStatement: null,
                 nextStatement: null,
-                colour: 230,
+                colour: '#3464a1',
             },
             {
                 type: "down",
@@ -124,7 +110,7 @@ const BlocklyInterface = () => {
                 args0: [{ type: "field_number", name: "FLOORS", value: 1, min: 0, max: 7 }],
                 previousStatement: null,
                 nextStatement: null,
-                colour: 230,
+                colour: '#1c8c49',
             },
             {
                 type: "wait",
@@ -132,7 +118,7 @@ const BlocklyInterface = () => {
                 args0: [{ type: "field_number", name: "SECONDS", value: 1, min: 0 }],
                 previousStatement: null,
                 nextStatement: null,
-                colour: 60,
+                colour: '#eb8b2c',
             },
             {
                 type: "open",
@@ -145,7 +131,7 @@ const BlocklyInterface = () => {
                 type: "end",
                 message0: "FIN",
                 previousStatement: null,
-                colour: 120,
+                colour: '#d9232a',
             },
             {
                 type: "repeat",
@@ -155,7 +141,7 @@ const BlocklyInterface = () => {
                 args1: [{ type: "input_statement", name: "DO" }],
                 previousStatement: null,
                 nextStatement: null,
-                colour: 300,
+                colour: '#812c7d',
             },
         ])
         const workspace = Blockly.inject("blocklyDiv", {
@@ -211,7 +197,7 @@ const BlocklyInterface = () => {
     }, [currentProgram, setCurrentProgram, setCurrentCode])
     return (
         <div className="flex flex-col items-center w-full">
-            <div id="blocklyDiv" style={{ height: "300px", width: "100%" }} />
+            <div id="blocklyDiv" style={{ height: "500px", width: "100%" }} />
             <div className="flex-col space-x-4 mt-4 p-1 w-full container bg-slate-800">
                 <span>Consola: </span>
                 <pre className="overflow-y-auto block overflow-auto my-5 relative">{ compileOutput }</pre>

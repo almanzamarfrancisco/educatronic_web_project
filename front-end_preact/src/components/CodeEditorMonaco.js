@@ -131,7 +131,7 @@ const CodeEditor = () => {
       base: "vs",
       inherit: true,
       rules: [
-        { token: "keyword", foreground: "D35400", fontStyle: "bold" },
+        { token: "keyword", foreground: "00B2E8", fontStyle: "bold" },
         { token: "number", foreground: "1E88E5", fontStyle: "bold" },
         { token: "comment", foreground: "757575", fontStyle: "italic" }
       ],

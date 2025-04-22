@@ -22,6 +22,7 @@ import designerImage from "./assets/images/designer.svg"
 import facebookIcon from "./assets/images/facebook-icon.png"
 import youtubeIcon from "./assets/images/youtube-icon.png"
 import gears from "./assets/images/gears.png"
+import trash from "./assets/images/trash-can.png"
 import NewFileModal from "./components/NewFileModal"
 import { LexicalAnalyzer } from "./utils/LexicalAnalyzer";
 
@@ -313,7 +314,7 @@ const App = () => {
                 <h2 class="text-4xl mx-3 whitespace-normal">
                   <img src={gears} class="h-10 w-15 mx-2 flex-none inline"
                     alt="Engranes"
-                    loading="lazu"
+                    loading="lazy"
                     display="inline-block"
                   />
                   <span>{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</span>
@@ -367,7 +368,7 @@ const App = () => {
                               onclick={() => handleTabChange(file.id)}
                               class={activeTabFile.id === file.id 
                                   ? 
-                                'text-blue-500 border-b-2 border-blue-500'
+                                'text-violet-500 border-b-2 border-violet-500'
                                 :
                                 'text-gray-200 border-b-2 border-blue-100'}
                           >
@@ -393,7 +394,12 @@ const App = () => {
                 <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-600 dark:focus:ring-red-900`}
                   onclick={() => openDeleteModal(currentProgram)}
                 >
-                  - Borrar archivo
+                  <img src={trash} class="h-5 w-5 mx-2 flex-none inline"
+                    alt="Engranes"
+                    loading="lazy"
+                    display="inline-block"
+                  />
+                  Borrar archivo
                 </button>
               </div>
               {isBlocklySelected ?
