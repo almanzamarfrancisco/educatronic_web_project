@@ -1,0 +1,58 @@
+[
+  {
+    "command": "INICIO",
+    "token": "INICIO",
+    "parameters": [],
+    "param_count": 0,
+    "role": "CMD_PROGRAM_START"
+  },
+  {
+    "command": "SUBIR",
+    "token": "SUBIR",
+    "parameters": ["^[0-7]$"],
+    "param_count": 1,
+    "role": "CMD_REGULAR"
+  },
+  {
+    "command": "BAJAR",
+    "token": "BAJAR",
+    "parameters": ["^[0-7]$"],
+    "param_count": 1,
+    "role": "CMD_REGULAR"
+  },
+  {
+    "command": "PAUSA",
+    "token": "PAUSA",
+    "parameters": ["^[0-9]$"],
+    "param_count": 1,
+    "role": "CMD_REGULAR"
+  },
+  {
+    "command": "ABRIR",
+    "token": "ABRIR",
+    "parameters": [],
+    "param_count": 0,
+    "role": "CMD_REGULAR"
+  },
+  {
+    "command": "REPETIR",
+    "token": "REPETIR",
+    "parameters": ["^[0-9]$"],
+    "param_count": 1,
+    "role": "CMD_BLOCK_START"
+  },
+  {
+    "command": "FIN_REPETIR",
+    "token": "FIN_REPETIR",
+    "parameters": [],
+    "param_count": 0,
+    "role": "CMD_BLOCK_END"
+  },
+  {
+    "command": "FIN",
+    "token": "FIN",
+    "parameters": [],
+    "param_count": 0,
+    "role": "CMD_PROGRAM_END"
+  }
+]
