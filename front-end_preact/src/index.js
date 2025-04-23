@@ -17,7 +17,8 @@ import DeleteFileModal from "./components/DeleteFileModal"
 import StatusIcon from "./components/StatusIcon"
 import BlocklyInterface from "./components/BlocklyInterface"
 import "video.js/dist/video-js.css"
-import styles from "./style/index.css"
+import "./style/tailwind.css";
+import "./style/index.css"
 import designerImage from "./assets/images/designer.svg"
 import facebookIcon from "./assets/images/facebook-icon.png"
 import youtubeIcon from "./assets/images/youtube-icon.png"
@@ -44,10 +45,10 @@ const App = () => {
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
   const { isNewFileModalOpen, openNewFileModal, closeNewFileModal } = useAppStore()
   const currentCode = useCurrentCode()
-  const streamURL = 'https://stream-educatronic.ngrok.app/'
-  // const streamURL = 'http://192.168.1.71:8001'
-  const base_url = 'https://educatronic.ngrok.app'
-  // const base_url = 'http://192.168.1.71:8000'
+  // const streamURL = 'https://stream-educatronic.ngrok.app/'
+  const streamURL = 'http://localhost:8001'
+  // const base_url = 'https://educatronic.ngrok.app'
+  const base_url = 'http://localhost:8000'
   const noExercisesArray = [{
     id: '1234',
     name: "Archivo sin nombre",
@@ -306,164 +307,165 @@ const App = () => {
 
         {/* <!-- Main Content --> */}
         <main class="flex flex-col lg:flex-row items-center min-w-screen">
-            {/* <!-- Programming Section --> */}
-            <section className={`p-6 shadow-md ${isVideoVisible ? 'lg:w-2/3':'w-full'}`}>
-              {/* <!-- InfoBox --> */}
-              <div class="flex items-center justify-between mb-4">
-                <h2 class="text-4xl mx-3 whitespace-normal">
-                  <img src={gears} class="h-10 w-15 mx-2 flex-none inline"
-                    alt="Engranes"
-                    loading="lazy"
-                    display="inline-block"
-                  />
-                  <span>{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</span>
-                </h2>
-                <div class="flex items-center space-x-2">
-                  <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black w-25">
-                    <option disabled>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
-                    { exercises &&
-                        exercises.map((exercise, index) => <option value={exercise.id} selected={!index?'selected':''} > {exercise.name} </option>)
-                    }
-                  </select>
-                </div>
-                <div class="flex items-center space-x-2 whitespace-nowrap mx-3">
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      value=""
-                      class="sr-only peer toggle-checkbox"
-                      checked={isBlocklySelected}
-                      onChange={(e) => setBlocklySelected(e.target.checked)}
-                    />
-                    <div class="mx-2 relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-                    <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Modo de bloques</span>
-                  </label>
-                </div>
-              </div>
-              <div className="space-x-4 mx-3 my-5 flex">
-                <div class="space-x-4 mx-3 my-5 flex-row">
-                { currentExercise && currentExercise.content.split('\n').map((line, index) => (
-                  <p key={index}>{line}<br/></p>
-                )) || <pre>Cuando selecciones un ejercicio aquí se mostrará su contenido</pre> }
-                </div>
-                <div className="flex-row items-center space-x-2 border-l-2 border-gray-300 pl-5">
-                  <h1 class="text-xl mx-3 text-center">Piso Actual </h1>
-                  <h3
-                    class="text-5xl m-2 p-3 bg-cyan-800 text-center rounded-lg transition transform duration-500 ease-in-out">
-                      {currentFloor ?? '0'}
-                  </h3>
-                </div>
-              </div>
-              {/* <!-- Tabs --> */}
-              <div class="border-b border-gray-300 flex items-center justify-between">
-                <ul class="flex space-x-4 text-sm container overflow-x-auto overflow-y-clip" id="tabs">
-                  { programFiles && 
-                      programFiles.filter(
-                        (file) => file.exercise_id === currentExercise.id
-                      ).map(
-                        (file) => 
-                        <li className="min-w-fit">
-                          <a href="#tabs"
-                              onclick={() => handleTabChange(file.id)}
-                              class={activeTabFile.id === file.id 
-                                  ? 
-                                'text-violet-500 border-b-2 border-violet-500'
-                                :
-                                'text-gray-200 border-b-2 border-blue-100'}
-                          >
-                            {file.name}
-                          </a>
-                        </li>
-                      )
+          
+          {/* <!-- Programming Section --> */}
+          <section className={`p-6 shadow-md ${isVideoVisible ? 'lg:w-2/3':'w-full'}`}>
+            {/* <!-- InfoBox --> */}
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-4xl mx-3 whitespace-normal">
+                <img src={gears} class="h-10 w-15 mx-2 flex-none inline"
+                  alt="Engranes"
+                  loading="lazy"
+                  display="inline-block"
+                />
+                <span>{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</span>
+              </h2>
+              <div class="flex items-center space-x-2">
+                <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black w-25">
+                  <option disabled>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
+                  { exercises &&
+                      exercises.map((exercise, index) => <option value={exercise.id} selected={!index?'selected':''} > {exercise.name} </option>)
                   }
-                </ul>
-                <button class="px-4 py-2 bg-violet-700 text-white rounded-md m-3 hover:bg-violet-500"
-                  onclick={() => {openNewFileModal()}}
-                >
-                  (+) Nuevo archivo
-                </button>
+                </select>
               </div>
-              {/* <!-- Code Editor --> */}
-              <div class="flex m-0 p-0 justify-end">
-                <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-1 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-900`}
-                  onclick={() => openRenameModal(currentProgram)}
-                >
-                  Cambiar nombre
-                </button>
-                <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-900 dark:focus:ring-red-900`}
-                  onclick={() => openDeleteModal(currentProgram)}
-                >
-                  <img src={trash} class="h-5 w-5 mx-2 flex-none inline"
-                    alt="Engranes"
-                    loading="lazy"
-                    display="inline-block"
+              <div class="flex items-center space-x-2 whitespace-nowrap mx-3">
+                <label class="inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    value=""
+                    class="sr-only peer toggle-checkbox"
+                    checked={isBlocklySelected}
+                    onChange={(e) => setBlocklySelected(e.target.checked)}
                   />
-                  Borrar archivo
-                </button>
+                  <div class="mx-2 relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                  <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Modo de bloques</span>
+                </label>
               </div>
-              {isBlocklySelected ?
-                <BlocklyInterface/>
-                :
-                <CodeEditorMonaco/>}
-              <div class="flex space-x-4 mt-4">
-                <button
-                  class={`px-4 py-2 bg-sky-800 hover:bg-sky-900 text-white rounded-md ${isExecuteDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={() => compileAndExecuteCode()}
-                  disabled={isExecuteDisabled}
-                >
-                  Ejecutar
-                </button>
-                <button class="px-4 py-2 text-white rounded-md bg-sky-800 hover:bg-sky-900"
-                  onClick={() => saveCurrentFile()}
-                >
-                  Guardar
-                </button>
-                <StatusIcon status={statusIcon.status} size={32} />
-                {
-                  !isVideoVisible && (
-                    <button
-                      class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
-                      onclick={toggleVideoVisible}
-                      style="position: absolute;right: 5%;"
-                    >
-                      Mostrar video
-                    </button>
-                  )
-                }
+            </div>
+            <div className="space-x-4 mx-3 my-5 flex">
+              <div class="space-x-4 mx-3 my-5 flex-row">
+              { currentExercise && currentExercise.content.split('\n').map((line, index) => (
+                <p key={index}>{line}<br/></p>
+              )) || <pre>Cuando selecciones un ejercicio aquí se mostrará su contenido</pre> }
               </div>
-            </section>
-            {/* <!-- Live Video Section --> */}
-            <section class="lg:w-1/3 sm:w-2/3 flex-row h-screen">
-              <div className=" items-center justify-between">
-                <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot? </h1>
-                <p className="py-2">
-                  lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
-                </p>
-                <p className="py-2">
-                  lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
-                </p>
-                <p className="py-2">
-                  lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
-                </p>
+              <div className="flex-row items-center space-x-2 border-l-2 border-gray-300 pl-5">
+                <h1 class="text-xl mx-3 text-center">Piso Actual </h1>
+                <h3
+                  class="text-5xl m-2 p-3 bg-cyan-800 text-center rounded-lg transition transform duration-500 ease-in-out">
+                    {currentFloor ?? '0'}
+                </h3>
               </div>
-              {
-                isVideoVisible && (
-                    <div class="shadow-md p-4">
-                      <div class="flex justify-center items-center">
-                        <div class="w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
-                        <h2 class="text-2xl mx-5">Video en vivo</h2>
-                        <button
-                          class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
-                          onclick={toggleVideoVisible}
+            </div>
+            {/* <!-- Tabs --> */}
+            <div class="border-b border-gray-300 flex items-center justify-between">
+              <ul class="flex space-x-4 text-sm container overflow-x-auto overflow-y-clip" id="tabs">
+                { programFiles && 
+                    programFiles.filter(
+                      (file) => file.exercise_id === currentExercise.id
+                    ).map(
+                      (file) => 
+                      <li className="min-w-fit">
+                        <a href="#tabs"
+                            onclick={() => handleTabChange(file.id)}
+                            class={activeTabFile.id === file.id 
+                                ? 
+                              'text-violet-500 border-b-2 border-violet-500'
+                              :
+                              'text-gray-200 border-b-2 border-blue-100'}
                         >
-                          Ocultar video
-                        </button>
-                      </div>
-                      <VideoPlayer streamUrl={streamURL}/>
-                    </div>
+                          {file.name}
+                        </a>
+                      </li>
+                    )
+                }
+              </ul>
+              <button class="px-4 py-2 bg-violet-700 text-white rounded-md m-3 hover:bg-violet-500"
+                onclick={() => {openNewFileModal()}}
+              >
+                (+) Nuevo archivo
+              </button>
+            </div>
+            {/* <!-- Code Editor --> */}
+            <div class="flex m-0 p-0 justify-end">
+              <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center me-2 mb-1 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-600 dark:focus:ring-blue-900`}
+                onclick={() => openRenameModal(currentProgram)}
+              >
+                Cambiar nombre
+              </button>
+              <button class={`${currentProgram?'visible':'invisible'} px-2 py-1 mt-1 text-xs font-medium text-red-700 hover:text-white border border-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 rounded-lg text-center me-2 mb-1 dark:border-red-500 dark:text-red-500 dark:hover:text-white dark:hover:bg-red-900 dark:focus:ring-red-900`}
+                onclick={() => openDeleteModal(currentProgram)}
+              >
+                <img src={trash} class="h-5 w-5 mx-2 flex-none inline"
+                  alt="Engranes"
+                  loading="lazy"
+                  display="inline-block"
+                />
+                Borrar archivo
+              </button>
+            </div>
+            {isBlocklySelected ?
+              <BlocklyInterface/>
+              :
+              <CodeEditorMonaco/>}
+            <div class="flex space-x-4 mt-4">
+              <button
+                class={`px-4 py-2 bg-sky-800 hover:bg-sky-900 text-white rounded-md ${isExecuteDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                onClick={() => compileAndExecuteCode()}
+                disabled={isExecuteDisabled}
+              >
+                Ejecutar
+              </button>
+              <button class="px-4 py-2 text-white rounded-md bg-sky-800 hover:bg-sky-900"
+                onClick={() => saveCurrentFile()}
+              >
+                Guardar
+              </button>
+              <StatusIcon status={statusIcon.status} size={32} />
+              {
+                !isVideoVisible && (
+                  <button
+                    class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
+                    onclick={toggleVideoVisible}
+                    style="position: absolute;right: 5%;"
+                  >
+                    Mostrar video
+                  </button>
                 )
               }
-            </section>
+            </div>
+          </section>
+          {/* <!-- Live Video Section --> */}
+          <section class="lg:w-1/3 sm:w-2/3 flex-row h-screen">
+            <div className=" items-center justify-between">
+              <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot? </h1>
+              <p className="py-2">
+                lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+              </p>
+              <p className="py-2">
+                lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+              </p>
+              <p className="py-2">
+                lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+              </p>
+            </div>
+            {
+              isVideoVisible && (
+                  <div class="shadow-md p-4">
+                    <div class="flex justify-center items-center">
+                      <div class="w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
+                      <h2 class="text-2xl mx-5">Video en vivo</h2>
+                      <button
+                        class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
+                        onclick={toggleVideoVisible}
+                      >
+                        Ocultar video
+                      </button>
+                    </div>
+                    <VideoPlayer streamUrl={streamURL}/>
+                  </div>
+              )
+            }
+          </section>
           <RenameFileModal 
             isOpen={isRenameModalOpen}
             onClose={closeRenameModal}
@@ -485,7 +487,7 @@ const App = () => {
 
         {/* <!-- Footer --> */}
         <footer class="shadow-md py-5 my-5 text-center text-sm min-w-screen">
-          Pie de Página Copyright Educatrónica - 2025
+          Copyright Educatrónica - 2025
         </footer>
       </div>
   )
