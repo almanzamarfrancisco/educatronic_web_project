@@ -49,6 +49,10 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             free(programs_json);
             sqlite3_close(db);
             free(json_response);
+        } else if (mg_vcmp(&hm->method, "OPTIONS") == 0){
+            printf("\t[I] Received OPTIONS request\n");
+            printf("\tEndpoint: %s\n", hm->uri.ptr);
+            mg_http_reply(c, 200, CORS_HEADERS, "{\"status\":\"ok\"}");
         } else if (mg_http_match_uri(hm, "/api/programs/update/*") && mg_vcmp(&hm->method, "PUT") == 0) {
             printf("\t[I] Yes! This is a received PUT request to UPDATE programs\n");
             char id[37] = {0};
