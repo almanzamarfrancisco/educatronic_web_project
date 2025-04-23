@@ -45,10 +45,10 @@ const App = () => {
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
   const { isNewFileModalOpen, openNewFileModal, closeNewFileModal } = useAppStore()
   const currentCode = useCurrentCode()
-  // const streamURL = 'https://stream-educatronic.ngrok.app/'
-  const streamURL = 'http://localhost:8001'
-  // const base_url = 'https://educatronic.ngrok.app'
-  const base_url = 'http://localhost:8000'
+  const streamURL = 'https://stream-educatronic.ngrok.app/'
+  // const streamURL = 'http://localhost:8001'
+  const base_url = 'https://educatronic.ngrok.app'
+  // const base_url = 'http://localhost:8000'
   const noExercisesArray = [{
     id: '1234',
     name: "Archivo sin nombre",
@@ -288,7 +288,7 @@ const App = () => {
             <div class="flex-1 items-center space-x-4">
               <div class="flex items-center space-x-2">
                 <img src={designerImage} alt="Logo" class="w-20"/>
-                <h1 class="text-5xl flex-1">Educatrónica <p className="text-sm pl-10">Aprendiendo a aprender</p></h1>
+                <h1 class="text-5xl flex-1 font-semibold">Educatrónica <p className="text-sm pl-10">Aprendiendo a aprender</p></h1>
                 <div class="flex-1">
                   <div class="flex items-center flex-col sm:flex-row justify-end">
                     <img src={facebookIcon} class="h-10 w-10 flex-none mx-2"
