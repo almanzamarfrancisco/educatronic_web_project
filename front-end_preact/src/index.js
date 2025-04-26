@@ -81,11 +81,11 @@ const App = () => {
       })
       .catch((err) => {
         console.error(err)
-        setError({
+        /* setError({
           stateGotten: false,
           message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
           closeButton: false
-        })
+        }) */
       })
   }, [ setExercises, setProgramFiles, setError ])
   const onCloseErrorScreen = () => {
@@ -358,16 +358,31 @@ const App = () => {
                 </div>
               </div>
             </div>
-            <div className="m-5 lg:w-1/3">
+            <div className="m-5 p-5 lg:w-1/3 bg-cyan-900 border-2 border-gray-300 rounded-lg shadow-md">
               <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot? </h1>
               <p className="py-2">
-                lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+                Tienes 2 opciones para programar el robot:
+                <ul className="list-disc list-inside">
+                  <li> Usar el editor de bloques</li>
+                  <li> Usar el editor de texto</li>
+                </ul>
+                 puedes cambiar entre ambos haciendo click en el switch de "Modo de bloques"
               </p>
               <p className="py-2">
-                lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+                La sintaxis de los comandos es la siguiente (siempre en mayúsculas):
+                <ul className="list-disc list-inside">
+                  <li> INICIO         → Para iniciar el programa</li>
+                  <li> FIN            → Para finalizar el programa</li>
+                  <li> SUBIR [número] → para subir la cantidad de pisos especificada en el número</li>
+                  <li> BAJAR [número] → para bajar la cantidad de pisos especificada en el número</li>
+                </ul>
               </p>
               <p className="py-2">
-                lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, voluptatibus.
+                Haz clic en el botón "Guardar" sólo para guardar tu archivo y no perderlo.
+                <br/>
+                Haz clic en el botón "Ejecutar" para compilar y ejecutar tu código.
+                <br/>
+                Si el código tiene errores de sintaxis, se mostrarán en la consola de salida, ubicada en la parte inferior de la pantalla.
               </p>
             </div>
           </section> 
