@@ -6,7 +6,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
 #define MAX_LINES 100
 #define MAX_LENGTH 50
 #define MAX_PARAMS 3
-#define LAST_FLOOR 7
+#define LAST_FLOOR 6
 #define FIRST_FLOOR 0
 #define TIME_LIMIT 9
 #define LOOP_LIMIT 9

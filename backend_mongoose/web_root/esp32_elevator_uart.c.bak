@@ -1,0 +1,162 @@
+#include <Arduino.h>
+
+constexpr uint8_t GO_DOWN_PIN = 22;
+constexpr uint8_t GO_UP_PIN = 23;
+// constexpr uint8_t  DOOR_PIN    = 24;
+constexpr uint8_t SENSOR_PINS[] = {33, 32, 35, 34, 18, 4, 21};
+
+enum : uint8_t {
+    CMD_DOWN = 0x01,
+    CMD_UP = 0x02,
+    CMD_PAUSE = 0x03,
+    CMD_OPEN = 0x04,
+    CMD_START = 0x0C,
+    CMD_END = 0x0F,
+    CMD_ACK = 0xAA
+};
+constexpr int LAST_FLOOR = 6;
+constexpr int FIRST_FLOOR = 0;
+int currentFloor = 0;
+int sensor_number = sizeof(SENSOR_PINS) / sizeof(SENSOR_PINS[0]);
+
+void goUp(int floors) {
+    int target = min(currentFloor + floors, LAST_FLOOR);
+    Serial.printf("⬆️ Moving up to floor %d\n", target);
+    digitalWrite(GO_DOWN_PIN, LOW);
+    digitalWrite(GO_UP_PIN, HIGH);
+    u_char designedTruableValue = LOW;
+    if (target == 5) designedTruableValue = HIGH;
+    // else designedTruableValue = HIGH;
+    while (digitalRead(SENSOR_PINS[target]) == designedTruableValue) {
+        u_char truableValue = HIGH;
+        for (int i = 0; i < sensor_number; i++) {
+            Serial.printf("Piso %d: ", i);
+            if (i == 5)
+                truableValue = LOW;
+            else
+                truableValue = HIGH;
+            Serial.print(digitalRead(SENSOR_PINS[i]) == truableValue ? "O" : "X");
+            Serial.print("\t");
+            if (i == sizeof(SENSOR_PINS) / sizeof(SENSOR_PINS[0]) - 1) {
+                Serial.println("");
+            }
+        }
+        delay(50);
+    }
+    digitalWrite(GO_UP_PIN, LOW);
+    currentFloor = target;
+    Serial.printf("   Arrived at floor %d\n", currentFloor);
+    delay(50);  // debounce
+}
+
+void goDown(int floors) {
+    int target = max(currentFloor - floors, FIRST_FLOOR);
+    Serial.printf("⬇️ Moving down to floor %d\n", target);
+    digitalWrite(GO_UP_PIN, LOW);
+    digitalWrite(GO_DOWN_PIN, HIGH);
+    u_char designedTruableValue = LOW;
+    if (target == 5) designedTruableValue = HIGH;
+    while (digitalRead(SENSOR_PINS[target]) == designedTruableValue) {
+        u_char truableValue = HIGH;
+        for (int i = 0; i < sensor_number; i++) {
+            Serial.printf("Piso %d: ", i);
+            if (i == 5)
+                truableValue = LOW;
+            else
+                truableValue = HIGH;
+            Serial.print(digitalRead(SENSOR_PINS[i]) == truableValue ? "O" : "X");
+            Serial.print("\t");
+            if (i == sizeof(SENSOR_PINS) / sizeof(SENSOR_PINS[0]) - 1) {
+                Serial.println("");
+            }
+        }
+    }
+    digitalWrite(GO_DOWN_PIN, LOW);
+    currentFloor = target;
+    Serial.printf("   Arrived at floor %d\n", currentFloor);
+    delay(50);  // debounce
+}
+
+void goOpen(int seconds) {
+    Serial.printf("🚪 Opening doors for %d s at floor %d\n", seconds, currentFloor);
+    // digitalWrite(DOOR_PIN, HIGH);
+    delay(seconds * 1000);
+    // digitalWrite(DOOR_PIN, LOW);
+    Serial.printf("🚪 Doors closed at floor %d\n", currentFloor);
+}
+
+void goHome() {
+    if (currentFloor > 0) goDown(currentFloor);
+    if (currentFloor == 0 && digitalRead(SENSOR_PINS[0]) == HIGH)
+        Serial.println("🏠 Elevator is at home (floor 0)");
+    else
+        printf("🔴 Error: currentFloor is %d, not 0, Something bad happened x(\n", currentFloor);
+}
+
+void processCommand(uint8_t raw) {
+    uint8_t param = (raw & 0xF0) >> 4;
+    uint8_t cmd = (raw & 0x0F);
+    int delayTime = 0;
+    if (raw == 0xAA) return;
+
+    Serial.printf("📩 Received: 0x%02X | CMD: %d | PARAM: %d\n", raw, cmd, param);
+
+    switch (cmd) {
+        case CMD_UP:
+            goUp(param);
+            delayTime = 0;
+            break;
+        case CMD_DOWN:
+            goDown(param);
+            delayTime = 0;
+            break;
+        case CMD_PAUSE:
+            Serial.printf("⏸️ Pausing for %d s at floor %d\n", param, currentFloor);
+            delay(param * 1000);
+            delayTime = 0;
+            break;
+        case CMD_OPEN:
+            goOpen(param);
+            delayTime = 2000;
+            break;
+        case CMD_START:
+            Serial.println("🚀 Execution started (verifying currentFloor is 0)...");
+            goHome();
+            delayTime = 1000;
+            break;
+        case CMD_END:
+            Serial.println("🏁 Execution ended (floor reset to 0)");
+            delay(5000);
+            goHome();
+            break;
+        default:
+            Serial.printf("❓ Unknown CMD: %d\n", cmd);
+            return;
+    }
+    delay(delayTime);
+    Serial2.write(CMD_ACK);
+    Serial.printf("✅ ACK sent for CMD %d\n", cmd);
+
+    while (Serial2.available()) Serial2.read();
+
+    Serial.println("-----------------------------");
+}
+
+void setup() {
+    Serial.begin(9600);
+    Serial2.begin(9600);
+
+    pinMode(GO_DOWN_PIN, OUTPUT);
+    pinMode(GO_UP_PIN, OUTPUT);
+    // pinMode(DOOR_PIN,    OUTPUT);
+    for (int i = 0; i < sensor_number; i++) {
+        pinMode(SENSOR_PINS[i], INPUT_PULLUP);
+    }
+    Serial.println("🔧 Elevator slave ready.");
+}
+
+void loop() {
+    if (Serial2.available()) {
+        processCommand(Serial2.read());
+    }
+}

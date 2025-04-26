@@ -7,4 +7,6 @@
 void event_handler(struct mg_connection *c, int ev, void *ev_data);
 void start_server();
 
-#endif // SERVER_H
+#define UART_PORT "/dev/ttyS0"
+
+#endif  // SERVER_H

@@ -49,7 +49,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             free(programs_json);
             sqlite3_close(db);
             free(json_response);
-        } else if (mg_vcmp(&hm->method, "OPTIONS") == 0){
+        } else if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
             printf("\t[I] Received OPTIONS request\n");
             printf("\tEndpoint: %s\n", hm->uri.ptr);
             mg_http_reply(c, 200, CORS_HEADERS, "{\"status\":\"ok\"}");
@@ -114,7 +114,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             mg_printf(c, "%s\n", json_response);
             sqlite3_close(db);
             free(json_response);
-        } else if (mg_http_match_uri(hm, "/api/programs/execute") && mg_vcmp(&hm->method, "POST") == 0) { // TODO: Make a fork to execute the program on the background
+        } else if (mg_http_match_uri(hm, "/api/programs/execute") && mg_vcmp(&hm->method, "POST") == 0) {  // TODO: Make a fork to execute the program on the background
             printf("\t[I] Yes! This is a received POST request to EXECUTE programs\n");
             char *code = mg_json_get_str(mg_str(hm->body.ptr), "$.code");
             char *program_id = mg_json_get_str(mg_str(hm->body.ptr), "$.programId");
@@ -178,7 +178,7 @@ void start_server() {
     }
     printf("HTTP server initialized on %s\n", s_http_addr);
     init_patterns();
-    fd_serie = setup_uart();
+    fd_serie = setup_uart(UART_PORT);
     if (fd_serie == -1) {
         perror("\t[E] Error opening serial port\n");
         return;
