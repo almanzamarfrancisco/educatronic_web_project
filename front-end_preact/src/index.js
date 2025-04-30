@@ -33,6 +33,7 @@ const App = () => {
   const [activeTabFile, setActiveTabFile] = useState({})
   const [statusIcon, setStatusIcon] = useState({isOpen: true, status: "neutral"})
   const [isExecuteDisabled, setExecuteDisabled] = useState(false);
+  const [infoBoxExpanded, setinfoBoxExpanded] = useState(false);
   const toggleVideoVisible = () => setToggleVideoVisible(!isVideoVisible)
   const exercises = useExercises()
   const currentExercise = useCurrentExercise()
@@ -81,11 +82,11 @@ const App = () => {
       })
       .catch((err) => {
         console.error(err)
-        /* setError({
+        setError({
           stateGotten: false,
           message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
           closeButton: false
-        }) */
+        })
       })
   }, [ setExercises, setProgramFiles, setError ])
   const onCloseErrorScreen = () => {
@@ -251,7 +252,7 @@ const App = () => {
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(data.current_floor && data.status === 'ok'){
-          setCompileOutput(`Ejecución exitosa. Piso actual: ${data.current_floor}`)
+          setCompileOutput(`Ejecución exitosa. Piso final: ${data.current_floor}`)
           setCurrentFloor(data.current_floor)
           setStatusIcon({isOpen: true, status: "success"})
           setTimeout(() => {
@@ -349,41 +350,49 @@ const App = () => {
                   <p key={index}>{line}<br/></p>
                 )) || <pre>Cuando selecciones un ejercicio aquí se mostrará su contenido</pre> }
                 </div>
-                <div className="flex-row items-center space-x-2 border-l-2 border-gray-300 pl-5">
+                {/* <div className="flex-row items-center space-x-2 border-l-2 border-gray-300 pl-5">
                   <h1 class="text-xl mx-3 text-center">Piso Actual </h1>
                   <h3
                     class="text-5xl m-2 p-3 bg-cyan-800 text-center rounded-lg transition transform duration-500 ease-in-out">
                       {currentFloor ?? '0'}
                   </h3>
-                </div>
+                </div> */}
               </div>
             </div>
             <div className="m-5 p-5 lg:w-1/3 bg-cyan-900 border-2 border-gray-300 rounded-lg shadow-md">
-              <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot? </h1>
+              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${infoBoxExpanded ? 'max-h-[2000px]' : 'max-h-[225px]'}`}> 
+              <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot?</h1>
               <p className="py-2">
                 Tienes 2 opciones para programar el robot:
                 <ul className="list-disc list-inside">
-                  <li> Usar el editor de bloques</li>
-                  <li> Usar el editor de texto</li>
+                  <li>Usar el editor de bloques</li>
+                  <li>Usar el editor de texto</li>
                 </ul>
-                 puedes cambiar entre ambos haciendo click en el switch de "Modo de bloques"
+                puedes cambiar entre ambos haciendo click en el switch de "Modo de bloques"
               </p>
               <p className="py-2">
                 La sintaxis de los comandos es la siguiente (siempre en mayúsculas):
                 <ul className="list-disc list-inside">
-                  <li> INICIO         → Para iniciar el programa</li>
-                  <li> FIN            → Para finalizar el programa</li>
-                  <li> SUBIR [número] → para subir la cantidad de pisos especificada en el número</li>
-                  <li> BAJAR [número] → para bajar la cantidad de pisos especificada en el número</li>
+                  <li>INICIO → Para iniciar el programa</li>
+                  <li>FIN → Para finalizar el programa</li>
+                  <li>SUBIR [número] → para subir la cantidad de pisos especificada en el número</li>
+                  <li>BAJAR [número] → para bajar la cantidad de pisos especificada en el número</li>
                 </ul>
               </p>
               <p className="py-2">
                 Haz clic en el botón "Guardar" sólo para guardar tu archivo y no perderlo.
-                <br/>
+                <br />
                 Haz clic en el botón "Ejecutar" para compilar y ejecutar tu código.
-                <br/>
+                <br />
                 Si el código tiene errores de sintaxis, se mostrarán en la consola de salida, ubicada en la parte inferior de la pantalla.
               </p>
+              </div>
+              <button
+                onClick={() => setinfoBoxExpanded(!infoBoxExpanded)}
+                className="text-xs self-center px-4 py-2 bg-violet-800 hover:bg-violet-900 text-white rounded hover:bg-blue-600 transition-colors duration-300"
+              >
+              {infoBoxExpanded ? 'Mostrar menos' : 'Mostrar más'}
+              </button>
             </div>
           </section> 
           <section className="flex flex-row w-full"> {/* Bottom section */}
