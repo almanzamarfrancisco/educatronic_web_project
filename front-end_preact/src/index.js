@@ -377,6 +377,8 @@ const App = () => {
                   <li>FIN → Para finalizar el programa</li>
                   <li>SUBIR [número] → para subir la cantidad de pisos especificada en el número</li>
                   <li>BAJAR [número] → para bajar la cantidad de pisos especificada en el número</li>
+                  <li>PAUSA [número] → para hacer una pausa en la ejecución en segundos</li>
+                  <li>ABRIR para abrir o cerrar las puertas</li>
                 </ul>
               </p>
               <p className="py-2">
