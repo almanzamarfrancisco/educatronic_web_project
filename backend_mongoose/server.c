@@ -20,7 +20,7 @@
 // static const char *s_http_addr = "http://192.168.1.71:8000";  // Developing HTTP port
 static const char *s_http_addr = "http://localhost:8000";  // Ngrok HTTP port
 static const char *s_root_dir = "web_root";
-int current_floor = 1;
+int current_floor = 0;
 int fd_serie = -1;
 
 // Event handler for HTTP requests
@@ -135,9 +135,10 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             free(error);
             // Execute the program
             char error_line[12] = {0};
+            // current_floor = 0;
             current_floor = execute_commands(current_floor, code, error_line, &fd_serie);
             char current_floor_str[12];
-            sprintf(current_floor_str, "%d", current_floor);
+            sprintf(current_floor_str, "%d", current_floor + 1);
             if (current_floor < 0 || current_floor > 7)
                 printf("\t[I] Elevator out of bounds at line %s.\n", error_line);
             else
@@ -152,7 +153,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             if (current_floor > 7) current_floor = 7;
             printf("\t[I] Current current_floor: %d\n", current_floor);
             free(json_response);
-            current_floor = 1;
+            current_floor = 0;
         } else {
             struct mg_http_serve_opts opts = {.root_dir = s_root_dir};
             mg_http_serve_dir(c, ev_data, &opts);
