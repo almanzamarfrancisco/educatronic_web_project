@@ -52,7 +52,14 @@ const CodeEditor = () => {
     })
     monaco.editor.setModelMarkers(model, "owner", markers)
   }
-  
+  const options = {
+    scrollBeyondLastLine: false,
+    scrollbar: {
+      vertical: 'auto',
+    },
+    wordWrap: "on",
+    minimap: { enabled: false }
+  }
   const handleEditorDidMount = (editor, monacoInstance) => {
     editorRef.current = editor
     editor.onDidChangeModelContent(() => {
@@ -205,18 +212,24 @@ const CodeEditor = () => {
 
       {/* Monaco Editor */}
       <Editor
-        height="300px"
+        height="400px"
         defaultLanguage="automataLang"
         theme={theme}
         defaultValue={currentProgram ? currentProgram.content : `// Escribe tu código aquí o selecciona un archivo para editarlo`}
         onMount={handleEditorDidMount}
         className="w-full"
         onChange={(code) => updateCode(code)}
+        options={options}
       />
       {/* Output section */}
-      <div className="flex-col space-x-4 mt-4 p-1 w-full container bg-slate-800">
+      <div className="flex-col space-x-4 mt-4 py-1 px-5 w-full bg-slate-800 h-min-10">
         <span>Consola: </span>
-        <pre className="overflow-y-auto block overflow-auto my-5 relative">{ compileOutput }</pre>
+        <p
+        className="my-3 py-5 text-base"
+        style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }} 
+        >
+          { compileOutput }
+        </p>
       </div>
     </div>
   )
