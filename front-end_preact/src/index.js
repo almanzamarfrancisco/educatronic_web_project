@@ -7,6 +7,7 @@ import {
   useCurrentCode,
   useIsBlocklySelected,
   useCurrentFloor,
+  useInfoBoxExpanded,
 } from './store'
 import useAppStore from './store'
 import VideoPlayer from "./components/VideoPlayer"
@@ -16,6 +17,7 @@ import RenameFileModal from "./components/RenameFileModal"
 import DeleteFileModal from "./components/DeleteFileModal"
 import StatusIcon from "./components/StatusIcon"
 import BlocklyInterface from "./components/BlocklyInterface"
+import InfoBox from "./components/InfoBox"
 import "video.js/dist/video-js.css"
 import "./style/tailwind.css";
 import "./style/index.css"
@@ -39,6 +41,7 @@ const App = () => {
   const currentExercise = useCurrentExercise()
   const programFiles = useProgramFiles()
   const currentFloor = useCurrentFloor()
+  const isInfoBoxExpanded = useInfoBoxExpanded()
   const isBlocklySelected = useIsBlocklySelected()
   const { setProgramFiles, setCurrentProgram, currentProgram, setCompileOutput, setBlocklySelected, setCurrentFloor } = useAppStore()
   const { setExercises, setCurrentExercise } = useAppStore()
@@ -282,9 +285,9 @@ const App = () => {
     !error.stateGotten ?
       <ErrorModal message={error.message} closeButton={error.closeButton} onClose={() => {onCloseErrorScreen()}} />
       :
-      <div class="h-screen w-full flex flex-col items-center">
+      <div class="h-screen w-full overflow-x-hidden flex flex-col items-center">
         {/* <!-- Header --> */}
-        <header class="shadow-md py-4 px-6 bg-sky-800 w-full">
+        <header class="shadow-md py-4 px-6 bg-sky-800 w-full m-0">
           <div class="flex space-x-4 justify-between items-center">
             <div class="flex-1 items-center space-x-4">
               <div class="flex items-center space-x-2">
@@ -307,12 +310,12 @@ const App = () => {
         </header>
 
         {/* <!-- Main Content --> */}
-        <main class="flex flex-col items-center min-w-screen">
-          <section className="flex flex-row w-full"> {/* Top section */}
+        <main class="flex flex-col items-center w-full">
+          <section className="flex sm:flex-col-reverse sm:flex lg:flex-row w-full mt-5"> {/* Top section */}
             {/* Exercises */}
-            <div className="m-5 lg:w-2/3">
+            <div className="m-5 lg:w-1/2 sm:w-full sm:m-auto">
               {/* Excercise header */}
-              <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center justify-start mb-4">
                 <h2 class="text-4xl mx-3 whitespace-normal">
                   <img src={gears} class="h-10 w-15 mx-2 flex-none inline"
                     alt="Engranes"
@@ -321,26 +324,13 @@ const App = () => {
                   />
                   <span>{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</span>
                 </h2>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 ml-10">
                   <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black w-25">
                     <option disabled>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
                     { exercises &&
                         exercises.map((exercise, index) => <option value={exercise.id} selected={!index?'selected':''} > {exercise.name} </option>)
                     }
                   </select>
-                </div>
-                <div class="flex items-center space-x-2 whitespace-nowrap mx-3">
-                  <label class="inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      value=""
-                      class="sr-only peer toggle-checkbox"
-                      checked={isBlocklySelected}
-                      onChange={(e) => setBlocklySelected(e.target.checked)}
-                    />
-                    <div class="mx-2 relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-                    <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Modo de bloques</span>
-                  </label>
                 </div>
               </div>
               {/* Excercise description */}
@@ -358,48 +348,29 @@ const App = () => {
                   </h3>
                 </div> */}
               </div>
+              {/* Blockly switch */}
+              <div class={`flex items-center space-x-2 whitespace-nowrap mx-3 w-full ${isInfoBoxExpanded?'items-end h-full':''}`}>
+                  <label class="inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer toggle-checkbox"
+                      checked={isBlocklySelected}
+                      onChange={(e) => setBlocklySelected(e.target.checked)}
+                    />
+                    <div class="mx-2 relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                    <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Modo de bloques</span>
+                  </label>
+                </div> 
             </div>
-            <div className="m-5 p-5 lg:w-1/3 bg-cyan-900 border-2 border-gray-300 rounded-lg shadow-md">
-              <div className={`overflow-hidden transition-all duration-500 ease-in-out ${infoBoxExpanded ? 'max-h-[2000px]' : 'max-h-[225px]'}`}> 
-              <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot?</h1>
-              <p className="py-2">
-                Tienes 2 opciones para programar el robot:
-                <ul className="list-disc list-inside">
-                  <li>Usar el editor de bloques</li>
-                  <li>Usar el editor de texto</li>
-                </ul>
-                puedes cambiar entre ambos haciendo click en el switch de "Modo de bloques"
-              </p>
-              <p className="py-2">
-                La sintaxis de los comandos es la siguiente (siempre en mayúsculas):
-                <ul className="list-disc list-inside">
-                  <li>INICIO → Para iniciar el programa</li>
-                  <li>FIN → Para finalizar el programa</li>
-                  <li>SUBIR [número] → para subir la cantidad de pisos especificada en el número</li>
-                  <li>BAJAR [número] → para bajar la cantidad de pisos especificada en el número</li>
-                  <li>PAUSA [número] → para hacer una pausa en la ejecución en segundos</li>
-                  <li>ABRIR para abrir o cerrar las puertas</li>
-                </ul>
-              </p>
-              <p className="py-2">
-                Haz clic en el botón "Guardar" sólo para guardar tu archivo y no perderlo.
-                <br />
-                Haz clic en el botón "Ejecutar" para compilar y ejecutar tu código.
-                <br />
-                Si el código tiene errores de sintaxis, se mostrarán en la consola de salida, ubicada en la parte inferior de la pantalla.
-              </p>
-              </div>
-              <button
-                onClick={() => setinfoBoxExpanded(!infoBoxExpanded)}
-                className="text-xs self-center px-4 py-2 bg-violet-800 hover:bg-violet-900 text-white rounded hover:bg-blue-600 transition-colors duration-300"
-              >
-              {infoBoxExpanded ? 'Mostrar menos' : 'Mostrar más'}
-              </button>
+            {/* Infobox */}
+            <div className="m-5 p-5 lg:w-1/2 sm:w-full sm:m-auto">
+              <InfoBox/>
             </div>
           </section> 
-          <section className="flex flex-row w-full"> {/* Bottom section */}
+          <section className="flex lg:flex-row sm:flex-col sm:mx-auto sm:px-auto w-full"> {/* Bottom section */}
             {/* <!-- Programming Section --> */}
-            <div className={`pl-5 pr-2 shadow-md ${isVideoVisible ? 'lg:w-2/3':'w-full'}`}>
+            <div className={`lg:pl-5 sm:mx-auto sm:px-2 lg:pr-2 shadow-md sm:w-full ${isVideoVisible ? 'lg:w-2/5':'w-full'}`}>
               {/* <!-- Tabs --> */}
               <div class="border-b border-gray-300 flex items-baseline justify-between">
                 <ul class="flex space-x-4 text-sm container overflow-x-auto overflow-y-clip" id="tabs">
@@ -451,7 +422,7 @@ const App = () => {
                 <BlocklyInterface/>
                 :
                 <CodeEditorMonaco/>}
-              <div class="flex space-x-4 mt-4">
+              <div class="flex space-x-4 mt-4 w-full">
                 <button
                   class={`px-4 py-2 bg-sky-800 hover:bg-sky-900 text-white rounded-md ${isExecuteDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                   onClick={() => compileAndExecuteCode()}
@@ -470,7 +441,6 @@ const App = () => {
                     <button
                       class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
                       onclick={toggleVideoVisible}
-                      style="position: absolute;right: 5%;"
                     >
                       Mostrar video
                     </button>
@@ -481,7 +451,7 @@ const App = () => {
             {/* <!-- Live Video Section --> */}
             {
               isVideoVisible && (
-                <div class="lg:w-1/3 sm:w-full flex-row pr-5 pl-2 items-center flex">
+                <div class="lg:w-3/5 sm:w-full flex-row sm:mx-auto sm:px-2 lg:pr-5 lg:pl-2 items-center flex">
                   <div class="shadow-md p-4 items-center w-full">
                     <div class="flex justify-center items-center">
                       <div class="w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
@@ -518,7 +488,7 @@ const App = () => {
           />
         </main>
         {/* <!-- Footer --> */}
-        <footer class="shadow-md py-5 my-5 text-center text-sm min-w-screen">
+        <footer class="shadow-md py-5 my-5 text-center text-sm w-full">
           Copyright Educatrónica - 2025
         </footer>
       </div>

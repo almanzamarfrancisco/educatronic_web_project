@@ -197,10 +197,16 @@ const BlocklyInterface = () => {
     }, [currentProgram, setCurrentProgram, setCurrentCode])
     return (
         <div className="flex flex-col items-center w-full">
-            <div id="blocklyDiv" style={{ height: "500px", width: "100%" }} />
-            <div className="flex-col space-x-4 mt-4 p-1 w-full container bg-slate-800">
+            <div id="blocklyDiv" style={{ height: "500px" }} className="w-full pt-5" />
+            {/* Output section */}
+            <div className="flex-col space-x-4 mt-4 py-1 px-5 w-full bg-slate-800 h-min-10">
                 <span>Consola: </span>
-                <pre className="overflow-y-auto block overflow-auto my-5 relative">{ compileOutput }</pre>
+                <p
+                className="my-3 py-5 text-base"
+                style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }} 
+                >
+                { compileOutput }
+                </p>
             </div>
         </div>
     )
