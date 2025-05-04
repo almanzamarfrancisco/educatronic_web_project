@@ -178,7 +178,10 @@ void start_server() {
         return;
     }
     printf("HTTP server initialized on %s\n", s_http_addr);
-    init_patterns();
+    if (init_commands() != 0) {
+        fprintf(stderr, "Error initializing commands\n");
+        exit(1);
+    }
     fd_serie = setup_uart(UART_PORT);
     if (fd_serie == -1) {
         perror("\t[E] Error opening serial port\n");

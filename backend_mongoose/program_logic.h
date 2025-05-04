@@ -11,7 +11,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
 #define TIME_LIMIT 9
 #define LOOP_LIMIT 9
 
-extern const int commandsCount;
+extern int commandsCount;
 
 int matchRegex(const char *pattern, const char *input);
 char *analyzeScript(const char *script);
@@ -29,11 +29,12 @@ typedef struct {
     int param_count;
     CommandRole role;
 } CommandDef;
+CommandDef *load_command_table(const char *json_path, int *out_count);
 CommandDef *getCommandByToken(const char *token);
 CommandDef *getCommandByCommandName(const char *command);
 CommandDef *getProgramInitializerCommand();
 CommandDef *getProgramFinalizerCommand();
 int validateLine(const CommandDef *cmd, char *arg, int lineNumber, char *msg);
 void init_patterns();
-void delay_ms(unsigned int ms);
+int init_commands();
 #endif  // PROGRAM_LOGIC_H
