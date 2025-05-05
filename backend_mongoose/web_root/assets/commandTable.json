@@ -4,55 +4,133 @@
     "token": "INICIO",
     "parameters": [],
     "param_count": 0,
-    "role": "CMD_PROGRAM_START"
+    "role": "CMD_PROGRAM_START",
+    "blocklyType": "begin",
+    "blocklyColour": "#e9dc3c",
+    "blocklyMessage0": "INICIO"
   },
   {
     "command": "SUBIR",
-    "token": "SUBIR",
-    "parameters": ["^[0-7]$"],
+    "token": "GO_UP",
+    "parameters": [
+      "^[0-6]$"
+    ],
     "param_count": 1,
-    "role": "CMD_REGULAR"
+    "role": "CMD_REGULAR",
+    "blocklyType": "up",
+    "blocklyColour": "#3464a1",
+    "blocklyMessage0": "SUBIR %1 pisos",
+    "blocklyArgs0": [
+      {
+        "type": "field_number",
+        "name": "FLOORS",
+        "value": 1,
+        "min": 0,
+        "max": 7
+      }
+    ],
+    "blocklyUnits": "FLOORS"
   },
   {
     "command": "BAJAR",
-    "token": "BAJAR",
-    "parameters": ["^[0-7]$"],
+    "token": "GO_DOWN",
+    "parameters": [
+      "^[0-6]$"
+    ],
     "param_count": 1,
-    "role": "CMD_REGULAR"
+    "role": "CMD_REGULAR",
+    "blocklyType": "down",
+    "blocklyColour": "#1c8c49",
+    "blocklyMessage0": "BAJAR %1 pisos",
+    "blocklyArgs0": [
+      {
+        "type": "field_number",
+        "name": "FLOORS",
+        "value": 1,
+        "min": 0,
+        "max": 7
+      }
+    ],
+    "blocklyUnits": "FLOORS"
   },
   {
     "command": "PAUSA",
-    "token": "PAUSA",
-    "parameters": ["^[0-9]$"],
+    "token": "PAUSE",
+    "parameters": [
+      "^[0-9]$"
+    ],
     "param_count": 1,
-    "role": "CMD_REGULAR"
+    "role": "CMD_REGULAR",
+    "blocklyType": "wait",
+    "blocklyColour": "#eb8b2c",
+    "blocklyMessage0": "BAJAR %1 pisos",
+    "blocklyArgs0": [
+      {
+        "type": "field_number",
+        "name": "FLOORS",
+        "value": 1,
+        "min": 0,
+        "max": 7
+      }
+    ],
+    "blocklyUnits": "SECONDS"
   },
   {
     "command": "ABRIR",
-    "token": "ABRIR",
+    "token": "OPEN",
     "parameters": [],
     "param_count": 0,
-    "role": "CMD_REGULAR"
-  },
-  {
-    "command": "REPETIR",
-    "token": "REPETIR",
-    "parameters": ["^[0-9]$"],
-    "param_count": 1,
-    "role": "CMD_BLOCK_START"
-  },
-  {
-    "command": "FIN_REPETIR",
-    "token": "FIN_REPETIR",
-    "parameters": [],
-    "param_count": 0,
-    "role": "CMD_BLOCK_END"
+    "role": "CMD_REGULAR",
+    "blocklyType": "open",
+    "blocklyColour": "#5ba5a5",
+    "blocklyMessage0": "ABRIR puertas"
   },
   {
     "command": "FIN",
     "token": "FIN",
     "parameters": [],
     "param_count": 0,
-    "role": "CMD_PROGRAM_END"
+    "role": "CMD_PROGRAM_END",
+    "blocklyType": "end",
+    "blocklyColour": "#d9232a",
+    "blocklyMessage0": "FIN"
+  },
+  {
+    "command": "REPETIR",
+    "token": "REPETIR",
+    "parameters": [
+      "^[0-9]$"
+    ],
+    "param_count": 1,
+    "role": "CMD_BLOCK_START",
+    "blocklyColour": "#812c7d",
+    "blocklyType": "loop",
+    "blocklyMessage0": "REPETIR %1 veces",
+    "blocklyArgs0": [
+      {
+        "type": "field_number",
+        "name": "TIMES",
+        "value": 1,
+        "min": 1
+      }
+    ],
+    "blocklyMessage1": "%1",
+    "blocklyArgs1": [
+      {
+        "type": "input_statement",
+        "name": "DO"
+      }
+    ]
+  },
+  {
+    "command": "FIN_REPETIR",
+    "token": "FIN_REPETIR",
+    "parameters": [],
+    "param_count": 0,
+    "role": "CMD_BLOCK_END",
+    "blockInitializer": "REPETIR",
+    "blocklyColour": "#812c7d",
+    "blocklyType": "end_loop",
+    "blocklyMessage0": ""
   }
 ]

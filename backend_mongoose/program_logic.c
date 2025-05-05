@@ -31,7 +31,6 @@ static CommandRole parse_role(const char *role) {
 CommandDef *commandTable = NULL;
 int commandsCount = 0;
 CommandDef *load_command_table(const char *json_path, int *out_count) {
-    // 1) Read file into memory
     FILE *f = fopen(json_path, "rb");
     if (!f) {
         perror("fopen");
@@ -52,7 +51,12 @@ CommandDef *load_command_table(const char *json_path, int *out_count) {
         return NULL;
     }
 
-    cJSON *arr = cJSON_GetObjectItem(root, "commands");
+    cJSON *arr;
+    if (cJSON_IsArray(root)) {
+        arr = root;
+    } else {
+        arr = cJSON_GetObjectItem(root, "commands");
+    }
     int n = cJSON_GetArraySize(arr);
     CommandDef *table = calloc(n, sizeof(CommandDef));
 
@@ -84,6 +88,7 @@ CommandDef *load_command_table(const char *json_path, int *out_count) {
             else
                 table[i].parameters[j] = strdup(pname);
         }
+        printf("\t\t[I] Command loaded: %s (%s) with role %d ✅\n", cmd, token, table[i].role);
     }
 
     *out_count = n;
@@ -226,12 +231,12 @@ char *analyzeScript(const char *script) {
     if (lineCount < 2) return strdup("Error: El programa debe iniciar con 'INICIO' y terminar con 'FIN'.");
     CommandDef *initCmd = getProgramInitializerCommand();
     CommandDef *endCmd = getProgramFinalizerCommand();
-    if (strcmp(lines[0], initCmd->command) != 0) {
+    if (initCmd == NULL && strcmp(lines[0], initCmd->command) != 0) {
         char msg[100];
         snprintf(msg, sizeof(msg), "Error: El programa debe iniciar con '%s'.", initCmd->command);
         return strdup(msg);
     }
-    if (strcmp(lines[lineCount - 1], endCmd->command) != 0) {
+    if (endCmd == NULL && strcmp(lines[lineCount - 1], endCmd->command) != 0) {
         char msg[100];
         snprintf(msg, sizeof(msg), "Error: El programa debe terminar con '%s'.", endCmd->command);
         return strdup(msg);
@@ -307,13 +312,15 @@ int validateLine(const CommandDef *cmd, char *arg, int lineNumber, char *msg) {
     return 1;
 }
 void init_patterns() {
+    printf("\t[I] Initializing patterns... 🧩\n");
     snprintf(floor_boundaries, sizeof(floor_boundaries), "^[%d-%d]$", FIRST_FLOOR, LAST_FLOOR);
     snprintf(time_limit, sizeof(time_limit), "^[%d-%d]$", 0, TIME_LIMIT);
     snprintf(loop_limit, sizeof(loop_limit), "^[%d-%d]$", 0, LOOP_LIMIT);
     printf("⠾[I] Patterns initialized: floor_boundaries: %s, time_limit: %s, loop_limit: %s\n", floor_boundaries, time_limit, loop_limit);
 }
 int init_commands() {
-    commandTable = load_command_table("./web_root/commandTable.json", &commandsCount);
+    commandTable = load_command_table("./web_root/assets/commandTable.json", &commandsCount);
     if (!commandTable) return 1;
+    printf("[I] Command table loaded with %d commands 🎖️\n", commandsCount);
     return 0;
 }
