@@ -72,12 +72,37 @@ const CodeEditor = () => {
       aliases: ["Automata Language", "automataLang"],
       mimetypes: ["text/x-automata"]
     })
-
+    let allTokens = `(`
+    allTokens += lexer.commandTable.map((command, index) => {
+      if (index === 0) return `${command.token}`
+      return `|${command.token}`
+    })
+    allTokens += `)`
+    allTokens = allTokens.replaceAll(',', '')
+    allTokens = allTokens.replaceAll('|', '\\b|')
+    let tokensWithArgs = lexer.commandTable.filter((command) => command.param_count > 0)
+    tokensWithArgs = tokensWithArgs.map((command) => {
+      return [`\\b${command.token}\\s+\\${command.parameters.join("\\s+|\\$")}`, "keyword"]
+    })
+    let openerTokens = lexer.commandTable.filter(
+      (command) => command.role === lexer.CMD_PROGRAM_START || 
+      command.role === lexer.CMD_BLOCK_START)
+    openerTokens = openerTokens.map((command) => ({
+      beforeText: new RegExp(`^\\s*${command.token}\\s*${command.parameters.join("\\s+|\\").replaceAll('^', '')}`),
+      action: { indentAction: monacoInstance.languages.IndentAction.Indent }
+    }))
+    let closerTokens = lexer.commandTable.filter(
+      (command) => command.role === lexer.CMD_PROGRAM_END ||
+      command.role === lexer.CMD_BLOCK_END)
+    closerTokens = closerTokens.map((command) => ({
+      beforeText: new RegExp(`^\\s*${command.token}\\s*${command.parameters.join("\\s+|\\").replaceAll('^', '')}$`),
+      action: { indentAction: monacoInstance.languages.IndentAction.Outdent }
+    }))
     monacoInstance.languages.setMonarchTokensProvider("automataLang", {
       tokenizer: {
         root: [
-          [/\b(INICIO|FIN|SUBIR|BAJAR|PAUSA|ABRIR|REPETIR|FIN_REPETIR)\b/i, "keyword"],
-          [/\bPAUSA\b\s+\d+/i, ["keyword", "number"]], 
+          [new RegExp(`\\b${allTokens}\\b`, "i"), "keyword"],
+          ...tokensWithArgs, 
           [/\b[0-9]+\b/, "number"],
           [/\/\/.*/, "comment"],
           [/\/\*/, "comment", "@comment"],
@@ -100,22 +125,8 @@ const CodeEditor = () => {
         blockComment: ["/*", "*/"]
       },
       onEnterRules: [
-        {
-          beforeText: /^\s*INICIO\s*$/,
-          action: { indentAction: monacoInstance.languages.IndentAction.Indent }
-        },
-        {
-          beforeText: /^\s*FIN\s*$/,
-          action: { indentAction: monacoInstance.languages.IndentAction.Outdent }
-        },
-        {
-          beforeText: /^\s*REPETIR\s+\d+\s*$/,
-          action: { indentAction: monacoInstance.languages.IndentAction.Indent }
-        },
-        {
-          beforeText: /^\s*FIN_REPETIR\s*$/,
-          action: { indentAction: monacoInstance.languages.IndentAction.Outdent }
-        }
+        ...openerTokens,
+        ...closerTokens,
       ]
     })
 
@@ -186,7 +197,7 @@ const CodeEditor = () => {
     if (!currentProgram) {
       console.log(`I have to save the code in a new file`)
     } else if (previousCodeRef.current !== currentCode) {
-      // console.log(`Code updated: ${code}`)
+      console.log(`Code updated: ${code}`)
     }
   }
   return (

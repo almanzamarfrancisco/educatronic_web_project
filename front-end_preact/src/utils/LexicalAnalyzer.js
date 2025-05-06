@@ -1,4 +1,4 @@
-import commandsConfig from './commandTable.json';
+import commandsConfig from '../assets/commandTable.json'
 export class LexicalAnalyzer {
   constructor() {
     this.CMD_PROGRAM_START = 'CMD_PROGRAM_START'
@@ -8,11 +8,9 @@ export class LexicalAnalyzer {
     this.CMD_REGULAR = 'CMD_REGULAR'
     
     this.commandTable = commandsConfig.map(cmd => ({
-      command: cmd.command,
-      token: cmd.token,
-      parameters: cmd.parameters,
+      ...cmd,
       param_count: cmd.parameters.length,
-      role: this[cmd.role]
+      role: this[cmd.role],
     }));
   }
   analyze(script) {
