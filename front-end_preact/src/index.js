@@ -50,9 +50,9 @@ const App = () => {
   const { isNewFileModalOpen, openNewFileModal, closeNewFileModal } = useAppStore()
   const currentCode = useCurrentCode()
   const streamURL = 'https://stream-educatronic.ngrok.app/'
-  // const streamURL = 'http://localhost:8001'
+  // const streamURL = 'http://192.168.1.71:8001'
   const base_url = 'https://educatronic.ngrok.app'
-  // const base_url = 'http://localhost:8000'
+  // const base_url = 'http://192.168.1.71:8000'
   const noExercisesArray = [{
     id: '1234',
     name: "Archivo sin nombre",
@@ -80,7 +80,7 @@ const App = () => {
         setExercises(data.exercises)
         setProgramFiles(data.programs)
         setCurrentExercise(data.exercises[0])
-        setCurrentFloor(Number(data.currentFloor))
+        // setCurrentFloor(Number(data.currentFloor))
         return
       })
       .catch((err) => {
@@ -256,7 +256,7 @@ const App = () => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         if(data.current_floor && data.status === 'ok'){
           setCompileOutput(`Ejecución exitosa. Piso final: ${data.current_floor}`)
-          setCurrentFloor(data.current_floor)
+          // setCurrentFloor(data.current_floor)
           setStatusIcon({isOpen: true, status: "success"})
           setTimeout(() => {
             setStatusIcon({isOpen: false, status: "neutral"})
@@ -370,7 +370,7 @@ const App = () => {
           </section> 
           <section className="flex lg:flex-row sm:flex-col sm:mx-auto sm:px-auto w-full"> {/* Bottom section */}
             {/* <!-- Programming Section --> */}
-            <div className={`lg:pl-5 sm:mx-auto sm:px-2 lg:pr-2 shadow-md sm:w-full ${isVideoVisible ? 'lg:w-2/5':'w-full'}`}>
+            <div className={`lg:pl-5 sm:mx-auto sm:px-2 lg:pr-2 shadow-md sm:w-full ${isVideoVisible ? 'lg:1/2 xl:w-2/5':'w-full'}`}>
               {/* <!-- Tabs --> */}
               <div class="border-b border-gray-300 flex items-baseline justify-between">
                 <ul class="flex space-x-4 text-sm container overflow-x-auto overflow-y-clip" id="tabs">
@@ -451,7 +451,7 @@ const App = () => {
             {/* <!-- Live Video Section --> */}
             {
               isVideoVisible && (
-                <div class="lg:w-3/5 sm:w-full flex-row sm:mx-auto sm:px-2 lg:pr-5 lg:pl-2 items-center flex">
+                <div class="lg:1/2 xl:w-3/5 sm:w-full flex-row sm:mx-auto sm:px-2 lg:pr-5 lg:pl-2 items-center flex">
                   <div class="shadow-md p-4 items-center w-full">
                     <div class="flex justify-center items-center">
                       <div class="w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
