@@ -11,7 +11,7 @@
   },
   {
     "command": "SUBIR",
-    "token": "GO_UP",
+    "token": "SUBIR",
     "parameters": [
       "^[0-6]$"
     ],
@@ -23,17 +23,17 @@
     "blocklyArgs0": [
       {
         "type": "field_number",
-        "name": "FLOORS",
+        "name": "PISOS",
         "value": 1,
         "min": 0,
         "max": 7
       }
     ],
-    "blocklyUnits": "FLOORS"
+    "blocklyUnits": "PISOS"
   },
   {
     "command": "BAJAR",
-    "token": "GO_DOWN",
+    "token": "BAJAR",
     "parameters": [
       "^[0-6]$"
     ],
@@ -45,17 +45,17 @@
     "blocklyArgs0": [
       {
         "type": "field_number",
-        "name": "FLOORS",
+        "name": "PISOS",
         "value": 1,
         "min": 0,
         "max": 7
       }
     ],
-    "blocklyUnits": "FLOORS"
+    "blocklyUnits": "PISOS"
   },
   {
     "command": "PAUSA",
-    "token": "PAUSE",
+    "token": "PAUSA",
     "parameters": [
       "^[0-9]$"
     ],
@@ -63,21 +63,21 @@
     "role": "CMD_REGULAR",
     "blocklyType": "wait",
     "blocklyColour": "#eb8b2c",
-    "blocklyMessage0": "BAJAR %1 pisos",
+    "blocklyMessage0": "PAUSAR %1 SEGUNDOS",
     "blocklyArgs0": [
       {
         "type": "field_number",
-        "name": "FLOORS",
+        "name": "SEGUNDOS",
         "value": 1,
         "min": 0,
         "max": 7
       }
     ],
-    "blocklyUnits": "SECONDS"
+    "blocklyUnits": "SEGUNDOS"
   },
   {
     "command": "ABRIR",
-    "token": "OPEN",
+    "token": "ABRIR",
     "parameters": [],
     "param_count": 0,
     "role": "CMD_REGULAR",
