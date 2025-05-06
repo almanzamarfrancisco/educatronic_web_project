@@ -50,11 +50,3 @@
 .animate-blink {
   animation: blink 1s infinite;
 }
-.blocklySvg {
-  background-color: #fff;
-  outline: none;
-  overflow: hidden;
-  position: absolute;
-  display: block;
-  width: 100%;
-}
