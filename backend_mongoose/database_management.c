@@ -109,6 +109,44 @@ char *escape_json_string(const char *input) {
     return escaped;
 }
 
+void pretty_print_json(const char *json) {
+    int indent = 0;
+    int in_string = 0;
+    const char *p = json;
+    while (*p) {
+        char c = *p;
+        if (c == '"' && (p == json || *(p - 1) != '\\')) {
+            in_string = !in_string;
+            putchar(c);
+        } else if (!in_string) {
+            if (c == '{' || c == '[') {
+                putchar(c);
+                putchar('\n');
+                indent++;
+                for (int i = 0; i < indent; i++) putchar(' ');
+            } else if (c == '}' || c == ']') {
+                putchar('\n');
+                indent--;
+                for (int i = 0; i < indent; i++) putchar(' ');
+                putchar(c);
+            } else if (c == ',') {
+                putchar(c);
+                putchar('\n');
+                for (int i = 0; i < indent; i++) putchar(' ');
+            } else if (c == ':') {
+                putchar(c);
+                putchar(' ');
+            } else {
+                putchar(c);
+            }
+        } else {
+            putchar(c);
+        }
+        p++;
+    }
+    putchar('\n');
+}
+
 char *get_exercises_json(sqlite3 *db) {
     sqlite3_stmt *stmt;
     const char *sql = "SELECT exercise_id, name, content FROM exercises;";
@@ -171,6 +209,41 @@ char *get_programs_json(sqlite3 *db) {
         sqlite3_finalize(stmt);
     } else {
         fprintf(stderr, "Error fetching programs: %s\n", sqlite3_errmsg(db));
+    }
+    return json_result;
+}
+
+char *get_answers_json(sqlite3 *db) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT id, exercise_id, expected_output FROM answers;";
+    char *json_result = (char *)malloc(8192);
+    json_result[0] = '\0';
+    strcat(json_result, "[");
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, NULL) == SQLITE_OK) {
+        int first = 1;
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            if (!first) strcat(json_result, ",");
+            first = 0;
+
+            const char *answer_id = (const char *)sqlite3_column_text(stmt, 0);
+            const char *exercise_id = (const char *)sqlite3_column_text(stmt, 1);
+            const char *expected_output = (const char *)sqlite3_column_text(stmt, 3);
+
+            char *escaped_output = escape_json_string(expected_output);
+
+            char temp[2048];
+            snprintf(temp, sizeof(temp),
+                     "{\"id\": \"%s\", \"exercise_id\": \"%s\", \"expected_output\": \"%s\"}",
+                     answer_id, exercise_id, escaped_output);
+            strcat(json_result, temp);
+
+            free(escaped_output);
+        }
+        strcat(json_result, "]");
+        sqlite3_finalize(stmt);
+    } else {
+        fprintf(stderr, "Error fetching answers: %s\n", sqlite3_errmsg(db));
     }
     return json_result;
 }

@@ -21,10 +21,12 @@ void generate_uuid(char *uuid_str);
 
 char *get_exercises_json(sqlite3 *db);
 char *get_programs_json(sqlite3 *db);
+char *get_answers_json(sqlite3 *db);
 int update_program(sqlite3 *db, const char *id, const char *json_body);
 int delete_program(sqlite3 *db, const char *id);
 int new_program(sqlite3 *db, char *id, const char *json_body);
 
 char *escape_json_string(const char *input);
+void pretty_print_json(const char *json);
 
 #endif
