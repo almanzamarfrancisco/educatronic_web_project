@@ -24,10 +24,10 @@ import "./style/index.css"
 import designerImage from "./assets/images/designer.svg"
 import facebookIcon from "./assets/images/facebook-icon.png"
 import youtubeIcon from "./assets/images/youtube-icon.png"
-import gears from "./assets/images/gears.png"
 import trash from "./assets/images/trash-can.png"
 import NewFileModal from "./components/NewFileModal"
 import { LexicalAnalyzer } from "./utils/LexicalAnalyzer";
+import ExercisesSection from "./components/ExercisesSection"
 
 const App = () => {
   const [isVideoVisible, setToggleVideoVisible] = useState(true)
@@ -85,11 +85,11 @@ const App = () => {
       })
       .catch((err) => {
         console.error(err)
-        setError({
+        /* setError({
           stateGotten: false,
           message: `Ocurrió un error de comunicación con el servidor, por favor intente más tarde ${err}`,
           closeButton: false
-        })
+        }) */
       })
   }, [ setExercises, setProgramFiles, setError ])
   const onCloseErrorScreen = () => {
@@ -315,39 +315,7 @@ const App = () => {
             {/* Exercises */}
             <div className="m-5 lg:w-1/2 sm:w-full sm:m-auto">
               {/* Excercise header */}
-              <div class="flex items-center justify-start mb-4">
-                <h2 class="text-4xl mx-3 whitespace-normal">
-                  <img src={gears} class="h-10 w-15 mx-2 flex-none inline"
-                    alt="Engranes"
-                    loading="lazy"
-                    display="inline-block"
-                  />
-                  <span>{ currentExercise && currentExercise.name || 'Selecciona un ejercicio para ver su contenido'}</span>
-                </h2>
-                <div class="flex items-center space-x-2 ml-10">
-                  <select onchange={ (event) => handleExerciseListChange(event.target.value) } class="border border-gray-300 rounded-md px-2 py-1 text-sm text-black w-25">
-                    <option disabled>{`${!exercises.length ? 'No hay ejercicios para mostrar':'Lista de Ejercicios'}`}</option>
-                    { exercises &&
-                        exercises.map((exercise, index) => <option value={exercise.id} selected={!index?'selected':''} > {exercise.name} </option>)
-                    }
-                  </select>
-                </div>
-              </div>
-              {/* Excercise description */}
-              <div className="justify-between mx-3 my-5 flex">
-                <div class="space-x-4 mx-3 my-5 flex-row">
-                { currentExercise && currentExercise.content.split('\n').map((line, index) => (
-                  <p key={index}>{line}<br/></p>
-                )) || <pre>Cuando selecciones un ejercicio aquí se mostrará su contenido</pre> }
-                </div>
-                {/* <div className="flex-row items-center space-x-2 border-l-2 border-gray-300 pl-5">
-                  <h1 class="text-xl mx-3 text-center">Piso Actual </h1>
-                  <h3
-                    class="text-5xl m-2 p-3 bg-cyan-800 text-center rounded-lg transition transform duration-500 ease-in-out">
-                      {currentFloor ?? '0'}
-                  </h3>
-                </div> */}
-              </div>
+              <ExercisesSection handleExerciseListChange={handleExerciseListChange} />
               {/* Blockly switch */}
               <div class={`flex items-center space-x-2 whitespace-nowrap mx-3 w-full ${isInfoBoxExpanded?'items-end h-full':''}`}>
                   <label class="inline-flex items-center cursor-pointer">
