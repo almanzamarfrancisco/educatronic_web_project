@@ -3,9 +3,62 @@ import { useEffect, useRef } from "preact/hooks"
 import * as Blockly from "blockly/core"
 import { javascriptGenerator } from "blockly/javascript"
 import useAppStore, { useCurrentProgram, useCurrentCode, useCompileOutput } from "../store"
-import { LexicalAnalyzer } from "../utils/LexicalAnalyzer";
+import { LexicalAnalyzer } from "../utils/LexicalAnalyzer"
 
+export const lexer = new LexicalAnalyzer()
 
+export function updateBlocksFromCode(workspace, code) {
+    workspace.clear()
+    const blockMapping = lexer.commandTable.map((command) => ({
+        token: command.token,
+        type: command.blocklyType,
+        blocklyUnits: command.blocklyArgs0?.[0].name || '',
+    }))
+    const lines = code.trim().split("\n")
+    let previousBlock = null
+    let yOffset = 10
+    let repeatBlock = null
+    let repeatActive = false
+    lines.forEach((line, index) => {
+        line = line.trim()
+        const parts = line.split(" ")
+        const command = parts[0]
+        const value = parts[1] ? parseInt(parts[1]) : null
+        const commandExists = blockMapping.filter((block) => block.token === command)
+        if (commandExists.length === 1) {
+            if (commandExists[0].type === "end_loop") {
+                repeatActive = false
+                return
+            }
+            const block = workspace.newBlock(commandExists[0].type)
+            if (value !== null && commandExists[0].blocklyUnits) {
+                const field = commandExists[0].blocklyUnits
+                if(commandExists[0].type === "loop"){
+                    repeatActive = true
+                    repeatBlock = block
+                } // else return
+                block.setFieldValue(value, field)
+            }
+            block.moveBy(50, yOffset)
+            yOffset += 60
+            block.initSvg()
+            block.render()
+            if (repeatActive && previousBlock && repeatBlock && previousBlock === repeatBlock && repeatBlock.getInput("DO")) {
+                repeatBlock.getInput("DO").connection.connect(block.previousConnection)
+            } else if(!repeatActive && previousBlock && repeatBlock){
+                repeatBlock.nextConnection.connect(block.previousConnection)
+                repeatBlock = null
+            } else if (previousBlock && previousBlock.nextConnection && block.previousConnection) {
+                previousBlock.nextConnection.connect(block.previousConnection)
+            }
+            previousBlock = block 
+        }
+    })
+    workspace.render()
+}
+export function getCodeFromBlocks(workspace) {
+    return javascriptGenerator.workspaceToCode(workspace).trim()
+}
 const BlocklyInterface = () => {
     const { setCurrentProgram, setCurrentCode } = useAppStore()
     const currentProgram = useCurrentProgram()
@@ -13,7 +66,6 @@ const BlocklyInterface = () => {
     const compileOutput = useCompileOutput()
     const editorRef = useRef(null)
     const previousCodeRef = useRef(currentProgram ? currentProgram.content : "")
-    const lexer = new LexicalAnalyzer()
     const customTheme = Blockly.Theme.defineTheme("customTheme", {
         base: Blockly.Themes.Classic,
         componentStyles: {
@@ -30,58 +82,6 @@ const BlocklyInterface = () => {
             size: 14,
         },
     })
-    const updateBlocksFromCode = (workspace, code) => {
-        workspace.clear()
-        const blockMapping = lexer.commandTable.map((command) => ({
-            token: command.token,
-            type: command.blocklyType,
-            blocklyUnits: command.blocklyArgs0?.[0].name || '',
-        }))
-        const lines = code.trim().split("\n")
-        let previousBlock = null
-        let yOffset = 10
-        let repeatBlock = null
-        let repeatActive = false
-        lines.forEach((line, index) => {
-            line = line.trim()
-            const parts = line.split(" ")
-            const command = parts[0]
-            const value = parts[1] ? parseInt(parts[1]) : null
-            const commandExists = blockMapping.filter((block) => block.token === command)
-            if (commandExists.length === 1) {
-                if (commandExists[0].type === "end_loop") {
-                    repeatActive = false
-                    return
-                }
-                const block = workspace.newBlock(commandExists[0].type)
-                if (value !== null && commandExists[0].blocklyUnits) {
-                    const field = commandExists[0].blocklyUnits
-                    if(commandExists[0].type === "loop"){
-                        repeatActive = true
-                        repeatBlock = block
-                    } // else return
-                    block.setFieldValue(value, field)
-                }
-                block.moveBy(50, yOffset)
-                yOffset += 60
-                block.initSvg()
-                block.render()
-                if (repeatActive && previousBlock && repeatBlock && previousBlock === repeatBlock && repeatBlock.getInput("DO")) {
-                    repeatBlock.getInput("DO").connection.connect(block.previousConnection)
-                } else if(!repeatActive && previousBlock && repeatBlock){
-                    repeatBlock.nextConnection.connect(block.previousConnection)
-                    repeatBlock = null
-                } else if (previousBlock && previousBlock.nextConnection && block.previousConnection) {
-                    previousBlock.nextConnection.connect(block.previousConnection)
-                }
-                previousBlock = block 
-            }
-        })
-        workspace.render()
-    }
-    const getCodeFromBlocks = (workspace) => {
-        return javascriptGenerator.workspaceToCode(workspace).trim()
-    }
     const customToolbox = `<xml>
                     ${lexer.commandTable.filter((command) => command.blocklyType !== 'end_loop').
                         map((command) => {
@@ -165,24 +165,21 @@ const BlocklyInterface = () => {
     }, [])
     useEffect(() => {
         const workspace = Blockly.getMainWorkspace()
-        const updateCode = () => {
-            const code = getCodeFromBlocks(workspace)
-            console.log(`This is the code: \n "${code}"`)
-            setCurrentCode(code)
-            if (!currentProgram) {
-                console.log(`I have to save the code in a new file`)
-            } else if (previousCodeRef.current !== currentCode) {
-                // console.log(`Code updated: ${code}`)
-            }
-        }
-        workspace.addChangeListener(updateCode)
+        if (!workspace) return
         if (currentProgram?.content) {
-            updateBlocksFromCode(workspace, currentProgram?.content)
-        }
-        if (editorRef.current && currentProgram) {
-            editorRef.current.setValue(currentProgram.content || "")
+            updateBlocksFromCode(workspace, currentProgram.content)
             previousCodeRef.current = currentProgram.content
             setCurrentCode(currentProgram.content)
+            console.log(`Updated blocks from program content: ${currentProgram.content}`)
+        }
+        const listener = () => {
+            const code = getCodeFromBlocks(workspace)
+            setCurrentCode(code)
+        }
+        workspace.addChangeListener(listener)
+
+        return () => {
+            workspace.removeChangeListener(listener)
         }
     }, [currentProgram, setCurrentProgram, setCurrentCode])
     return (

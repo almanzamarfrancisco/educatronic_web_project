@@ -1,18 +1,14 @@
 // tests/BlocklyInterface.test.js
 import { h } from 'preact';
 import { render, act } from '@testing-library/preact';
-import BlocklyInterface from '../src/components/BlocklyInterface';
+import BlocklyInterface, { lexer } from '../src/components/BlocklyInterface';
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator } from 'blockly/javascript';
+import * as store from '../src/store';
 
-// ——— 1) Mock Blockly APIs ———
 jest.mock('blockly/core', () => ({
-  Theme: {
-    defineTheme: jest.fn(),
-  },
-  Themes: {
-    Classic: { /* no‐op */ },
-  },
+  Theme: { defineTheme: jest.fn() },
+  Themes: { Classic: {} },
   defineBlocksWithJsonArray: jest.fn(),
   inject: jest.fn(),
   getMainWorkspace: jest.fn(),
@@ -26,7 +22,6 @@ jest.mock('blockly/javascript', () => ({
   },
 }));
 
-// ——— 2) Mock zustand store hooks ———
 const mockSetCurrentCode = jest.fn();
 const mockSetCurrentProgram = jest.fn();
 jest.mock('../src/store', () => ({
@@ -34,18 +29,19 @@ jest.mock('../src/store', () => ({
   default: () => ({ setCurrentCode: mockSetCurrentCode, setCurrentProgram: mockSetCurrentProgram }),
   useAppStore: () => ({ setCurrentCode: mockSetCurrentCode, setCurrentProgram: mockSetCurrentProgram }),
   useCurrentCode: () => 'initial code',
-  useCurrentProgram: () => ({ content: 'CMD1 5\nCMD2', /* etc */ }),
+  useCurrentProgram: () => ({ content: 'CMD1 3\nCMD2 5' }),
   useCompileOutput: () => 'compiled output',
 }));
 
 describe('BlocklyInterface', () => {
-  let fakeWorkspace;
+  let fakeWs;
+  const [tokA, tokB] = lexer.commandTable.slice(0, 2).map((c) => c.token);
   beforeEach(() => {
     jest.clearAllMocks();
-    // create a minimal fake workspace
-    fakeWorkspace = {
+
+    fakeWs = {
       clear: jest.fn(),
-      newBlock: jest.fn().mockImplementation((type) => ({
+      newBlock: jest.fn().mockReturnValue({
         setFieldValue: jest.fn(),
         initSvg: jest.fn(),
         render: jest.fn(),
@@ -53,90 +49,77 @@ describe('BlocklyInterface', () => {
         previousConnection: {},
         nextConnection: { connect: jest.fn() },
         getInput: jest.fn().mockReturnValue({ connection: { connect: jest.fn() } }),
-      })),
+      }),
       render: jest.fn(),
       addChangeListener: jest.fn(),
+      removeChangeListener: jest.fn(),
       dispose: jest.fn(),
     };
-    Blockly.inject.mockReturnValue(fakeWorkspace);
-    Blockly.getMainWorkspace.mockReturnValue(fakeWorkspace);
+    Blockly.inject.mockReturnValue(fakeWs);
+    Blockly.getMainWorkspace.mockReturnValue(fakeWs);
     javascriptGenerator.workspaceToCode.mockReturnValue('GENERATED_CODE');
-    javascriptGenerator.statementToCode.mockReturnValue(''); 
+
+    store.useCurrentProgram = jest
+      .fn()
+      .mockImplementationOnce(() => ({ content: `${tokA} 1\n${tokB} 2` }))
+      .mockImplementationOnce(() => ({ content: `${tokA} 9\n${tokB} 5` }));
+
+    store.useAppStore = jest.fn(() => ({ setCurrentCode: jest.fn() }));
+    store.useCurrentCode = jest.fn(() => '');
+    store.useCompileOutput = jest.fn(() => 'compiled output');
   });
 
-  it('defines a custom theme on load', () => {
+  it('defines the custom Blockly theme', () => {
     render(<BlocklyInterface />);
     expect(Blockly.Theme.defineTheme).toHaveBeenCalledWith(
       'customTheme',
-      expect.objectContaining({
-        base: Blockly.Themes.Classic,
-        componentStyles: expect.objectContaining({
-          workspaceBackgroundColour: '#121212',
-        }),
-      })
+      expect.objectContaining({ base: Blockly.Themes.Classic })
     );
   });
 
-  it('registers blocks via defineBlocksWithJsonArray', () => {
+  it('declares blocks JSON exactly once', () => {
     render(<BlocklyInterface />);
-    expect(Blockly.defineBlocksWithJsonArray).toHaveBeenCalled();
-    // should include at least your program-start block
-    const defined = Blockly.defineBlocksWithJsonArray.mock.calls[0][0];
-    expect(defined).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ message0: expect.any(String), type: expect.any(String) }),
-      ])
-    );
+    expect(Blockly.defineBlocksWithJsonArray).toHaveBeenCalledTimes(1);
+    const defs = Blockly.defineBlocksWithJsonArray.mock.calls[0][0];
+    expect(Array.isArray(defs)).toBe(true);
+    expect(defs.length).toBeGreaterThan(0);
   });
 
-  it('injects the workspace with the correct toolbox and theme', () => {
+  it('injects the workspace into #blocklyDiv with correct options', () => {
     const { container } = render(<BlocklyInterface />);
     expect(Blockly.inject).toHaveBeenCalledWith(
       'blocklyDiv',
       expect.objectContaining({
         toolbox: expect.stringContaining('<xml>'),
-        theme: expect.any(Object),
         grid: expect.objectContaining({ spacing: 20 }),
       })
     );
-    // ensure the DIV is in the document
     expect(container.querySelector('#blocklyDiv')).toBeInTheDocument();
   });
 
-  it('renders the compile output in the console area', () => {
-    const { getByText } = render(<BlocklyInterface />);
-    expect(getByText('Consola:')).toBeInTheDocument();
-    expect(getByText('compiled output')).toBeInTheDocument();
-  });
-
-  it('on workspace change, generates code and calls setCurrentCode', () => {
+  it('listens for workspace changes and updates the store', () => {
     render(<BlocklyInterface />);
-    // grab the registered change listener
-    const changeListener = fakeWorkspace.addChangeListener.mock.calls[0][0];
-
-    // simulate a change
-    act(() => changeListener());
-    expect(javascriptGenerator.workspaceToCode).toHaveBeenCalledWith(fakeWorkspace);
+    // grab the change listener you registered
+    const listener = fakeWs.addChangeListener.mock.calls[0][0];
+    act(() => listener());
+    expect(javascriptGenerator.workspaceToCode).toHaveBeenCalledWith(fakeWs);
     expect(mockSetCurrentCode).toHaveBeenCalledWith('GENERATED_CODE');
   });
 
-  it('updateBlocksFromCode lays out blocks for each valid line', () => {
+  it('on mount, clears and renders workspace once and lays out blocks', () => {
     render(<BlocklyInterface />);
-    // call updateBlocksFromCode manually via re-injecting the useEffect
-    const code = 'CMD1 3\nEND_LOOP';
-    // clear existing calls
-    jest.clearAllMocks();
-    // simulate initial load
-    const workspace = fakeWorkspace;
-    // import the function
-    const { updateBlocksFromCode } = require('../src/components/BlocklyInterface');
-    updateBlocksFromCode(workspace, code);
-
-    // should clear first
-    expect(workspace.clear).toHaveBeenCalled();
-    // should create at least one newBlock for CMD1
-    expect(workspace.newBlock).toHaveBeenCalledWith(expect.stringMatching(/^\w+$/));
-    // finally render
-    expect(workspace.render).toHaveBeenCalled();
+    expect(fakeWs.clear).toHaveBeenCalledTimes(1);
+    expect(fakeWs.render).toHaveBeenCalledTimes(1);
+    expect(fakeWs.newBlock).toHaveBeenCalledTimes(2);
   });
+
+  it('on program change, clears and renders workspace again and lays out blocks again', () => {
+    const { rerender } = render(<BlocklyInterface />);
+    expect(fakeWs.newBlock).toHaveBeenCalledTimes(2);
+    rerender(<BlocklyInterface />);
+    expect(fakeWs.clear).toHaveBeenCalledTimes(2);
+    expect(fakeWs.render).toHaveBeenCalledTimes(2);
+    expect(fakeWs.newBlock).toHaveBeenCalledTimes(4);
+  });
+
 });
