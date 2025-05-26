@@ -1,7 +1,12 @@
 {
-    "presets": [
-      "@babel/preset-env",
-      ["@babel/preset-react", { "pragma": "h" }]
-    ]
-  }
-  
+  "presets": [
+    "@babel/preset-env",
+    ["@babel/preset-react", { "pragma": "h" }],
+    // "@babel/preset-env", // Preset para JavaScript moderno
+    // "@babel/preset-react", // Preset para JSX (Preact lo usa también)
+    "@babel/preset-typescript" // ¡Añade este!
+  ],
+  "plugins": [
+    "@babel/plugin-proposal-class-properties"
+  ]
+}
