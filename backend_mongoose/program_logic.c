@@ -193,6 +193,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                     (*floor) += value;
                     if (*floor > LAST_FLOOR) {
                         sprintf(error_line, "%d", i + 1);
+                        send_finish(file_descriptor_serie);
                         return -1;
                     }
                     elevatorGoUp(value, file_descriptor_serie);
@@ -201,6 +202,7 @@ int execute_block(char **lines, int start, int end, int *floor, char *error_line
                     (*floor) -= value;
                     if (*floor < FIRST_FLOOR) {
                         sprintf(error_line, "%d", i + 1);
+                        send_finish(file_descriptor_serie);
                         return -1;
                     }
                     elevatorGoDown(value, file_descriptor_serie);
@@ -246,8 +248,13 @@ char *analyzeScript(const char *script) {
         strcpy(lineCopy, lines[i]);
         char *command = strtok(lineCopy, " ");
         char *arg = strtok(NULL, " ");
+        printf("\t\t[t] Analyzing line %d: %s\n", i + 1, lines[i]);
         CommandDef *cmd = getCommandByToken(command);
         char msg[100];
+        if (!cmd) {
+            snprintf(msg, 100, "Error: Comando '%s' no reconocido en línea %d.", command, i + 1);
+            return strdup(msg);
+        }
         if (cmd->role == CMD_PROGRAM_END) {
             if (programOpened)
                 programOpened = 0;

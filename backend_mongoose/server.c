@@ -144,8 +144,8 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             else
                 printf("\t[I] Elevator reached current_floor %d.\n", current_floor);
             char *json_response = mg_mprintf("{%m:%m, %m:%s}",
-                                             MG_ESC("status"), MG_ESC(current_floor >= 0 ? "ok" : "error"),
-                                             MG_ESC(current_floor >= 0 ? "current_floor" : "line"), current_floor >= 0 ? current_floor_str : error_line);
+                                             MG_ESC("status"), MG_ESC(current_floor >= 0 && current_floor <= 6 ? "ok" : "error"),
+                                             MG_ESC(current_floor >= 0 && current_floor <= 6 ? "current_floor" : "line"), current_floor >= 0 && current_floor <= 6 ? current_floor_str : error_line);
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
