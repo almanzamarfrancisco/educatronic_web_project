@@ -195,7 +195,7 @@ const CodeEditor = () => {
   const updateCode = (code) => {
     setCurrentCode(code)
     if (!currentProgram) {
-      console.log(`I have to save the code in a new file`)
+      console.log(`Making a new file is required!`)
     } else if (previousCodeRef.current !== currentCode) {
       console.log(`Code updated: ${code}`)
     }

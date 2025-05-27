@@ -47,7 +47,7 @@ const App = () => {
   const { setExercises, setCurrentExercise } = useAppStore()
   const { isRenameModalOpen, fileToRename, openRenameModal, closeRenameModal } = useAppStore()
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
-  const { isNewFileModalOpen, openNewFileModal, closeNewFileModal } = useAppStore()
+  const { isNewFileModalOpen, openNewFileModal, newFileRequestFrom, closeNewFileModal } = useAppStore()
   const currentCode = useCurrentCode()
   const streamURL = 'https://stream-educatronic.ngrok.app/'
   // const streamURL = 'http://192.168.1.71:8001'
@@ -145,7 +145,11 @@ const App = () => {
       })
   }
   const saveCurrentFile = () => {
-    if(!currentProgram) { console.log(`There is any file selected`); return }
+    if(!currentProgram) {
+      console.log(`There is any file selected, making one`)
+      openNewFileModal('Guardar')
+      return
+    }
     console.log(currentProgram)
     currentProgram.content = currentCode
     setProgramFiles(programFiles.map(file => file.id === currentProgram.id ? currentProgram : file))
@@ -192,31 +196,39 @@ const App = () => {
     if(!fileName) { console.log(`There is no file name`); return }
     console.log(`Creating file ${fileName}`)
     setStatusIcon({isOpen: true, status: "loading"})
+    console.log(`Request to ${base_url}/api/programs/create : ${JSON.stringify({name: fileName, content: currentCode, exercise_id: currentExercise.id}, null, 2)}`)
     fetch(`${base_url}/api/programs/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: {
-        name: "",
-        content: "",
+      body: JSON.stringify({
+        name: fileName,
+        content: newFileRequestFrom !== 'Nuevo archivo' ? currentCode:'',
         exercise_id: currentExercise.id
-      },
-      // mode: "no-cors",
+      }),
+      mode: "cors",
     })
-      .then((res) => !res ? res.json():'')
+      .then((res) => {
+        if (!res.ok) throw new Error('Network response was not ok')
+        return res.json();
+      })
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         const newFile = {
           id: data.newProgramId,
           name: fileName,
-          content: ""
+          exercise_id: currentExercise.id,
+          content: newFileRequestFrom !== 'Nuevo archivo' ? currentCode:''
         }
         setProgramFiles([...programFiles, newFile])
         setStatusIcon({isOpen: true, status: "success"})
         setTimeout(() => {
           setStatusIcon({isOpen: false, status: "neutral"})
         }, 3000)
+        // selectTab(newFile.id)
+        setCurrentProgram(newFile)
+        setActiveTabFile(newFile)
       }).catch((err) => {
         console.error(err)
         setError({
@@ -227,6 +239,16 @@ const App = () => {
       })
   }
   const compileAndExecuteCode = () => {
+    if(!currentProgram) {
+      console.log(`There is any file selected, making one`)
+      openNewFileModal('Ejecutar')
+      return
+    }
+    console.log(currentProgram)
+    currentProgram.content = currentCode
+    setProgramFiles(programFiles.map(file => file.id === currentProgram.id ? currentProgram : file))
+    updateFileOnServer(currentProgram.id, currentProgram)
+
     setExecuteDisabled(true)
     const lexer = new LexicalAnalyzer()
     setStatusIcon({isOpen: true, status: "loading"})
@@ -363,7 +385,7 @@ const App = () => {
                   }
                 </ul>
                 <button class="px-4 py-2 bg-violet-700 text-white rounded-md m-3 hover:bg-violet-500"
-                  onclick={() => {openNewFileModal()}}
+                  onclick={() => {openNewFileModal('Nuevo archivo')}}
                 >
                   (+) Nuevo archivo
                 </button>
@@ -452,7 +474,7 @@ const App = () => {
           <NewFileModal
             isOpen={isNewFileModalOpen}
             onClose={closeNewFileModal}
-            onCreate={(fileName) => createFile(fileName)}
+            onCreate={(fileName) => createFile(fileName, 'Nuevo archivo')}
           />
         </main>
         {/* <!-- Footer --> */}

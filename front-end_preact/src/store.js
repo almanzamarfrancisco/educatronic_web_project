@@ -12,6 +12,7 @@ const useAppStore = create((set) => ({
   isDeleteModalOpen: false,
   fileToDelete: null,
   isNewFileModalOpen: false,
+  newFileRequestFrom: '',
   compileOutput: "",
   isBlocklySeleted: false,
   currentFloor: 0,
@@ -36,8 +37,8 @@ const useAppStore = create((set) => ({
     set({ isDeleteModalOpen: true, fileToDelete: file }),
   closeDeleteModal: () =>
      set({ isDeleteModalOpen: false, fileToDelete: null }),
-  openNewFileModal: () => 
-    set({ isNewFileModalOpen: true }),
+  openNewFileModal: (source) => 
+    set({ isNewFileModalOpen: true, newFileRequestFrom: source }),
   closeNewFileModal: () =>
     set({ isNewFileModalOpen: false }),
   setCompileOutput: (output) =>
