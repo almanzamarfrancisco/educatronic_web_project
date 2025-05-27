@@ -108,7 +108,7 @@ void event_handler(struct mg_connection *c, int ev, void *ev_data) {
             char id[37] = {0};
             if (!new_program(db, id, hm->body.ptr)) mg_http_reply(c, 400, "Content-Type: application/json\r\n", "{\"error\": \"Failed to add program\"}");
             printf("\t[I] 🔹 Program ID: %s\n", id);
-            char *json_response = mg_mprintf("{%m: 'ok', %m:%s}", MG_ESC("status"), MG_ESC("newProgramId"), id);
+            char *json_response = mg_mprintf("{%m: \"ok\", %m:\"%s\"}", MG_ESC("status"), MG_ESC("newProgramId"), id);
             int content_length = strlen(json_response);
             mg_printf(c, CORS_HEADERS, content_length);
             mg_printf(c, "%s\n", json_response);
