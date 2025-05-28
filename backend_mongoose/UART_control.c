@@ -71,10 +71,12 @@ int receive_ack(int *fd_serie) {
     exit(0);
 }
 
-int execute_command(unsigned char *command, int *fd_serie) {
+int execute_command(unsigned char *command, int *fd_serie, int wait) {
     write((int)*fd_serie, command, 1);
+    if(wait <= -1)
+        sleep(5);
+    sleep(5 + wait);
     printf("\t\t📫 Command sent: 0x%2X\n", *command);
-    sleep(5);
     pid_t pid = fork();
     if (pid == 0) {
         printf("\t\t\t[I] Child process %d created to track ACK.\n", pid);
@@ -88,36 +90,36 @@ void elevatorGoUp(unsigned int floors, int *fd_serie) {
     int actualFloor = floors;
     unsigned char cmd = (actualFloor << 4) | SUBIR;
     printf("\t\t⬆️  Going up %u floors...\n", floors);
-    execute_command(&cmd, fd_serie);
+    execute_command(&cmd, fd_serie, floors);
 }
 
 void elevatorGoDown(unsigned int floors, int *fd_serie) {
     int actualFloor = floors;
     unsigned char cmd = (actualFloor << 4) | BAJAR;
     printf("\t\t⬇️  Going down %u floors...\n", floors);
-    execute_command(&cmd, fd_serie);
+    execute_command(&cmd, fd_serie, floors);
 }
 
 void pause_execution(unsigned int seconds, int *fd_serie) {
     unsigned char cmd = (seconds << 4) | PAUSAR;
     printf("\t\t⏸ Pausing execution for %u seconds...\n", seconds);
-    execute_command(&cmd, fd_serie);
+    execute_command(&cmd, fd_serie, -1);
 }
 
 void openDoor(int *fd_serie) {
     unsigned char cmd = ABRIR;
     printf("\t\t🚪 Opening door...\n");
-    execute_command(&cmd, fd_serie);
+    execute_command(&cmd, fd_serie, -1);
 }
 
 void send_start(int *fd_serie) {
     unsigned char cmd = INICIO;
     printf("\t\t🟢 Sending START command...\n");
-    execute_command(&cmd, fd_serie);
+    execute_command(&cmd, fd_serie, -1);
 }
 
 void send_finish(int *fd_serie) {
     unsigned char cmd = FIN;
     printf("\t\t🔴 Sending FINISH command...\n");
-    execute_command(&cmd, fd_serie);
+    execute_command(&cmd, fd_serie, -1);
 }
