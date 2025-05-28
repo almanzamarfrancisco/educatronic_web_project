@@ -24,6 +24,10 @@ import "./style/index.css"
 import designerImage from "./assets/images/designer.svg"
 import facebookIcon from "./assets/images/facebook-icon.png"
 import youtubeIcon from "./assets/images/youtube-icon.png"
+import IPNLogo from "./assets/images/IPN-logo.png"
+import ESCOMLogo from "./assets/images/ESCOM-logo.png"
+import UNAMLogo from "./assets/images/UNAM-logo.png"
+import ICATLogo from "./assets/images/UNAM-ICAT-logo.svg"
 import trash from "./assets/images/trash-can.png"
 import NewFileModal from "./components/NewFileModal"
 import { LexicalAnalyzer } from "./utils/LexicalAnalyzer";
@@ -49,9 +53,9 @@ const App = () => {
   const { isDeleteModalOpen, fileToDelete, openDeleteModal, closeDeleteModal } = useAppStore()
   const { isNewFileModalOpen, openNewFileModal, newFileRequestFrom, closeNewFileModal } = useAppStore()
   const currentCode = useCurrentCode()
-  const streamURL = 'https://stream-educatronic.ngrok.app/'
+  const streamURL = 'https://stream-educatronica.ngrok.app/'
   // const streamURL = 'http://192.168.1.71:8001'
-  const base_url = 'https://educatronic.ngrok.app'
+  const base_url = 'https://educatronica.ngrok.app'
   // const base_url = 'http://192.168.1.71:8000'
   const noExercisesArray = [{
     id: '1234',
@@ -113,7 +117,7 @@ const App = () => {
     const firstProgram = programFiles.find(file => file.exercise_id === exerciseId)
     handleTabChange(firstProgram?.id)
   }
-  const updateFileOnServer = (id, file) => {
+  const updateFileOnServer = (id, file, withIconUpdate) => {
     console.log(`Updating file ${id} on server and file ${JSON.stringify(file, null, 2)}`)
     setStatusIcon({isOpen: true, status: "loading"})
     fetch(`${base_url}/api/programs/update/${id}`, {
@@ -131,10 +135,12 @@ const App = () => {
       .then((data) => {
         console.log(`Gotten data: ${JSON.stringify(data, null, 2)}`)
         setError({stateGotten: true, message: ""})
-        setStatusIcon({isOpen: true, status: "success"})
-        setTimeout(() => {
-          setStatusIcon({isOpen: false, status: "neutral"})
-        }, 3000)
+        if (withIconUpdate){
+          setStatusIcon({isOpen: true, status: "success"})
+          setTimeout(() => {
+            setStatusIcon({isOpen: false, status: "neutral"})
+          }, 3000)
+        }
       }).catch((err) => {
         console.error(err)
         setError({
@@ -153,14 +159,14 @@ const App = () => {
     console.log(currentProgram)
     currentProgram.content = currentCode
     setProgramFiles(programFiles.map(file => file.id === currentProgram.id ? currentProgram : file))
-    updateFileOnServer(currentProgram.id, currentProgram)
+    updateFileOnServer(currentProgram.id, currentProgram, true)
   }
   const renameFile = (file, newName) => {
     if(!file) { console.log(`There is any file selected`); return }
     if(!newName) { console.log(`There is no new name`); return }
     file.name = newName
     setProgramFiles(programFiles.map(f => f.id === file.id ? file : f))
-    updateFileOnServer(file.id, file)
+    updateFileOnServer(file.id, file, true)
   }
   const deleteFile = (fileId) => {
     console.log(`Deleting file ${fileId}`)
@@ -192,10 +198,7 @@ const App = () => {
     )
   }
   const createFile = (fileName) => {
-    console.log(`Creating file ${fileName}`)
     if(!fileName) { console.log(`There is no file name`); return }
-    console.log(`Creating file ${fileName}`)
-    setStatusIcon({isOpen: true, status: "loading"})
     console.log(`Request to ${base_url}/api/programs/create : ${JSON.stringify({name: fileName, content: currentCode, exercise_id: currentExercise.id}, null, 2)}`)
     fetch(`${base_url}/api/programs/create`, {
       method: 'POST',
@@ -204,10 +207,10 @@ const App = () => {
       },
       body: JSON.stringify({
         name: fileName,
-        content: newFileRequestFrom !== 'Nuevo archivo' ? currentCode:'',
+        content: newFileRequestFrom !== 'Nuevo archivo' ? currentCode: "",
         exercise_id: currentExercise.id
       }),
-      mode: "cors",
+      // mode: "cors",
     })
       .then((res) => {
         if (!res.ok) throw new Error('Network response was not ok')
@@ -219,7 +222,7 @@ const App = () => {
           id: data.newProgramId,
           name: fileName,
           exercise_id: currentExercise.id,
-          content: newFileRequestFrom !== 'Nuevo archivo' ? currentCode:''
+          content: newFileRequestFrom !== 'Nuevo archivo' ? currentCode: ""
         }
         setProgramFiles([...programFiles, newFile])
         setStatusIcon({isOpen: true, status: "success"})
@@ -247,7 +250,7 @@ const App = () => {
     console.log(currentProgram)
     currentProgram.content = currentCode
     setProgramFiles(programFiles.map(file => file.id === currentProgram.id ? currentProgram : file))
-    updateFileOnServer(currentProgram.id, currentProgram)
+    updateFileOnServer(currentProgram.id, currentProgram, false)
 
     setExecuteDisabled(true)
     const lexer = new LexicalAnalyzer()
@@ -478,8 +481,36 @@ const App = () => {
           />
         </main>
         {/* <!-- Footer --> */}
-        <footer class="shadow-md py-5 my-5 text-center text-sm w-full">
-          Copyright Educatrónica - 2025
+        <footer class="shadow-md py-5 my-5 text-center w-full bg-gray-800 text-white">
+          <div>
+            Todos los derechos resevados &#174;Educatrónica - 2025
+          </div>
+          <div class="flex justify-center items-center space-x-4 mt-2">
+            <a href="https://www.ipn.mx/" target="_blank" rel="noopener noreferrer">
+              <img src={IPNLogo} class="h-24"
+                alt="IPN logo"
+                loading="lazy"
+              />
+            </a>
+            <a href="https://www.escom.ipn.mx/" target="_blank" rel="noopener noreferrer">
+              <img src={ESCOMLogo} class="h-24"
+                alt="ESCOM IPN logo"
+                loading="lazy"
+              />
+            </a>
+            <a href="https://www.unam.mx/" target="_blank" rel="noopener noreferrer">
+              <img src={UNAMLogo} class="h-24"
+                alt="UNAM logo"
+                loading="lazy"
+              />
+            </a>
+            <a href="https://www.icat.unam.mx/" target="_blank" rel="noopener noreferrer">
+              <img src={ICATLogo} class="h-24"
+                alt="ICAT UNAM logo"
+                loading="lazy"
+              />
+            </a>
+          </div>
         </footer>
       </div>
   )
