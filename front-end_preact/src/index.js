@@ -483,7 +483,7 @@ const App = () => {
         {/* <!-- Footer --> */}
         <footer class="shadow-md py-5 my-5 text-center w-full bg-gray-800 text-white">
           <div>
-            Todos los derechos resevados &#174;Educatrónica - 2025
+           &copy;Todos los derechos resevados Educatrónica&#174; - 2025
           </div>
           <div class="flex justify-center items-center space-x-4 mt-2">
             <a href="https://www.ipn.mx/" target="_blank" rel="noopener noreferrer">
