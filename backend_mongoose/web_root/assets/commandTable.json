@@ -6,7 +6,7 @@
     "param_count": 0,
     "role": "CMD_PROGRAM_START",
     "blocklyType": "begin",
-    "blocklyColour": "#e9dc3c",
+    "blocklyColour": "#f9b233",
     "blocklyMessage0": "INICIO"
   },
   {
@@ -18,7 +18,7 @@
     "param_count": 1,
     "role": "CMD_REGULAR",
     "blocklyType": "up",
-    "blocklyColour": "#3464a1",
+    "blocklyColour": "#1071b8",
     "blocklyMessage0": "SUBIR %1 pisos",
     "blocklyArgs0": [
       {
@@ -40,7 +40,7 @@
     "param_count": 1,
     "role": "CMD_REGULAR",
     "blocklyType": "down",
-    "blocklyColour": "#1c8c49",
+    "blocklyColour": "#3aaa35",
     "blocklyMessage0": "BAJAR %1 pisos",
     "blocklyArgs0": [
       {
@@ -82,7 +82,7 @@
     "param_count": 0,
     "role": "CMD_REGULAR",
     "blocklyType": "open",
-    "blocklyColour": "#5ba5a5",
+    "blocklyColour": "#e6007e",
     "blocklyMessage0": "ABRIR puertas"
   },
   {
@@ -92,7 +92,7 @@
     "param_count": 0,
     "role": "CMD_PROGRAM_END",
     "blocklyType": "end",
-    "blocklyColour": "#d9232a",
+    "blocklyColour": "#e3b613",
     "blocklyMessage0": "FIN"
   },
   {
@@ -103,7 +103,7 @@
     ],
     "param_count": 1,
     "role": "CMD_BLOCK_START",
-    "blocklyColour": "#812c7d",
+    "blocklyColour": "#6a348b",
     "blocklyType": "loop",
     "blocklyMessage0": "REPETIR %1 veces",
     "blocklyArgs0": [

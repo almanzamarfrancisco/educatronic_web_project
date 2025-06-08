@@ -6,7 +6,7 @@ const InfoBox = () => {
     return (
       <div>
         <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isInfoBoxExpanded ? 'max-h-[2000px]' : 'max-h-[225px]'} bg-cyan-900 border-t-2 border-l-2 border-r border-gray-300 rounded-t-lg shadow-md p-5`}> 
-          <h1 className="text-4xl mx-1 px-1">¿Cómo programar el robot?</h1>
+          <h1 className="text-4xl mx-1 px-1 font-semibold">¿Cómo programar el robot?</h1>
           <p className="py-2">
             Tienes 2 opciones para programar el robot:
             <ul className="list-disc list-inside">
@@ -43,7 +43,7 @@ const InfoBox = () => {
         <div className="flex justify-center bg-cyan-900 border-b-2 border-l-2 border-r-2 border-gray-300 rounded-b-lg shadow-md p-5">
           <button
             onClick={() => setInfoBoxExpanded(!isInfoBoxExpanded)}
-            className="text-lg self-center px-4 py-2 bg-violet-800 hover:bg-violet-900 text-white rounded hover:bg-blue-600 transition-colors duration-300"
+            className="text-lg self-center px-4 py-2 bg-violet-800 hover:bg-blue-800 text-white rounded hover:bg-blue-600 transition-colors duration-300"
           >
           {isInfoBoxExpanded ? '↑' : '↓'}
           </button>

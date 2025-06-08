@@ -40,9 +40,24 @@
 }
 .bg-sky-800 {
   --tw-bg-opacity: 1;
-  background-color: rgb(56 78 130 / var(--tw-bg-opacity));
+  background-color: #3ab8b0;
 }
-
+.bg-cyan-900 {
+    --tw-bg-opacity: 1;
+    background-color: #26a69a;
+}
+.bg-violet-700 {
+    --tw-bg-opacity: 1;
+    background-color: #ff7c39;
+}
+.bg-violet-900 {
+    --tw-bg-opacity: 1;
+    background-color: #ff7c39;
+}
+.bg-violet-800{
+  --tw-bg-opacity: 1;
+    background-color: #ff7c39;
+}
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
