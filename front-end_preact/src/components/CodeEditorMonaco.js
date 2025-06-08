@@ -213,7 +213,7 @@ const CodeEditor = () => {
               monaco.editor.setTheme(id)
             }}
             className={`text-xs font-medium px-2 py-1 rounded-md transition ${
-              theme === id ? "bg-violet-700 hover:bg-violet-900 text-white me-2 mb-2" : "bg-sky-900 hover:bg-sky-700  text-white me-2 mb-2"
+              theme === id ? "bg-violet-700 hover:bg-blue-800 text-white me-2 mb-2" : "bg-sky-900 hover:bg-sky-700  text-white me-2 mb-2"
             }`}
           >
             {name}
@@ -233,8 +233,8 @@ const CodeEditor = () => {
         options={options}
       />
       {/* Output section */}
-      <div className="flex-col space-x-4 mt-4 py-1 px-5 w-full bg-slate-800 h-min-10">
-        <span>Consola: </span>
+      <div className="flex-col space-x-4 mt-4 py-1 px-5 w-full bg-slate-800 h-min-10" style="background-color: #7498b6; color: #012e46">
+        <span className="font-bold">Consola: </span>
         <p
         className="my-3 py-5 text-base"
         style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }} 

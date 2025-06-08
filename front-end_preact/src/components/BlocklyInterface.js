@@ -69,12 +69,12 @@ const BlocklyInterface = () => {
     const customTheme = Blockly.Theme.defineTheme("customTheme", {
         base: Blockly.Themes.Classic,
         componentStyles: {
-            workspaceBackgroundColour: "#121212", // Dark mode background
+            workspaceBackgroundColour: "#fff", // Dark mode background
             toolboxBackgroundColour: "#1E1E1E",
             toolboxForegroundColour: "#FFFFFF",
             flyoutBackgroundColour: "#1E1E1E",
             flyoutForegroundColour: "#FFFFFF",
-            scrollbarColour: "#FF6F00",
+            scrollbarColour: "#CCC",
         },
         fontStyle: {
             family: "Fredoka, sans-serif",
@@ -186,8 +186,8 @@ const BlocklyInterface = () => {
         <div className="flex flex-col items-center w-full">
             <div id="blocklyDiv" style={{ height: "500px" }} className="w-full pt-5" />
             {/* Output section */}
-            <div className="flex-col space-x-4 mt-4 py-1 px-5 w-full bg-slate-800 h-min-10">
-                <span>Consola: </span>
+            <div className="flex-col space-x-4 mt-4 py-1 px-5 w-full h-min-10" style="background-color: #7498b6; color: #012e46">
+                <span className="font-bold">Consola: </span>
                 <p
                     className="my-3 py-5 text-base"
                     style={{ whiteSpace: "pre-wrap", fontFamily: "monospace" }} 

@@ -15,13 +15,14 @@ const ExercisesSection = ({ handleExerciseListChange }) => {
                         alt="Engranes"
                         loading="lazy"
                     />
-                    <span>
+                    <span className="font-semibold">
                         {currentExercise?.name || 'Selecciona un ejercicio para ver su contenido'}
                     </span>
                 </h2>
                 <div className="flex items-center space-x-2 ml-10">
                     <select
                         className="border border-gray-300 rounded-md px-2 py-1 text-sm text-black w-25"
+                        style="background-color: rgb(116, 152, 182); color: rgb(1, 46, 70);"
                         value={currentExercise?.id || ''}
                         onChange={(e) => handleExerciseListChange(e.target.value)}
                     >

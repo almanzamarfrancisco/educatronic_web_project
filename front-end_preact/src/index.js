@@ -27,7 +27,8 @@ import youtubeIcon from "./assets/images/youtube-icon.png"
 import IPNLogo from "./assets/images/IPN-logo.png"
 import ESCOMLogo from "./assets/images/ESCOM-logo.png"
 import UNAMLogo from "./assets/images/UNAM-logo.png"
-import ICATLogo from "./assets/images/UNAM-ICAT-logo.svg"
+import ICATLogo from "./assets/images/UNAM-ICAT-logo.png"
+import educatronicaTitle from "./assets/images/educatronica.png"
 import trash from "./assets/images/trash-can.png"
 import NewFileModal from "./components/NewFileModal"
 import { LexicalAnalyzer } from "./utils/LexicalAnalyzer";
@@ -310,14 +311,17 @@ const App = () => {
     !error.stateGotten ?
       <ErrorModal message={error.message} closeButton={error.closeButton} onClose={() => {onCloseErrorScreen()}} />
       :
-      <div class="h-screen w-full overflow-x-hidden flex flex-col items-center">
+      <div class="h-screen w-full overflow-x-hidden flex flex-col items-center text-black">
         {/* <!-- Header --> */}
         <header class="shadow-md py-4 px-6 bg-sky-800 w-full m-0">
           <div class="flex space-x-4 justify-between items-center">
             <div class="flex-1 items-center space-x-4">
               <div class="flex items-center space-x-2">
                 <img src={designerImage} alt="Logo" class="w-20"/>
-                <h1 class="text-5xl flex-1 font-semibold">Educatrónica <p className="text-sm pl-10">Aprendiendo a aprender</p></h1>
+                <h1 class="text-5xl flex-1 font-semibold" style="padding-left: 0.4em;">
+                  <img src={educatronicaTitle} class="h-10 flex-none inline"/>
+                  <p className="text-base pl-10 font-semibold" style="padding-top: 0.4em; font-size: 1.3rem;color: #021d34">Aprendiendo a aprender</p>
+                </h1>
                 <div class="flex-1">
                   <div class="flex items-center flex-col sm:flex-row justify-end">
                     <img src={facebookIcon} class="h-10 w-10 flex-none mx-2"
@@ -352,7 +356,7 @@ const App = () => {
                       onChange={(e) => setBlocklySelected(e.target.checked)}
                     />
                     <div class="mx-2 relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-                    <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">Modo de bloques</span>
+                    <span class="ms-3 text-sm font-bold" style="color: rgb(2, 29, 52);">Modo de bloques</span>
                   </label>
                 </div> 
             </div>
@@ -377,9 +381,9 @@ const App = () => {
                               onclick={() => handleTabChange(file.id)}
                               class={activeTabFile.id === file.id 
                                   ? 
-                                'text-violet-500 border-b-2 border-violet-500'
+                                'text-sky-900 border-b-2 border-violet-500'
                                 :
-                                'text-gray-200 border-b-2 border-blue-100'}
+                                'text-gray-900 border-b-2 border-blue-100'}
                           >
                             {file.name}
                           </a>
@@ -387,7 +391,7 @@ const App = () => {
                       )
                   }
                 </ul>
-                <button class="px-4 py-2 bg-violet-700 text-white rounded-md m-3 hover:bg-violet-500"
+                <button class="px-4 py-2 bg-violet-700 text-white rounded-md m-3 hover:bg-blue-600"
                   onclick={() => {openNewFileModal('Nuevo archivo')}}
                 >
                   (+) Nuevo archivo
@@ -432,7 +436,7 @@ const App = () => {
                 {
                   !isVideoVisible && (
                     <button
-                      class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
+                      class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-blue-600"
                       onclick={toggleVideoVisible}
                     >
                       Mostrar video
@@ -450,7 +454,7 @@ const App = () => {
                       <div class="w-3 h-3 bg-red-500 rounded-full animate-blink"></div>
                       <h2 class="text-2xl mx-5">Video en vivo</h2>
                       <button
-                        class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-violet-900"
+                        class="px-4 py-2 bg-violet-700 text-white rounded-md mx-3 hover:bg-blue-600"
                         onclick={toggleVideoVisible}
                       >
                         Ocultar video
@@ -481,31 +485,31 @@ const App = () => {
           />
         </main>
         {/* <!-- Footer --> */}
-        <footer class="shadow-md py-5 my-5 text-center w-full bg-gray-800 text-white">
-          <div>
+        <footer class="shadow-md py-5 my-5 text-center w-full bg-sky-800 text-white">
+          <div style="padding-bottom: 1.2em;">
            &copy;Todos los derechos resevados Educatrónica&#174; - 2025
           </div>
           <div class="flex justify-center items-center space-x-4 mt-2">
             <a href="https://www.ipn.mx/" target="_blank" rel="noopener noreferrer">
-              <img src={IPNLogo} class="h-24"
+              <img src={IPNLogo} class="h-20"
                 alt="IPN logo"
                 loading="lazy"
               />
             </a>
             <a href="https://www.escom.ipn.mx/" target="_blank" rel="noopener noreferrer">
-              <img src={ESCOMLogo} class="h-24"
+              <img src={ESCOMLogo} class="h-20"
                 alt="ESCOM IPN logo"
                 loading="lazy"
               />
             </a>
             <a href="https://www.unam.mx/" target="_blank" rel="noopener noreferrer">
-              <img src={UNAMLogo} class="h-24"
+              <img src={UNAMLogo} class="h-20"
                 alt="UNAM logo"
                 loading="lazy"
               />
             </a>
             <a href="https://www.icat.unam.mx/" target="_blank" rel="noopener noreferrer">
-              <img src={ICATLogo} class="h-24"
+              <img src={ICATLogo} class="h-20"
                 alt="ICAT UNAM logo"
                 loading="lazy"
               />
